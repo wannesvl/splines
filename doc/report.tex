@@ -1,0 +1,159 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+
+\usepackage{cite,enumerate}
+\usepackage{color,graphics,graphicx}
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb,amsfonts,bm,amsthm}
+\newcommand{\N}{\mathbb{N}}        % integer numbers
+\newcommand{\R}{\mathbb{R}}        % real numbers
+\newcommand{\C}{\mathbb{C}}        % complex numbers
+\renewcommand{\S}{\mathbb{S}}      % symmetric matrices
+\renewcommand{\H}{\mathbb{H}}      % Hermitian matrices
+\renewcommand{\t}{^{\mbox{\tiny \sf T}}}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\subj}{subject\;to}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{Explicitly Parameterized Solutions of Parametric Cone Programs}
+
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{The Overall Idea}\label{sec:overall_approach}
+
+
+\subsection{Parametric Cone Programs}\label{subsec:parametric_program}
+
+Let us consider the following cone program in inequality form:
+\begin{gather}\label{eq:parametric_primal}
+\begin{aligned}
+\Pi(\theta): && \minimize_{x} &&& h(\theta)\t x\\
+             && \subj         &&& F(\theta)x+g(\theta)\preceq_K 0 \;,
+\end{aligned}
+\end{gather}
+where the problem data depends on parameters $\theta$. For the proper cone $K$, (a combination of) the nonnegative orthant, the second-order cone and the positive semidefinite cone are considered. We want to solve $\Pi(\theta)$ for all parameter values $\theta\in\Theta$, where we make the following \textit{assumptions}:
+\begin{enumerate}[\it\text{A}1.]
+\item The problem $\Pi(\theta)$ is strictly feasible for all $\theta\in\Theta$.
+\item The problem data depend polynomially on $\theta$. That is, $h(\theta)$, $F(\theta)$ and $g(\theta)$ are polynomial mappings.
+\end{enumerate}
+The optimal value of $\Pi(\theta)$ is denoted $p^\star(\theta)$, and its optimal set $X^\star(\theta)$. In addition, we use $X^\star_\epsilon(\theta)$ to denote the $\epsilon$-suboptimal set of $\Pi(\theta)$:
+\[ X^\star_\epsilon(\theta) = \{x \,|\, F(\theta)x+g(\theta)\preceq_K 0 \,,~ h(\theta)\t x \leq p^\star(\theta)+\epsilon\} \,.%
+\]
+Note, $X^\star(\theta)=X^\star_0(\theta)$.
+
+Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\theta)$ amounts to
+\begin{gather}\label{eq:parametric_dual}
+\begin{aligned}
+\Delta(\theta): && \maximize_{y} &&& g(\theta)\t y\\
+                && \subj         &&& F(\theta)\t y + h(\theta)= 0\\
+                &&               &&& y \succeq_K 0  \;.
+\end{aligned}
+\end{gather}
+Its optimal value and optimal set are denoted by respectively $d^\star(\theta)$ and $Y^\star(\theta)$, and on account of assumption A1:
+\[ p^\star(\theta) = d^\star(\theta)\,,\quad \forall \theta\in\Theta\,.
+\]
+The $\epsilon$-suboptimal set of $\Delta(\theta)$ is denoted by $Y^\star_\epsilon(\theta)$.
+
+The common approach in parametric programming is to compute an explicit description of an optimal solution $x^\star(\theta)$ as a function of $\theta$ [??? refs]. This approach suffers from the following drawbacks
+\begin{itemize}
+\item limited complexity: one scalar parameter -- multiple parameters, only $g(\theta)$ parameter dependent, while $h$ and $F$ parameter independent, \ldots
+\item computational cost: exponential (???) growth with the number of parameters
+\item non-uniqueness of $x^\star(\theta)$ ???
+\item ???
+\end{itemize}
+Given these drawbacks, recently attention has been devoted to the computation of approximate solutions [??? refs]. Yet, these approaches only mitigate the drawbacks above to limited extent.
+
+\vspace*{12pt}\noindent
+\textbf{To complete}
+\begin{itemize}
+\item The last paragraph.
+\item Optimal set just $X^\star_0(\theta)$ instead of $X^\star(\theta)$. Do we want to use the suboptimal sets as in the elaborations below?
+\end{itemize}
+
+
+\subsection{Explicitly parameterized solutions}\label{subsec:parameterized_solution}%
+
+As an alternative to the aforementioned approaches, we propose to construct approximate solutions of $\Pi(\theta)$ and $\Delta(\theta)$ of the form:
+\begin{align}
+\hat{x}(\theta) &\;=\; C_x b_x(\theta)\;,\\
+\hat{y}(\theta) &\;=\; C_y b_y(\theta)\;.
+\end{align}
+The entries of $b_x(\theta)$ and $b_y(\theta)$ correspond to (given) basis functions on $\Theta$. For $\hat{x}(\theta)$ to qualify as an approximate  solutions of $\Pi(\theta)$, is must be feasible. Hence, we enforce that for all $\theta\in\Theta$, there exists $\epsilon(\theta)<\infty$ such that
+\[ \hat{x}(\theta) \in X^\star_{\epsilon(\theta)}(\theta) \;.
+\]
+To obtain the best possible approximation, we minimize $\int_{\Theta}\epsilon(\theta)d\theta$ while respecting the containment constraint above for all $\theta\in\Theta$. This amounts to the following semi-infinite cone program
+\begin{gather}\label{eq:semi-inf_primal}
+\begin{aligned}
+\hat{\Pi}: && \minimize_{C_x} &&& \int_{\Theta} h(\theta)\t  C_x b_x(\theta) d\theta\\%
+           && \subj           &&& F(\theta) C_x b_x(\theta)+g(\theta)\preceq_K 0 \;, \quad\forall\theta\in\Theta\;.%
+\end{aligned}
+\end{gather}
+Similarly for the dual:
+\begin{gather}\label{eq:semi-inf_dual}
+\begin{aligned}
+\hat{\Delta}: && \maximize_{C_x} &&& \int_{\Theta} g(\theta)\t  C_y b_y(\theta) d\theta\\%
+              && \subj           &&& F(\theta)\t  C_y b_y(\theta) + h(\theta)= 0 \;, \quad\forall\theta\in\Theta\\%
+              &&                 &&&  C_y b_y(\theta)\succeq_K 0  \;, \quad\forall\theta\in\Theta\;.%
+\end{aligned}
+\end{gather}
+
+\vspace*{12pt}\noindent
+\textbf{To complete}
+\begin{itemize}
+\item Note on parametric equality constraints: should be eliminated! Done by equalizing the coefficients (also guarantees the equality outside $\Theta$, but no conservatism because e.g. 2 polynomials of degree $n$ are equal if that are equal at $n+1$ points). Is this always possible???
+\item Conversion of semi-infinite programs to finite-dimensional programs. + Discussion on the choice of the basis functions.
+\end{itemize}
+
+
+\subsection{Discussion}
+\begin{itemize}
+\item GP: Should we adopt a more general problem formulation, where we replace the constraint in (\ref{eq:parametric_primal}) by
+    \[ \mathcal{F}(x,\theta) + F_0(\theta) \preceq_K 0
+    \]
+    with $\mathcal{F}(x,\theta)$ a mapping linear in $x$ and polynomial in $\theta$? The dual problem then involves $\mathcal{F}^{\text adj}(y,\theta)$.
+\item GP: The parameter dependencies $h(\theta)$, $F(\theta)$ and $g(\theta)$ can be extended to be piece-wise polynomial. What is the effect on the overall complexity (e.g. generally more knots and consequently, more constraints at the end) ???
+\item GP: I'm rather sure that the problem formulation can be extended to rational parameter dependencies $h(\theta)$, $F(\theta)$ and $g(\theta)$. Ways to convert the semi-infinite constraints to a finite number of generalized inequalities: nurbs, S-procedure, descriptor forms \ldots
+\item GP: I'm rather sure that, when considering rational parameter dependencies of the data, the solutions $\hat{x}(\theta)$ and $\hat{y}(\theta)$ should still be parameterized as a linear combination of basis functions. Hence, no general rational functions with a free numerator and a free denominator. What would be appropriate rational basis functions ???
+\item GP: Which forms of $\Theta$ are allowed (polyhedra, semi-algebraic sets \ldots) and how to derive such inner approximations of the set of parameter values for which $\Pi(\theta)$ is strictly feasible? First idea: solve the parametric phase-1 type program:
+    \begin{align*}
+    \minimize_{x,t} &~~ t\\
+    \subj           &~~ F(\theta)x+g(\theta)\preceq_K t \bm{1}
+    \end{align*}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Applications}
+
+\begin{itemize}
+\item explicit MPC
+\item time-optimal point-to-point motion
+\item trade-off curves
+\item combined structure control design
+    \begin{itemize}
+    \item Similar to LPV control for static parameter, but with different objective ($\ell_1$ instead of $\ell_\infty$).
+    \item What is the effect of the choice of the objective function ??? Also, what is the value of the $\ell_1$ objective for varying parameters (suppose for instance that the worst case $\ell_2$ gain gets only slightly larger, but better performance over large parts of the paramter domain)???
+    \end{itemize}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{plain}
+%\bibliography{biblio}
+
+\end{document}
