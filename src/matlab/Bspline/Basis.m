@@ -1,6 +1,7 @@
 classdef Basis
     properties (Access=protected)
         cl
+    end
     properties
         knots
         degree
@@ -20,8 +21,8 @@ classdef Basis
             B.cl = str2func(class(B));
         end
 
-        function s = size(self)
-            s = size(self.knots) - self.degree - 1;
+        function s = length(self)
+            s = length(self.knots) - self.degree - 1;
         end
 
         function I = ind(self, i, x)
@@ -33,7 +34,8 @@ classdef Basis
             %
             % Returns:
             %    : 1 if knots(i) < x <= knots(i + 1) else 0
-            if i < self.degree + 1 && self.knots(1) == self.knots(i)
+            x = x(:);
+            if i < self.degree + 2 & self.knots(1) == self.knots(i)
                 I = (x >= self.knots(i)) .* (x <= self.knots(i+1));
             else
                 I = (x > self.knots(i)) .* (x <= self.knots(i+1));
@@ -48,7 +50,7 @@ classdef Basis
             %
             % Returns:
             %    int: Number of occurences of the knot
-            c = histc(self.knots, k)
+            c = histc(self.knots, k);
             % k = unique(self.knots);
             % c = containers.Map(k, histc(self.knots, k));
         end
@@ -78,13 +80,13 @@ classdef Basis
                 % catch err
                 %     ni = 0;
                 % end
-                mi = self.count_knots(breaks(i))
-                ni = other.count_knots(breaks(i))
+                mi = self.count_knots(breaks(i));
+                ni = other.count_knots(breaks(i));
                 mult = max(mi + degree - self.degree, ni + degree - other.degree);
                 knots = [knots; ones(mult, 1) * breaks(i)];
             end
-            cl = str2func(class(self));
-            b = cl(knots, degree);
+            % cl = str2func(class(self));
+            b = self.cl(knots, degree);
         end
 
         function b = plus(self, other)
@@ -122,7 +124,8 @@ classdef Basis
             %
             % Returns:
             %    
-            g = 0;
+            g = arrayfun(@(k) sum(self.knots(k + 1:k + self.degree)) / self.degree, ...
+                         (1:length(self)));
         end
 
         function b = insert_knots(self, knots)
@@ -134,8 +137,8 @@ classdef Basis
             % Returns:
             %    Basis: The refined basis
             knots = sort([self.knots; knots(:)]);
-            cl = str2func(class(self));
-            b = cl(knots, self.degree);
+            % cl = str2func(class(self));
+            b = self.cl(knots, self.degree);
         end
     end
 end
