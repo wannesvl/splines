@@ -45,9 +45,14 @@ classdef BSpline
                                 b_other(:, j);
                 T = basis.f(grev) \ basis_product;
                 T(abs(T) < 1e-10) = 0;
-                T
-                s = 0
+                coeffs_product = self.coeffs(i) .* other.coeffs(j)
+                s = self.cl(basis, T * coeffs_product)
+            else
+                basis = self.basis
+                coeffs = other * self.coeffs
+                s = self.cl(basis, coeffs)
             end
+            
         end
 
         function d = derivative(self, o)
