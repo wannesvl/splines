@@ -11,7 +11,7 @@ classdef Basis
             % Constructor for Basis
             %
             % Args:
-            %    knots (): the knot sequence of the basis
+            %    knots (vector, double): the knot sequence of the basis
             %    degree (int): the degree of the basis
             %
             % Returns:
@@ -30,10 +30,10 @@ classdef Basis
             %
             % Args:
             %    i (int): the index of the indicator function
-            %    x (): the evaluation sites of the indicator function
+            %    x (vector, double): the evaluation sites of the indicator function
             %
             % Returns:
-            %    : 1 if knots(i) < x <= knots(i + 1) else 0
+            %    vector, boolean: 1 if knots(i) < x <= knots(i + 1) else 0
             x = x(:);
             if i < self.degree + 2 & self.knots(1) == self.knots(i)
                 I = (x >= self.knots(i)) .* (x <= self.knots(i+1));
@@ -51,8 +51,6 @@ classdef Basis
             % Returns:
             %    int: Number of occurences of the knot
             c = histc(self.knots, k);
-            % k = unique(self.knots);
-            % c = containers.Map(k, histc(self.knots, k));
         end
 
         function b = combine(self, other, degree)
@@ -64,28 +62,14 @@ classdef Basis
             %
             % Returns:
             %    Basis: The combined basis
-
-            % c_self = self.count_knots;
-            % c_other = other.count_knots;
             breaks = union(self.knots, other.knots);
             knots = [];
             for i = 1:length(breaks)
-                % try
-                %     mi = c_self(breaks(i));
-                % catch err
-                %     mi = 0;
-                % end
-                % try
-                %     ni = c_other(breaks(i));
-                % catch err
-                %     ni = 0;
-                % end
                 mi = self.count_knots(breaks(i));
                 ni = other.count_knots(breaks(i));
                 mult = max(mi + degree - self.degree, ni + degree - other.degree);
                 knots = [knots; ones(mult, 1) * breaks(i)];
             end
-            % cl = str2func(class(self));
             b = self.cl(knots, degree);
         end
 
@@ -93,7 +77,7 @@ classdef Basis
             % Returns the sum of two bases
             %
             % Returns:
-            %    Basis
+            %    Basis: The sum of self and other
             if strcmp(class(other), class(self))
                 degree = max(self.degree, other.degree);
                 b = self.combine(other, degree);
@@ -108,7 +92,7 @@ classdef Basis
             % Returns the product of two bases
             %
             % Returns:
-            %    Basis
+            %    Basis: The product of self and other
             if strcmp(class(other), class(self))
                 degree = self.degree + other.degree;
                 b = self.combine(other, degree);
@@ -123,7 +107,7 @@ classdef Basis
             % Return the greville abscissae of the basis
             %
             % Returns:
-            %    
+            %    vector, double: The greville abscissae
             g = arrayfun(@(k) sum(self.knots(k + 1:k + self.degree)) / self.degree, ...
                          (1:length(self)));
         end
@@ -132,12 +116,11 @@ classdef Basis
             % Insert knots in the basis
             %
             % Args:
-            %    knots (): The desired knot insertion locations
+            %    knots (vector, double): The desired knot insertion locations
             %
             % Returns:
             %    Basis: The refined basis
             knots = sort([self.knots; knots(:)]);
-            % cl = str2func(class(self));
             b = self.cl(knots, self.degree);
         end
     end
