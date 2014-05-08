@@ -123,6 +123,29 @@ classdef Basis
             knots = sort([self.knots; knots(:)]);
             b = self.cl(knots, self.degree);
         end
+
+        function s = support(self)
+            % Return a matrix of support intervals for each basis function
+            %
+            % Returns:
+            %    (n x 2) matrix, double: the support intervals
+            s = [self.knots(1:end - self.degree - 1), ...
+                 self.knots(self.degree + 2:end)];
+        end
+
+        function [i, j] = pairs(self, other)
+            % Returns indices of nonzero products of basis functions
+            is_valid = @(a, b) max(a(1), b(1)) < min(a(2), b(2));
+            s_self = self.support;
+            s_other = other.support;
+            p = zeros(length(self), length(other));
+            for i = 1:length(self)
+                for j = 1:length(other)
+                    p(i, j) = is_valid(s_self(i, :), s_other(j, :));
+                end
+            end
+            [i, j, ~] = find(p)
+        end
     end
 end
         

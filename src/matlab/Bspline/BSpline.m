@@ -34,6 +34,30 @@ classdef BSpline
             s = self + (- other)
         end
 
+        function s = mtimes(self, other)
+            if strcmp(class(self), class(other))
+                basis = self.basis * other.basis;
+                grev = basis.greville;
+                b_self = self.basis.f(grev);
+                b_other = other.basis.f(grev);
+                [i, j] = self.basis.pairs(other.basis)
+                basis_product = b_self(:, i) .* ...
+                                b_other(:, j);
+                T = basis.f(grev) \ basis_product;
+                T(abs(T) < 1e-10) = 0;
+                T
+                s = 0
+            end
+        end
+
+        function d = derivative(self, o)
+            if nargin == 1
+                o = 1;
+            end
+            B, P = self.basis.derivative(o)
+            d = self.cl(B, P * self.coeffs)
+        end
+
         function s = insert_knots(self, knots)
             basis = self.basis.insert_knots(knots)
             coeffs = basis.transform(self.basis) * self.coeffs
