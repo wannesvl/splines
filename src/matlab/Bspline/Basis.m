@@ -144,7 +144,7 @@ classdef Basis
                     p(i, j) = is_valid(s_self(i, :), s_other(j, :));
                 end
             end
-            [i, j, ~] = find(p)
+            [i, j, ~] = find(p);
         end
     end
 end
