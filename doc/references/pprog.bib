@@ -1,3 +1,236 @@
+
+% -----------------------------
+% Parametric linear programming
+% -----------------------------
+
+@article{Gass_Saaty_1955,
+    author = {Gass, Saul and Saaty, Thomas},
+    title = {The computational algorithm for the parametric objective function},
+    journal = {Naval Research Logistics Quarterly},
+    volume = {2},
+    number = {1-2},
+    publisher = {Wiley Subscription Services, Inc., A Wiley Company},
+    issn = {1931-9193},
+    url = {http://dx.doi.org/10.1002/nav.3800020106},
+    doi = {10.1002/nav.3800020106},
+    pages = {39--45},
+    year = {1955},
+}
+% Bi-objective LP -> scalarization -> parametric program with parameter the relative weight attached to the two functions:
+% minimize  (c_1+lambda*c_2)'*x
+% subj. to  A*x=b & x>=0
+% This paper presents details of an algorithm which finds these solutions systematically.
+
+
+ @article{Gal_Nedoma_1972,
+     title = {Multiparametric Linear Programming},
+     author = {Gal, Tomas and Nedoma, Josef},
+     journal = {Management Science},
+     volume = {18},
+     number = {7},
+     pages = {pp. 406-422},
+     url = {http://www.jstor.org/stable/2629358},
+     ISSN = {00251909},
+     language = {English},
+     year = {1972},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1972 INFORMS},
+}
+% Multiparametric linear programming problem for the right-hand sides
+% maximize  c'*x
+% subj. to  A*x=b_0+B*lambda & x>=0
+% First paper to get a full solution for the multi-parametric LP case
+% The paper presents an effective method for finding all critical regions. This method uses an algorithm that finds all nodes of a finite connected graph.
+
+
+@incollection{Gal_1984,
+    year={1984},
+    isbn={978-3-642-00912-9},
+    booktitle={Sensitivity, Stability and Parametric Analysis},
+    volume={21},
+    series={Mathematical Programming Studies},
+    editor={Fiacco, AnthonyV.},
+    doi={10.1007/BFb0121210},
+    title={Linear parametric programming—A brief survey},
+    url={http://dx.doi.org/10.1007/BFb0121210},
+    publisher={Springer Berlin Heidelberg},
+    keywords={Linear Programming; Parametric Programming; Perturbation Analysis; Postoptimal Analysis},
+    author={Gal, T.},
+    pages={43-68}
+}
+% According to report Zuidwijk, this paper should contain references to multiparametric LP with parameter-dependent coefficient matrices
+
+
+@incollection{Gal_Greenberg_1997,
+    editor = {Gal, Tomas, Greenberg, Harvey J.},
+    title = {Advances in Sensitivity Analysis and Parametric Programming},
+    series = {International Series in Operations Research \& Management Science},
+    volume = {6},
+    year = {1997},
+    publisher = {Spring New York}
+}
+% "Recent" survey book
+
+
+
+@report{zuidwijk2005,
+  author = {Rob A. Zuidwijk},
+  institution = {Erasmus Research Institute of Management (ERIM)},
+  keywords = {sensitivity analysis; linear programming; rational matrix function; linear parametric programming},
+  month = {Oct},
+  number = {ERS-2005-055-LIS},
+  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient Matrix in Linear Programs},
+  type = {report},
+  url = {http://ideas.repec.org/p/dgr/eureri/30007631.html},
+  year = {2005}
+}
+% Parametric LP with parameter-dependent coefficient matrix
+% Explicit description of the solution
+% ? Only for one scalar parameter
+
+
+@article{Borrelli_et_al_2003,
+    year={2003},
+    issn={0022-3239},
+    journal={Journal of Optimization Theory and Applications},
+    volume={118},
+    number={3},
+    doi={10.1023/B:JOTA.0000004869.66331.5c},
+    title={Geometric Algorithm for Multiparametric Linear Programming},
+    url={http://dx.doi.org/10.1023/B%3AJOTA.0000004869.66331.5c},
+    publisher={Kluwer Academic Publishers-Plenum Publishers},
+    keywords={Multiparametric programming; sensitivity analysis; postoptimality analysis; linear programming, optimal control},
+    author={Borrelli, F. and Bemporad, A. and Morari, M.},
+    pages={515-540},
+    language={English}
+}
+% More efficient exploration of the parameter space compared to Gal_Nedoma_1972
+% multi-parametric LP with parametric right-hand sides
+% minimize  c'*x
+% subj. to  A*x <= b_0+B*lambda
+
+
+% Filippi_2004
+
+
+
+% --------------------------------
+% Parametric quadratic programming
+% --------------------------------
+
+@article{Bemporad_et_al_2002,
+    title = {The explicit linear quadratic regulator for constrained systems},
+    journal = {Automatica},
+    volume = {38},
+    number = {1},
+    pages = {3 - 20},
+    year = {2002},
+    issn = {0005-1098},
+    doi = {http://dx.doi.org/10.1016/S0005-1098(01)00174-1},
+    url = {http://www.sciencedirect.com/science/article/pii/S0005109801001741},
+    author = {Alberto Bemporad and Manfred Morari and Vivek Dua and Efstratios N. Pistikopoulos},
+    keywords = {Piecewise linear controllers},
+    keywords = {Linear quadratic regulators},
+    keywords = {Constraints},
+    keywords = {Predictive control}
+}
+
+@article{Tondel_et_al_2003,
+    title = {An algorithm for multi-parametric quadratic programming and explicit \{MPC\} solutions},
+    journal = {Automatica},
+    volume = {39},
+    number = {3},
+    pages = {489 - 497},
+    year = {2003},
+    issn = {0005-1098},
+    doi = {http://dx.doi.org/10.1016/S0005-1098(02)00250-9},
+    url = {http://www.sciencedirect.com/science/article/pii/S0005109802002509},
+    author = {Petter T{\o}ndel and Tor Arne Johansen and Alberto Bemporad},
+    keywords = {Linear quadratic regulators},
+    keywords = {Piecewise linear controllers},
+    keywords = {Constraints},
+    keywords = {Predictive control }
+}
+
+% Kvasnica2011
+% Oishi2013
+
+
+% ---------------------------
+% Parametric cone programming
+% ---------------------------
+
+@article{Goldfarb_Scheinberg_1999,
+    title = {On parametric semidefinite programming},
+    journal = "{Applied Numerical Mathematics},
+    volume = {29},
+    number = {3},
+    pages = {361 - 377},
+    year = {1999},
+    note = {Proceedings of the Stieltjes Workshop on High Performance Optimization Techniques },
+    issn = {0168-9274},
+    doi = {http://dx.doi.org/10.1016/S0168-9274(98)00102-0},
+    url = {http://www.sciencedirect.com/science/article/pii/S0168927498001020},
+    author = {D. Goldfarb and K. Scheinberg},
+    keywords = {Parametric semidefinite programming},
+    keywords = {Optimal partition},
+    keywords = {Sensitivity analysis}
+}
+% SDP with linear objective that bepends on one scalar parameter
+
+% Benporad_Filippi_2006
+
+
+% --------------------------------
+% Parametric nonlinear programming
+% --------------------------------
+
+% To be completed?
+
+
+% ---------------------
+% Approximate solutions
+% ---------------------
+
+@article{Filippi_2004,
+    year={2004},
+    issn={0022-3239},
+    journal={Journal of Optimization Theory and Applications},
+    volume={120},
+    number={1},
+    doi={10.1023/B:JOTA.0000012733.44020.54},
+    title={An Algorithm for Approximate Multiparametric Linear Programming},
+    url={http://dx.doi.org/10.1023/B%3AJOTA.0000012733.44020.54},
+    publisher={Kluwer Academic Publishers-Plenum Publishers},
+    keywords={Multiparametric programming; linear programming; approximation methods; error bounds; complexity analysis; model predictive control},
+    author={Filippi, C.},
+    pages={73-95},
+    language={English}
+}
+% Approximate multiparametric LP, with parameter dependent right-hand side
+% minimize  c'*x
+% subj. to  A*x <= b_0+B*lambda
+
+
+@article{Benporad_Filippi_2006,
+    year={2006},
+    issn={0926-6003},
+    journal={Computational Optimization and Applications},
+    volume={35},
+    number={1},
+    doi={10.1007/s10589-006-6447-z},
+    title={An Algorithm for Approximate Multiparametric Convex Programming},
+    url={http://dx.doi.org/10.1007/s10589-006-6447-z},
+    publisher={Kluwer Academic Publishers},
+    keywords={multiparametric programming; convex programming; sensitivity analysis},
+    author={Bemporad, Alberto and Filippi, Carlo},
+    pages={87-108},
+    language={English}
+}
+% Approximate multiparametric convex programming, functions jointly convex in (opt. vars, params.)
+% Hence, for cone programs: only parameter dependent constant terms
+
+
 @article{Kvasnica2011,
     title = {Stabilizing polynomial approximation of explicit \{MPC\}},
     journal = {Automatica},
@@ -14,6 +247,7 @@
     keywords = {Function approximation}
 }
 
+
 @INPROCEEDINGS{Oishi2013,
 	author={Yasuaki Oishi},
 	booktitle={Control Applications (CCA), 2013 IEEE International Conference on},
@@ -25,6 +259,14 @@
 	doi={10.1109/CCA.2013.6662875},
 	ISSN={1085-1992}
 }
+% Explicit parameterization: polynomial
+% Semi-inf constraints handled through SOS
+
+
+
+% ----------------
+% Application: MPC
+% ----------------
 
 @incollection{Alessio2009,
     year={2009},
@@ -32,7 +274,7 @@
     booktitle={Nonlinear Model Predictive Control},
     volume={384},
     series={Lecture Notes in Control and Information Sciences},
-    editor={Magni, Lalo and Raimondo, DavideMartino and Allgöwer, Frank},
+    editor={Magni, Lalo and Raimondo, DavideMartino and Allg\"{o}wer, Frank},
     doi={10.1007/978-3-642-01094-1_29},
     title={A Survey on Explicit Model Predictive Control},
     url={http://dx.doi.org/10.1007/978-3-642-01094-1_29},
@@ -42,14 +284,29 @@
     pages={345-369}
 }
 
-@report{zuidwijk2005,
-  author = {Rob A. Zuidwijk},
-  institution = {Erasmus Research Institute of Management (ERIM)},
-  keywords = {sensitivity analysis; linear programming; rational matrix function; linear parametric programming},
-  month = {Oct},
-  number = {ERS-2005-055-LIS},
-  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient Matrix in Linear Programs},
-  type = {report},
-  url = {http://ideas.repec.org/p/dgr/eureri/30007631.html},
-  year = {2005}
+% Bemporad_et_al_2002
+% Tondel_et_al_2003
+% Kvasnica2011
+% Oishi2013
+
+
+% ----------------------------------------
+% Application: multiobjective optimization
+% ----------------------------------------
+
+
+@incollection{Romanko_et_al_2012,
+    year={2012},
+    isbn={978-1-4614-3923-3},
+    booktitle={Modeling and Optimization: Theory and Applications},
+    volume={21},
+    series={Springer Proceedings in Mathematics & Statistics},
+    editor={Terlaky, Tam\'{a}s and Curtis, Frank E.},
+    doi={10.1007/978-1-4614-3924-0_5},
+    title={Multiobjective Optimization via Parametric Optimization: Models, Algorithms, and Applications},
+    url={http://dx.doi.org/10.1007/978-1-4614-3924-0_5},
+    publisher={Springer New York},
+    author={Romanko, Oleksandr and Ghaffari-Hadigheh, Alireza and Terlaky, Tam\'{a}s},
+    pages={77-119},
+    language={English}
 }

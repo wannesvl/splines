@@ -35,7 +35,7 @@ classdef Basis
             % Returns:
             %    vector, boolean: 1 if knots(i) < x <= knots(i + 1) else 0
             x = x(:);
-            if i < self.degree + 2 & self.knots(1) == self.knots(i)
+            if i < self.degree + 2 && self.knots(1) == self.knots(i)
                 I = (x >= self.knots(i)) .* (x <= self.knots(i+1));
             else
                 I = (x > self.knots(i)) .* (x <= self.knots(i+1));
@@ -147,7 +147,7 @@ classdef Basis
                     p(i, j) = is_valid(s_self(i, :), s_other(j, :));
                 end
             end
-            [i, j, ~] = find(p);
+            [i, j, dummy] = find(p);
         end
     end
 end
