@@ -9,8 +9,11 @@ classdef BSpline
     methods
         function s = BSpline(basis, coeffs)
             % Constructor for BSpline
+            % validateattributes(coeffs(:), {'double'}, {'size', [length(basis), 1]}, 'BSpline', 'coeffs');
             s.basis = basis;
-            s.coeffs = coeffs(:);
+            s.coeffs = coeffs;
+            % Idea: make coeffs a seperate class
+            % to handle vector and matrix valued splines
             s.cl = str2func(class(s));
         end
 
@@ -70,7 +73,6 @@ classdef BSpline
                     s = other.cl(basis, coeffs);
                 end
             end
-            
         end
 
         function d = derivative(self, o)

@@ -112,6 +112,7 @@ class Basis(object):
         c_self = Counter(self.knots)
         c_other = Counter(other.knots)
         breaks = set(self.knots).union(other.knots)
+        # Should be corrected!
         multiplicity = [max(c_self.get(b, 0) + degree - self.degree,
                             c_other.get(b, 0) + degree - other.degree)
                         for b in breaks]
