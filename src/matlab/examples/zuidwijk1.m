@@ -1,4 +1,4 @@
-close all
+% close all
 clear all
 clc
 
@@ -6,9 +6,9 @@ d = 3;
 L = 4;
 n = 21;
 Bl = BSplineBasis([0 * ones(1, d) linspace(0, L, n) L * ones(1, d)], d);
-l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]);
+l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]');
 
-% cvx_solver sedumi  % sdpt3 fails on dual for large n
+cvx_solver sedumi  % sdpt3 fails on dual for large n
 % Primal problem
 cvx_begin
     variable c1(length(Bl))
@@ -27,7 +27,7 @@ cvx_begin
         con(3).coeffs <= 2;
 cvx_end
 
-x = linspace(0, 4, 101);
+x = linspace(0, L, 101);
 x1 = BSpline(Bl, c1);
 x2 = BSpline(Bl, c2);
 obj = x1 + 2 * x2;

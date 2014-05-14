@@ -49,8 +49,11 @@ classdef Basis
             %    k (double): knot to count
             %
             % Returns:
-            %    int: Number of occurences of the knot
+            %    int: Number of occurences of the knot or nan if count == 0
             c = histc(self.knots, k);
+            if c == 0
+                c = nan;
+            end
         end
 
         function b = combine(self, other, degree)
