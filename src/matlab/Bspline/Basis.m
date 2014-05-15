@@ -127,6 +127,19 @@ classdef Basis
             b = self.cl(knots, self.degree);
         end
 
+        function b = increase_degree(self, d)
+            % Increase the degree of the basis by d
+            %
+            % Args:
+            %    d (int): The desired degree increase
+            %
+            % Returns:
+            %    Basis: The new basis
+            degree = self.degree + d
+            knots = sort(repmat(self.knots, 1, d + 1))
+            b = self.cl(knots, degree)
+        end
+
         function s = support(self)
             % Return a matrix of support intervals for each basis function
             %

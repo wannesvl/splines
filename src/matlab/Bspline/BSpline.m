@@ -135,6 +135,12 @@ classdef BSpline
             s = self.cl(basis, coeffs);
         end
 
+        function s = increase_degree(self, degree)
+            basis = self.basis.increase_degree(degree);
+            coeffs = basis.transform(self.basis) * self.coeffs;
+            s = self.cl(basis, coeffs);
+        end
+
         function i = integral(self)
             k = self.basis.knots;
             d = self.basis.degree;
