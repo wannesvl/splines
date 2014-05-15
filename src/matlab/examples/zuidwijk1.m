@@ -17,14 +17,10 @@ cvx_begin
     x1 = BSpline(Bl, c1);
     x2 = BSpline(Bl, c2);
     obj = x1 + 2 * x2;
-    con = [x1, x2, x1 + l * x2];
-
+    con = [-x1, -x2, x2 - 2, x1 + l * x2 - 2];
     minimize (-obj.integral)
     subject to
-        con(1).coeffs >= 0;
-        con(2).coeffs >= 0;
-        con(2).coeffs <= 2;
-        con(3).coeffs <= 2;
+        con.getcoeffs <= 0;
 cvx_end
 
 x = linspace(0, L, 101);
@@ -50,15 +46,16 @@ cvx_begin
     y4 = BSpline(Bl, c4);
     obj = 2 * y3 + 2 * y4;
     con = [y4 - y1, -y2 + y3 + l * y4];
+    con_coeffs = con.getcoeffs
 
     minimize (obj.integral)
     subject to
-        con(1).coeffs == 1;
-        con(2).coeffs == 2;
-        y1.coeffs >= 0;
-        y2.coeffs >= 0;
-        y3.coeffs >= 0;
-        y4.coeffs >= 0;
+        con_coeffs(:, 1) == 1
+        con_coeffs(:, 2) == 2
+        y1.getcoeffs >= 0;
+        y2.getcoeffs >= 0;
+        y3.getcoeffs >= 0;
+        y4.getcoeffs >= 0;
 cvx_end
 y3 = BSpline(Bl, c3);
 y4 = BSpline(Bl, c4);

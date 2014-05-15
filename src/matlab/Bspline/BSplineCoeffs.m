@@ -1,7 +1,7 @@
 classdef BSplineCoeffs
     properties (Access=protected)
         cl
-        i
+        size
     end
     properties
         coeffs
@@ -22,8 +22,8 @@ classdef BSplineCoeffs
             % Currently only works 
             if strcmp(class(coeffs), 'cell')
                 % Check if all elements are of equal size
-                sizes = cellfun(@size, coeffs, 'UniformOutpu', false);
-                if isequal(sizes{:})
+                sizes = cellfun(@size, coeffs, 'UniformOutput', false);
+                if length(sizes) | isequal(sizes{:})
                     c.coeffs = coeffs;
                 else
                     error('Coefficients should all be of equal size')
@@ -34,30 +34,121 @@ classdef BSplineCoeffs
             else
                 error('Coeffs not correctly formatted')
             end
-            c.i = eye(size(c.coeffs{1}, 1));
+            c.size = size(c.coeffs{1});
             c.cl = str2func(class(c));
         end
 
-        function c = mtimes(a, self)
-            % Implement 'generalized' inner product
-            if strcmp(class(a), 'double')  % 
-                c = cell2mat(self.coeffs);
-                if ~isscalar(self.i)
-                    c = c';
+        function l = length(self)
+            l = length(self.coeffs);
+        end
+
+        function b = isscalar(self)
+            % Are we dealing with scalar coefficients?
+            b = isscalar(self.coeffs{1});
+        end
+
+        function b = isvector(self)
+            % Are we dealing with scalar coefficients?
+            b = isvector(self.coeffs{1});
+        end
+
+        function c = plus(self, other)
+            % Sum of two coefficients
+            if strcmp(class(self), class(other))
+                c = vertcat(self.coeffs{:}) + vertcat(other.coeffs{:});
+                c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                c = self.cl(reshape(c, size(self.coeffs)));
+            else
+                try
+                    c = vertcat(self.coeffs{:}) + other
+                    c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                    c = self.cl(reshape(c, size(self.coeffs)));
+                catch err
+                    c = other + self;
                 end
-                c = kron(a, self.i) * c;
             end
         end
 
-        function c = transform(self, T)
-            % Transform coefficients with transformation matrix T
-            coeffs = T * self
-            coeffs = mat2cell(coeffs)
-            c = self.cl(coeffs)
+        function c = sum(self)
+            % Only for univariate splines
+            c = ones(length(self), 1)' * self;
+            c = c.coeffs{1};
         end
 
-        % function c = subsref(self, s)
-        %     c = self.coeffs{s}
-        % end
+        function c = uminus(self)
+            c = self.cl(cellfun(@uminus, self.coeffs, 'UniformOutput', false))
+        end
+
+        function c = times(self, other)
+            % pointwise product
+            if strcmp(class(self), class(other))
+                c = vertcat(self.coeffs{:}) .* vertcat(other.coeffs{:});
+                c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                c = self.cl(reshape(c, size(self.coeffs)));
+            else
+                try
+                    c = diag(self) * other
+                catch err
+                    c = diag(other) * self
+                end
+            end
+        end            
+
+        function c = mtimes(a, self)
+            % Implement 'generalized' inner product
+            if strcmp(class(a), 'double')
+                if isvector(self.coeffs)
+                    c = kron(a, eye(self.size)) * vertcat(self.coeffs{:});
+                    % And now convert back to cell
+                    c = mat2cell(c, ... 
+                        self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                    c = self.cl(c);
+                end
+            end
+        end
+
+        function c = vertcat(varargin)
+            % Concatenate matrices
+            c = varargin{1}.coeffs;
+            c = horzcat(c{:});
+            for j = 2:length(varargin)
+                v = varargin{j}.coeffs;
+                v = horzcat(v{:});
+                c = [c; v];
+            end
+            % Convert back to cell
+            c = mat2cell(c, size(c, 1), varargin{1}.size(1) * ones(size(c , 2) / varargin{1}.size(1), 1))';
+            c = varargin{1}.cl(reshape(c, size(varargin{1}.coeffs)));
+        end
+
+        function c = horzcat(varargin)
+            % Concatenate matrices
+            c = varargin{1}.coeffs;
+            c = vertcat(c{:});
+            for j = 2:length(varargin)
+                v = varargin{j}.coeffs;
+                v = vertcat(v{:});
+                c = [c v];
+            end
+            % Convert back to cell
+            c = mat2cell(c, varargin{1}.size(1) * ones(size(c , 1) / varargin{1}.size(1), 1), size(c, 2))';
+            c = varargin{1}.cl(reshape(c, size(varargin{1}.coeffs)));
+        end
+
+        function varargout = subsref(self, s)
+            % Note to this function: c.coeffs{:} does not work!!
+            % Instead you should define dummy d = c.coeffs and d{:}
+            if strcmp(s(1).type, '.')
+                if any(strcmp(s(1).subs, properties(self))) || ...
+                   any(strcmp(s(1).subs, methods(self)))
+                    [varargout{1:nargout}] = builtin('subsref', self, s);
+                else
+                    error(['''%s'' is not a public property or method ' ...
+                        'of the BSplineCoeffs class.'],s(1).subs);
+                end
+            else
+                varargout{1} = self.cl(subsref(self.coeffs, s));
+            end
+        end
     end
 end
