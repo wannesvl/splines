@@ -135,6 +135,16 @@ classdef BSplineCoeffs
             c = varargin{1}.cl(reshape(c, size(varargin{1}.coeffs)));
         end
 
+        function c = transpose(self)
+            % Transpose each of the coefficients
+            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false))
+        end
+
+        function c = ctranspose(self)
+            % Transpose each of the coefficients
+            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false))
+        end
+
         function varargout = subsref(self, s)
             % Note to this function: c.coeffs{:} does not work!!
             % Instead you should define dummy d = c.coeffs and d{:}

@@ -95,6 +95,14 @@ classdef BSpline
 
         function s = vertcat(varargin)
             % Concatenate two splines
+
+            % Convert constants to Bspline bases
+            % k_min = min(cellfun(@(a) a.basis.knots(1), varargin))
+            % for i=1:length(varargin)
+            %     if strcmp(class(varargin{i}), 'double')
+            %         varargin{i} = BSpline(BSplineBasis([-inf, inf], 0), {varargin{i}})
+            %     end
+            % end
             b = varargin{1}.basis;
             for i=2:length(varargin)
                 b = varargin{i}.basis + b;
@@ -119,6 +127,14 @@ classdef BSpline
             end
             c = horzcat(c{:});
             s = varargin{1}.cl(b, c);
+        end
+
+        function s = transpose(self)
+            s = self.cl(self.basis, self.coeffs')
+        end
+
+        function s = ctranspose(self)
+            s = self.cl(self.basis, self.coeffs.')
         end
 
         function d = derivative(self, o)

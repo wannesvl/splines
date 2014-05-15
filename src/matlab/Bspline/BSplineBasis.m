@@ -28,6 +28,7 @@ classdef BSplineBasis < Basis
                     if denom ~= 0
                         b = b + (k(i + d + 1) - x) .* basisd(:, i + 1) / denom;
                     end
+                    b(isnan(b)) = 0;
                     B(:, i) = b;
                 end
                 basis{d + 1} = B;
