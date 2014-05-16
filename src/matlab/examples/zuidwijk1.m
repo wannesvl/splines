@@ -18,7 +18,7 @@ cvx_begin
     x2 = BSpline(Bl, c2);
     obj = x1 + 2 * x2;
     con = [x1, x2, x1 + l * x2];
-
+    
     minimize (-obj.integral)
     subject to
         con(1).coeffs >= 0;
