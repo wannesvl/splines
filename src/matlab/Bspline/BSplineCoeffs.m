@@ -26,13 +26,13 @@ classdef BSplineCoeffs
                 if length(sizes) | isequal(sizes{:})
                     c.coeffs = coeffs;
                 else
-                    error('Coefficients should all be of equal size')
+                    error('Coefficients should all be of equal size');
                 end
             elseif isvector(coeffs)  % Scalar valued
                 coeffs = coeffs(:);
                 c.coeffs = mat2cell(coeffs, ones(size(coeffs, 1), 1));
             else
-                error('Coeffs not correctly formatted')
+                error('Coeffs not correctly formatted');
             end
             c.size = size(c.coeffs{1});
             c.cl = str2func(class(c));
@@ -60,7 +60,7 @@ classdef BSplineCoeffs
                 c = self.cl(reshape(c, size(self.coeffs)));
             else
                 try
-                    c = vertcat(self.coeffs{:}) + other
+                    c = vertcat(self.coeffs{:}) + other;
                     c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
                     c = self.cl(reshape(c, size(self.coeffs)));
                 catch err
@@ -76,20 +76,20 @@ classdef BSplineCoeffs
         end
 
         function c = uminus(self)
-            c = self.cl(cellfun(@uminus, self.coeffs, 'UniformOutput', false))
+            c = self.cl(cellfun(@uminus, self.coeffs, 'UniformOutput', false));
         end
 
         function c = times(self, other)
             % pointwise product
             if strcmp(class(self), class(other))
-                c = vertcat(self.coeffs{:}) .* vertcat(other.coeffs{:});
+                c = blkdiag(self.coeffs{:}) * vertcat(other.coeffs{:});
                 c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
                 c = self.cl(reshape(c, size(self.coeffs)));
             else
                 try
-                    c = diag(self) * other
+                    c = diag(self) * other;
                 catch err
-                    c = diag(other) * self
+                    c = diag(other) * self;
                 end
             end
         end            
@@ -98,7 +98,7 @@ classdef BSplineCoeffs
             % Implement 'generalized' inner product
             if strcmp(class(a), 'double')
                 if isvector(self.coeffs)
-                    c = kron(a, eye(self.size)) * vertcat(self.coeffs{:});
+                    c = kron(a, eye(self.size(1))) * vertcat(self.coeffs{:});
                     % And now convert back to cell
                     c = mat2cell(c, ... 
                         self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
