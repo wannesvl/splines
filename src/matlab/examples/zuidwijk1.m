@@ -1,4 +1,4 @@
-close all
+% close all
 clear all
 clc
 
@@ -6,9 +6,9 @@ d = 3;
 L = 4;
 n = 21;
 Bl = BSplineBasis([0 * ones(1, d) linspace(0, L, n) L * ones(1, d)], d);
-l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]);
+l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]');
 
-% cvx_solver sedumi  % sdpt3 fails on dual for large n
+cvx_solver sedumi  % sdpt3 fails on dual for large n
 % Primal problem
 cvx_begin
     variable c1(length(Bl))
@@ -17,17 +17,13 @@ cvx_begin
     x1 = BSpline(Bl, c1);
     x2 = BSpline(Bl, c2);
     obj = x1 + 2 * x2;
-    con = [x1, x2, x1 + l * x2];
-    
+    con = [-x1, -x2, x2 - 2, x1 + l * x2 - 2];
     minimize (-obj.integral)
     subject to
-        con(1).coeffs >= 0;
-        con(2).coeffs >= 0;
-        con(2).coeffs <= 2;
-        con(3).coeffs <= 2;
+        con.getcoeffs <= 0;
 cvx_end
 
-x = linspace(0, 4, 101);
+x = linspace(0, L, 101);
 x1 = BSpline(Bl, c1);
 x2 = BSpline(Bl, c2);
 obj = x1 + 2 * x2;
@@ -50,15 +46,16 @@ cvx_begin
     y4 = BSpline(Bl, c4);
     obj = 2 * y3 + 2 * y4;
     con = [y4 - y1, -y2 + y3 + l * y4];
+    con_coeffs = con.getcoeffs
 
     minimize (obj.integral)
     subject to
-        con(1).coeffs == 1;
-        con(2).coeffs == 2;
-        y1.coeffs >= 0;
-        y2.coeffs >= 0;
-        y3.coeffs >= 0;
-        y4.coeffs >= 0;
+        con_coeffs(:, 1) == 1
+        con_coeffs(:, 2) == 2
+        y1.getcoeffs >= 0;
+        y2.getcoeffs >= 0;
+        y3.getcoeffs >= 0;
+        y4.getcoeffs >= 0;
 cvx_end
 y3 = BSpline(Bl, c3);
 y4 = BSpline(Bl, c4);

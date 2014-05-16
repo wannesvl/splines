@@ -9,14 +9,37 @@ classdef BSpline
     methods
         function s = BSpline(basis, coeffs)
             % Constructor for BSpline
+            % validateattributes(coeffs(:), {'double'}, {'size', [length(basis), 1]}, 'BSpline', 'coeffs');
             s.basis = basis;
-            s.coeffs = coeffs(:);
+            if strcmp(class(coeffs), 'BSplineCoeffs')
+                s.coeffs = coeffs;
+            else
+                s.coeffs = BSplineCoeffs(coeffs);
+            end
+            % Validate input
+            % if length(s.basis) == 1 && length(s.coeffs) ~= length(s.basis)
+            % if any(size(s.coeffs.coeffs) ~= arrayfun(@length, s.basis))
+            %     error('Coefficient array is not of correct size')
+            % end
+            % Idea: make coeffs a seperate class
+            % to handle vector and matrix valued splines
             s.cl = str2func(class(s));
+        end
+
+        function c = getcoeffs(self)
+            c = self.coeffs.coeffs;
+            if self.coeffs.isscalar || self.coeffs.isvector
+                c = vertcat(c{:});
+            end
         end
 
         function s = f(self, x)
             % Evaluate B-spline at x
-            s = self.basis.f(x) * self.coeffs;
+            c = self.basis.f(x) * self.coeffs;
+            s = c.coeffs;
+            if self.coeffs.isscalar
+                s = vertcat(s{:});
+            end
         end
 
         function s = plus(self, other)
@@ -31,9 +54,7 @@ classdef BSpline
                     coeffs = other + self.coeffs;
                     s = self.cl(basis, coeffs);
                 catch err
-                    basis = other.basis;
-                    coeffs = self + other.coeffs;
-                    s = other.cl(basis, coeffs);
+                    s = other + self;
                 end
             end
         end
@@ -70,7 +91,50 @@ classdef BSpline
                     s = other.cl(basis, coeffs);
                 end
             end
-            
+        end
+
+        function s = vertcat(varargin)
+            % Concatenate two splines
+
+            % Convert constants to Bspline bases
+            % k_min = min(cellfun(@(a) a.basis.knots(1), varargin))
+            % for i=1:length(varargin)
+            %     if strcmp(class(varargin{i}), 'double')
+            %         varargin{i} = BSpline(BSplineBasis([-inf, inf], 0), {varargin{i}})
+            %     end
+            % end
+            b = varargin{1}.basis;
+            for i=2:length(varargin)
+                b = varargin{i}.basis + b;
+            end
+            c = cell(size(varargin));
+            for i=1:length(varargin)
+                c{i} = b.transform(varargin{i}.basis) * varargin{i}.coeffs;
+            end
+            c = vertcat(c{:});
+            s = varargin{1}.cl(b, c);
+        end
+
+        function s = horzcat(varargin)
+            % Concatenate two splines
+            b = varargin{1}.basis;
+            for i=2:length(varargin)
+                b = varargin{i}.basis + b;
+            end
+            c = cell(size(varargin));
+            for i=1:length(varargin)
+                c{i} = b.transform(varargin{i}.basis) * varargin{i}.coeffs;
+            end
+            c = horzcat(c{:});
+            s = varargin{1}.cl(b, c);
+        end
+
+        function s = transpose(self)
+            s = self.cl(self.basis, self.coeffs')
+        end
+
+        function s = ctranspose(self)
+            s = self.cl(self.basis, self.coeffs.')
         end
 
         function d = derivative(self, o)
@@ -83,6 +147,12 @@ classdef BSpline
 
         function s = insert_knots(self, knots)
             basis = self.basis.insert_knots(knots);
+            coeffs = basis.transform(self.basis) * self.coeffs;
+            s = self.cl(basis, coeffs);
+        end
+
+        function s = increase_degree(self, degree)
+            basis = self.basis.increase_degree(degree);
             coeffs = basis.transform(self.basis) * self.coeffs;
             s = self.cl(basis, coeffs);
         end

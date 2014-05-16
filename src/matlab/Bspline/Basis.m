@@ -49,8 +49,11 @@ classdef Basis
             %    k (double): knot to count
             %
             % Returns:
-            %    int: Number of occurences of the knot
+            %    int: Number of occurences of the knot or nan if count == 0
             c = histc(self.knots, k);
+            if c == 0
+                c = nan;
+            end
         end
 
         function b = combine(self, other, degree)
@@ -108,7 +111,11 @@ classdef Basis
             %
             % Returns:
             %    vector, double: The greville abscissae
-            g = arrayfun(@(k) sum(self.knots(k + 1:k + self.degree)) / self.degree, ...
+            d = self.degree;
+            if d == 0
+                d = 1;
+            end
+            g = arrayfun(@(k) sum(self.knots(k + 1:k + d)) / d, ...
                          (1:length(self)));
         end
 
@@ -124,6 +131,19 @@ classdef Basis
             b = self.cl(knots, self.degree);
         end
 
+        function b = increase_degree(self, d)
+            % Increase the degree of the basis by d
+            %
+            % Args:
+            %    d (int): The desired degree increase
+            %
+            % Returns:
+            %    Basis: The new basis
+            degree = self.degree + d
+            knots = sort(repmat(self.knots, 1, d + 1))
+            b = self.cl(knots, degree)
+        end
+
         function s = support(self)
             % Return a matrix of support intervals for each basis function
             %
@@ -135,6 +155,10 @@ classdef Basis
 
         function [i, j] = pairs(self, other)
             % Returns indices of nonzero products of basis functions
+            %
+            % Returns:
+            %    vector, int: the valid indices of self
+            %    vector, int: the corresponding valid indices of other
             is_valid = @(a, b) max(a(1), b(1)) < min(a(2), b(2));
             s_self = self.support;
             s_other = other.support;
