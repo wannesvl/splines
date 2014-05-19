@@ -11,10 +11,13 @@
 \newcommand{\C}{\mathbb{C}}        % complex numbers
 \renewcommand{\S}{\mathbb{S}}      % symmetric matrices
 \renewcommand{\H}{\mathbb{H}}      % Hermitian matrices
-\renewcommand{\t}{^{\mbox{\tiny \sf T}}}
+\renewcommand{\t}{^{\mbox{\tiny \sf T}}}    % matrix transpose
+\newcommand{\ppar}{\theta}                  % parameter in the pprog
+\newcommand{\Ppar}{\Theta}                  % capitalized parameter
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
+\newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,105 +33,157 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{The Overall Idea}\label{sec:overall_approach}
+\section{Parametric Programming}\label{sec:overall_approach}
 
 
 \subsection{Parametric Cone Programs}\label{subsec:parametric_program}
 
-Let us consider the following cone program in inequality form:
+Parametric programming considers optimization problems of which the data are affected by one or more parameters, and analyzes the solution of the problem in function of the parameters. Let us consider the following parametric cone program:
 \begin{gather}\label{eq:parametric_primal}
 \begin{aligned}
-\Pi(\theta): && \minimize_{x} &&& h(\theta)\t x\\
-             && \subj         &&& F(\theta)x+g(\theta)\preceq_K 0 \;,
+\Pi(\ppar): && \minimize_{x\in\R^n} &&& h(\ppar)\t x\\
+             && \subj                &&& F(\ppar)x+g(\ppar)\preceq_K 0 \;,%
 \end{aligned}
 \end{gather}
-where the problem data depends on parameters $\theta$. For the proper cone $K$, (a combination of) the nonnegative orthant, the second-order cone and the positive semidefinite cone are considered. We want to solve $\Pi(\theta)$ for all parameter values $\theta\in\Theta$, where we make the following \textit{assumptions}:
-\begin{enumerate}[\it\text{A}1.]
-\item The problem $\Pi(\theta)$ is strictly feasible for all $\theta\in\Theta$.
-\item The problem data depend polynomially on $\theta$. That is, $h(\theta)$, $F(\theta)$ and $g(\theta)$ are polynomial mappings.
-\end{enumerate}
-The optimal value of $\Pi(\theta)$ is denoted $p^\star(\theta)$, and its optimal set $X^\star(\theta)$. In addition, we use $X^\star_\epsilon(\theta)$ to denote the $\epsilon$-suboptimal set of $\Pi(\theta)$:
-\[ X^\star_\epsilon(\theta) = \{x \,|\, F(\theta)x+g(\theta)\preceq_K 0 \,,~ h(\theta)\t x \leq p^\star(\theta)+\epsilon\} \,.%
+where the problem data depend on parameters $\ppar\in\R^t$. For the proper cone $K$, (combinations of) the nonnegative orthant, the second-order cone and the positive semidefinite cone are considered. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Ppar_\text{feas}$:
+\[ \Ppar_\text{feas} = \{\ppar\in\R^t ~:~ \exists x ,~ F(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
 \]
-Note, $X^\star(\theta)=X^\star_0(\theta)$.
+The optimal value function $p^\star:\Ppar_\text{feas}\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$. More generally, we will consider $\epsilon$-suboptimal set mappings $X_\epsilon^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$ which give the $\epsilon$-suboptimal set of $\Pi(\ppar)$ as a function of $\ppar$:
+\[ X^\star_\epsilon(\ppar) = \{x ~:~ F(\ppar)x+g(\ppar)\preceq_K 0 ~,~ h(\ppar)\t x \leq p^\star(\ppar)+\epsilon\} \,.%
+\]
+An optimizer function $x^*:\Ppar_\text{feas}\rightarrow\R^n$ associates to each parameter $\ppar\in\Ppar_{\text{feas}}$ an optimizer $x^*(\ppar)\in X^*(\ppar)$.
 
-Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\theta)$ amounts to
+Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
 \begin{gather}\label{eq:parametric_dual}
 \begin{aligned}
-\Delta(\theta): && \maximize_{y} &&& g(\theta)\t y\\
-                && \subj         &&& F(\theta)\t y + h(\theta)= 0\\
+\Delta(\ppar): && \maximize_{y} &&& g(\ppar)\t y\\
+                && \subj         &&& F(\ppar)\t y + h(\ppar)= 0\\
                 &&               &&& y \succeq_K 0  \;.
 \end{aligned}
 \end{gather}
-Its optimal value and optimal set are denoted by respectively $d^\star(\theta)$ and $Y^\star(\theta)$, and on account of assumption A1:
-\[ p^\star(\theta) = d^\star(\theta)\,,\quad \forall \theta\in\Theta\,.
+Its optimal value function is denoted $d^\star$, its optimal set mapping $Y^\star$ and its $\epsilon$-suboptimal set mappings $Y^\star_\epsilon$.
+
+\commentGP{Above, $\Ppar_\text{feas}$ is purely linked to the feasibility of the primal while feasibility of the dual also matters. Notation: $\Ppar_{\text{pf}}$, $\Ppar_{\text{df}}$?}
+
+\commentGP{Should we mention strict feasibility here? Notation: $\Ppar_{\text{psf}}$, $\Ppar_{\text{dsf}}$?}
+
+
+\subsubsection*{Assumptions}
+
+Below, we present an approach for computing approximate solutions of the considered parametric cone programs on a subset $\Ppar$ of $\Ppar_\text{feas}$. Our approach relies on the following assumptions:
+
+\begin{enumerate}[\bf\text{A}1.]
+\item\label{ass_pdep} The problem data depend polynomially on $\ppar$. That is, $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$ are polynomial functions. \commentGP{This dependency may be considered piecewise polynomial, but do we have applications for this?}
+\item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$. \commentGP{In a second step we may extend hyperrectangles to general polyhedra.}
+\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible.
+\end{enumerate}
+The last assumption guarantees that for all $\ppar\in\Ppar$
+\[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
 \]
-The $\epsilon$-suboptimal set of $\Delta(\theta)$ is denoted by $Y^\star_\epsilon(\theta)$.
+and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\theta)$ and $Y^\star(\theta)$ are non-empty).
 
-The common approach in parametric programming is to compute an explicit description of an optimal solution $x^\star(\theta)$ as a function of $\theta$ [??? refs]. This approach suffers from the following drawbacks
-\begin{itemize}
-\item limited complexity: one scalar parameter -- multiple parameters, only $g(\theta)$ parameter dependent, while $h$ and $F$ parameter independent, \ldots
-\item computational cost: exponential (???) growth with the number of parameters
-\item non-uniqueness of $x^\star(\theta)$ ???
-\item ???
-\end{itemize}
-Given these drawbacks, recently attention has been devoted to the computation of approximate solutions [??? refs]. Yet, these approaches only mitigate the drawbacks above to limited extent.
-
-\vspace*{12pt}\noindent
-\textbf{To complete}
-\begin{itemize}
-\item The last paragraph.
-\item Optimal set just $X^\star_0(\theta)$ instead of $X^\star(\theta)$. Do we want to use the suboptimal sets as in the elaborations below?
-\end{itemize}
+\commentGP{We mainly need these last conditions, so maybe state them as assumption 3, and state below that this can be achieved using Slater's constraint qualification?}
 
 
-\subsection{Explicitly parameterized solutions}\label{subsec:parameterized_solution}%
 
-As an alternative to the aforementioned approaches, we propose to construct approximate solutions of $\Pi(\theta)$ and $\Delta(\theta)$ of the form:
+\subsection{Literature Survey}
+
+Research on parametric programming traces back to the 50s \cite{Saaty_Gass_1954,Gass_Saaty_1955}, for as soon as people in operations research were enabled to solve real decision problems by Dantzig's simplex method, they realized the dependency of the outcome on the numerical problem data. Contrary to sensitivity analysis, which investigates the effect of small data perturbations, parametric programming analyzes the solution of the optimization problem for the full range of parameters affecting the numerical data. In doing so, researchers resort to so-called critical regions: sets of parameter values for which the solution of the optimization problem features similar properties (e.g. a specific active set for LPs). Hence, parametric programming concerns characterizing and analyzing the critical regions, as well as the solution (i.e. the optimal value function and the optimal set mapping) both within and across critical regions. Apart from few exceptions, neither the critical regions nor the solution have an analytical expression, which renders the analyses technical and abstract. The exceptions most studied in the literature are parametric LPs of which either the right-hand side of the constraints or the linear objective depends affinely on the parameters \cite{Gal_1979,Gal_1984}. Early on is was realized that the critical regions are convex polyhedra and that within a region the solution depends affinely on the parameters. Hence both the optimal value function and the optimizer function are piecewise affine. By the 70s a complete explicit description of the case with multiple parameters was derived \cite{Gal_Nedoma_1972} and active research on reducing the complexity of computing the solution and on dealing with degeneracies (i.e. allowing non-singleton optimal sets for certain parameter values) continued \cite{Borrelli_et_al_2003} \commentGP{add more references from \cite{Alessio2009}}. If both the linear objective and the right-hand side of the constraints depend affinely on the parameters, the critical regions remain convex polyhedra, the optimizer function piecewise affine, yet the optimal value function becomes piecewise quadratic.
+
+In the beginning of the 20th century parametric programming was boosted by the advent of explicit model predictive control (MPC) strategies \cite{Alessio2009}. MPC is a control strategy that solves an optimization problem at every time sample to compute the next control action. These on line optimization problems only differ in the current sensor measurements, which affect the problem data. Explicit MPC solves the corresponding parametric program off line, yielding the optimal controls as an explicit functions of the sensor measurements. The parametric program is a QP where the parameters affect the linear part of the objective function as well as the right hand side of the linear constraints. As shown in \cite{Bemporad_et_al_2002}, the critical regions
+are convex \commentGP{??} polyhedra, the optimizer function is piecewise affine and the optimal value function is continuous and piecewise quadratic. These initial results sparked wide interest in parametric QPs, with particular focus on efficient computation of the parametric solution and dealing with degeneracies. \commentGP{add more references from \cite{Alessio2009}}
+
+Although the parametric programming problems mentioned above do admit an explicit characterization of the solution, in the worst case the number of critical regions increases exponentially with the number of constraints. This, for instance, inhibits the wide application of explicit MPC where the number of constraints is determined by the number of states, inputs and the prediction horizon. Therefore, recent research has turned to approximate solutions of parametric problems, primarily with a view to MPC applications. In \cite{Filippi_2004} an approximate solution for parametric LPs with parameter dependent right hand sides is presented. The parameter domain is split up into simplices, and for parameter values within a simplex an upper and lower bound on the optimal value function is constructed. Simplices are split up into smaller ones until the required accuracy is reached. \cite{Bemporad_et_al_2002} extended this procedure to general convex parametric programs, where the objective and constraint functions are jointly convex in the optimization variables and the parameters.
+
+Recently, \cite{Oishi2013} presented an alternative approach to construct an approximate solution of the parametric QPs emerging in MPC. The optimizer function is explicitly parameterized as a polynomial function of the parameters. The coefficients are computed to guarantee feasibility for all parameter values and to minimize either the $\ell_\infty$ or the $\ell_1$ norm of the resulting optimal value function approximation. The semi-infinite constraints emerging in this formulation are transformed to finitely many LMIs using sum of squares.
+
+
+\subsection{Explicitly Parameterized Solutions}\label{subsec:parameterized_solution}%
+
+In this report we adopt an approach similar to \cite{Oishi2013}. We construct an approximate primal optimizer function $\hat{x}(\ppar)$ and dual optimizer function $\hat{y}(\ppar)$ within \textit{a priori} chosen sets of basis functions $b_{x,i}(\ppar)$ and $b_{y,i}(\ppar)$ on $\Ppar$:
+\begin{subequations}\label{eq:approx_sol}
 \begin{align}
-\hat{x}(\theta) &\;=\; C_x b_x(\theta)\;,\\
-\hat{y}(\theta) &\;=\; C_y b_y(\theta)\;.
+\hat{x}(\ppar, C_x) &\;=\; C_x b_x(\ppar)\;, \label{eq:approx_sol_primal}\\
+\hat{y}(\ppar, C_y) &\;=\; C_y b_y(\ppar)\;, \label{eq:approx_sol_dual}
 \end{align}
-The entries of $b_x(\theta)$ and $b_y(\theta)$ correspond to (given) basis functions on $\Theta$. For $\hat{x}(\theta)$ to qualify as an approximate  solutions of $\Pi(\theta)$, is must be feasible. Hence, we enforce that for all $\theta\in\Theta$, there exists $\epsilon(\theta)<\infty$ such that
-\[ \hat{x}(\theta) \in X^\star_{\epsilon(\theta)}(\theta) \;.
+\end{subequations}
+with $b_x{\ppar}=(b_{x,i}(\ppar))$ and $b_y{\ppar}=(b_{y,i}(\ppar))$. \commentGP{Can we talk about basis functions? A basis for what type of functions? (polynomials: only a basis for analytical functions and hence, will generally fail to capture the true optimizer functions, generally only $C^1$, even if we let the number of basis functions go to $\infty$). Particularly for the multi-parametric case, how to choose the basis functions such that asymptotically we will include the true optimizer functions?} The approximate optimizer functions (\ref{eq:approx_sol}), give rise to approximate optimal value functions of the following form:
+\begin{align*}
+\hat{p}(\ppar, C_x) &\;=\;  h(\ppar)\t  C_x b_x(\ppar)\;,\\
+\hat{d}(\ppar, C_y) &\;=\;  g(\ppar)\t  C_y b_y(\ppar)\;.
+\end{align*} 
+
+In computing the coefficients $C_x$, we impose $\hat{x}(\ppar)$ to be a feasible point of $\Pi(\ppar)$ for all $\ppar\in\Ppar$. Hence, we enforce that for all $\ppar\in\Ppar$, there exists $\epsilon(\ppar)<\infty$ such that
+\[ \hat{x}(\ppar, C_x) \in X^\star_{\epsilon(\ppar)}(\ppar) \;.
 \]
-To obtain the best possible approximation, we minimize $\int_{\Theta}\epsilon(\theta)d\theta$ while respecting the containment constraint above for all $\theta\in\Theta$. This amounts to the following semi-infinite cone program
+To obtain the best possible approximation, we minimize $\int_{\Ppar}\epsilon(\ppar)d\ppar$ while respecting the containment constraint above for all $\ppar\in\Ppar$. Since
+\[ \int_{\Ppar}\epsilon(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar, C_x)-p^\star(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar,C_x)d\ppar-\int_{\Ppar}p^\star(\ppar)d\ppar%
+\] 
+we end up with the following semi-infinite cone program
 \begin{gather}\label{eq:semi-inf_primal}
 \begin{aligned}
-\hat{\Pi}: && \minimize_{C_x} &&& \int_{\Theta} h(\theta)\t  C_x b_x(\theta) d\theta\\%
-           && \subj           &&& F(\theta) C_x b_x(\theta)+g(\theta)\preceq_K 0 \;, \quad\forall\theta\in\Theta\;.%
+\hat{\Pi}: && \minimize_{C_x} &&& \int_{\Ppar} h(\ppar)\t  C_x b_x(\ppar) d\ppar\\%
+           && \subj           &&& F(\ppar) C_x b_x(\ppar)+g(\ppar)\preceq_K 0 \;, \quad\forall\ppar\in\Ppar\;.%
 \end{aligned}
 \end{gather}
 Similarly for the dual:
 \begin{gather}\label{eq:semi-inf_dual}
 \begin{aligned}
-\hat{\Delta}: && \maximize_{C_x} &&& \int_{\Theta} g(\theta)\t  C_y b_y(\theta) d\theta\\%
-              && \subj           &&& F(\theta)\t  C_y b_y(\theta) + h(\theta)= 0 \;, \quad\forall\theta\in\Theta\\%
-              &&                 &&&  C_y b_y(\theta)\succeq_K 0  \;, \quad\forall\theta\in\Theta\;.%
+\hat{\Delta}: && \maximize_{C_x} &&& \int_{\Ppar} g(\ppar)\t  C_y b_y(\ppar) d\ppar\\%
+              && \subj           &&& F(\ppar)\t  C_y b_y(\ppar) + h(\ppar)= 0 \;, &&\forall\ppar\in\Ppar\\%
+              &&                 &&&  C_y b_y(\ppar)\succeq_K 0  \;, &&\forall\ppar\in\Ppar\;.%
 \end{aligned}
 \end{gather}
+Let $C_x^\star$ and $C_y^\star$ denote optimal points of $\hat{\Pi}$ respectively $\hat{\Delta}$ then 
+\[ \hat{d}(\ppar,C_y^\star) \leq d^\star(\ppar) \leq p^\star(\ppar) \leq \hat{p}(\ppar,C_x^\star)\,,\qquad\forall\ppar\in\Ppar\,,%
+\]
+and within the chosen parameterization, the average gap $\hat{p}(\ppar,C_x^\star)-\hat{d}(\ppar,C_y^\star)$ over $\Ppar$ is minimal.
 
-\vspace*{12pt}\noindent
-\textbf{To complete}
+\vspace*{12pt}
+\noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients. 
+
+In that last step we rely on properties of the B-spline bases functions (positivity and partition of unity):
+\[ b(\ppar)\geq0\,,~\forall\ppar\in\Ppar \qquad \mathbf{1}\t b \equiv 1\,.%
+\]
+These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppar)$ are a convex combination of their coefficients. \commentGP{Technically, we only need the Bspline positivity for convex cone programs.}
+
+\vspace*{12pt}
+\noindent\textbf{To include somewhere:} Reasons for choosing a B-spline parameterization
 \begin{itemize}
-\item Note on parametric equality constraints: should be eliminated! Done by equalizing the coefficients (also guarantees the equality outside $\Theta$, but no conservatism because e.g. 2 polynomials of degree $n$ are equal if that are equal at $n+1$ points). Is this always possible???
-\item Conversion of semi-infinite programs to finite-dimensional programs. + Discussion on the choice of the basis functions.
+\item Great approximating power. Whereas polynomials form a basis for analytical functions, in most cases neither the optimizer function nor the optimal value function of the considered parametric programs is analytical. \commentGP{From the viewpoint of approximation the true solution, a simplicial subdivision of the parameter domain would be more appropriate than a hyperrectangular one \ldots}
+\item Transformation of semi-infinite constraints to a finite dimensional set of constraints. Generally good trade-off between conservatism and computational complexity (in contrast to sum-of-squares, particularly for matrix constraints), and 2 ways to reduce conservatism: knot insertion and degree augmentation. \commentGP{We should include some guidelines for choosing between these two and on where to insert knots.}
+\item It allows for various extensions:
+    \begin{itemize}
+    \item The polynomial parameter dependency can be extended to piecewise polynomial. The only complication is that there will be more constraints in the tractable reformulation.
+    \item The problem formulation can be further generalized to include some general convex functions. For instance, if $h(x,\ppar)$ is convex in $x$ for every $\ppar\in\Ppar$, then
+        \[ \int_{\Ppar} h(\hat{x}(\ppar), \ppar) d\ppar
+        \]
+        is convex in the coefficients $C_x$. Hence, general convex objective functions are readily allowed. In addition, if $g(x)$ is convex, then with a Bspline parameterization of $x(\ppar)$:
+        \[ g\left(\sum_{i=1}^m C_{x,i} b_{x,i}(\ppar)\right) \leq \sum_{i=1}^m g(C_{x,i}) b_{x,i}(\ppar) \qquad \forall \ppar\in\Ppar\,. %
+        \]
+        Hence,
+        \[ g(C_{x,i})\leq 0\,,~\forall i=1,\ldots,m \qquad \Rightarrow \qquad g(x(\ppar))\leq0\,,~\forall \ppar\in\Ppar\,.%
+        \]
+        \end{itemize}
 \end{itemize}
 
 
-\subsection{Discussion}
+\subsection{Discussion / Notes / Thoughts}
 \begin{itemize}
 \item GP: Should we adopt a more general problem formulation, where we replace the constraint in (\ref{eq:parametric_primal}) by
-    \[ \mathcal{F}(x,\theta) + F_0(\theta) \preceq_K 0
+    \[ \mathcal{F}(x,\ppar) + F_0(\ppar) \preceq_K 0
     \]
-    with $\mathcal{F}(x,\theta)$ a mapping linear in $x$ and polynomial in $\theta$? The dual problem then involves $\mathcal{F}^{\text adj}(y,\theta)$.
-\item GP: The parameter dependencies $h(\theta)$, $F(\theta)$ and $g(\theta)$ can be extended to be piece-wise polynomial. What is the effect on the overall complexity (e.g. generally more knots and consequently, more constraints at the end) ???
-\item GP: I'm rather sure that the problem formulation can be extended to rational parameter dependencies $h(\theta)$, $F(\theta)$ and $g(\theta)$. Ways to convert the semi-infinite constraints to a finite number of generalized inequalities: nurbs, S-procedure, descriptor forms \ldots
-\item GP: I'm rather sure that, when considering rational parameter dependencies of the data, the solutions $\hat{x}(\theta)$ and $\hat{y}(\theta)$ should still be parameterized as a linear combination of basis functions. Hence, no general rational functions with a free numerator and a free denominator. What would be appropriate rational basis functions ???
-\item GP: Which forms of $\Theta$ are allowed (polyhedra, semi-algebraic sets \ldots) and how to derive such inner approximations of the set of parameter values for which $\Pi(\theta)$ is strictly feasible? First idea: solve the parametric phase-1 type program:
+    with $\mathcal{F}(x,\ppar)$ a mapping linear in $x$ and polynomial in $\ppar$? The dual problem then involves $\mathcal{F}^{\text adj}(y,\ppar)$.\\ Also, it might be more appropriate to write the explicit parameterizations in the sum form:
+    \[ \hat{x}(\ppar) = \sum_{i=1}^{N_x} C_{x,i}b_{x,i}(\ppar)\,.
+    \]
+    This would be more appropriate when dealing with matrices\ldots
+\item GP: The parameter dependencies $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$ can be extended to be piece-wise polynomial. What is the effect on the overall complexity (e.g. generally more knots and consequently, more constraints at the end) ???
+\item GP: I'm rather sure that the problem formulation can be extended to rational parameter dependencies $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$. Ways to convert the semi-infinite constraints to a finite number of generalized inequalities: nurbs, S-procedure, descriptor forms \ldots
+\item GP: I'm rather sure that, when considering rational parameter dependencies of the data, the solutions $\hat{x}(\ppar)$ and $\hat{y}(\ppar)$ should still be parameterized as a linear combination of basis functions. Hence, no general rational functions with a free numerator and a free denominator. What would be appropriate rational basis functions ???
+\item GP: Which forms of $\Ppar$ are allowed (polyhedra, semi-algebraic sets \ldots) and how to derive such inner approximations of the set of parameter values for which $\Pi(\ppar)$ is strictly feasible? First idea: solve the parametric phase-1 type program:
     \begin{align*}
     \minimize_{x,t} &~~ t\\
-    \subj           &~~ F(\theta)x+g(\theta)\preceq_K t \bm{1}
+    \subj           &~~ F(\ppar)x+g(\ppar)\preceq_K t \bm{1}
     \end{align*}
 \end{itemize}
 
@@ -145,7 +200,7 @@ Similarly for the dual:
 \item combined structure control design
     \begin{itemize}
     \item Similar to LPV control for static parameter, but with different objective ($\ell_1$ instead of $\ell_\infty$).
-    \item What is the effect of the choice of the objective function ??? Also, what is the value of the $\ell_1$ objective for varying parameters (suppose for instance that the worst case $\ell_2$ gain gets only slightly larger, but better performance over large parts of the paramter domain)???
+    \item What is the effect of the choice of the objective function ??? Also, what is the value of the $\ell_1$ objective for varying parameters (suppose for instance that the worst case $\ell_2$ gain gets only slightly larger, but better performance over large parts of the parameter domain)???
     \end{itemize}
 \end{itemize}
 
@@ -153,7 +208,7 @@ Similarly for the dual:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\bibliographystyle{plain}
-%\bibliography{biblio}
+\bibliographystyle{plain}
+\bibliography{references/pprog}
 
 \end{document}

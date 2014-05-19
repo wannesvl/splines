@@ -1,9 +1,103 @@
 
+% -------------------------------
+% Parametric programming: surveys
+% -------------------------------
+
+@book{Gal_1979,
+    year = {1979},
+    title = {Postoptimal Analyses, Parametric Programming and Related Topics},
+    author = {Tomas Gal},
+    publisher = {McGraw-Hill Inc.}
+}
+% parametric linear programming with parametric objective, right-hand side or coefficient matrix
+
+
+@book{Bank_et_al_1983,
+    year = {1983},
+    title = {Non-Linear Parametric Optimization},
+    author = {B. Bank and J. Guddat and D. Klatte and B. Kummer and K. Tammer},
+    publisher = {Birkh\"{a}user Verlag}
+}
+% Rather general nonlinear parametric programming
+% Focus on theoretical analysis of properties of the extreme value function and optimal set mapping
+
+
+@incollection{Gal_1984,
+    year={1984},
+    isbn={978-3-642-00912-9},
+    booktitle={Sensitivity, Stability and Parametric Analysis},
+    volume={21},
+    series={Mathematical Programming Studies},
+    editor={Fiacco, AnthonyV.},
+    doi={10.1007/BFb0121210},
+    title={Linear parametric programming—A brief survey},
+    url={http://dx.doi.org/10.1007/BFb0121210},
+    publisher={Springer Berlin Heidelberg},
+    keywords={Linear Programming; Parametric Programming; Perturbation Analysis; Postoptimal Analysis},
+    author={Gal, T.},
+    pages={43-68}
+}
+% Very interesting survey!
+% Summarizes technical results on parametric linear programming,
+% but also refs to nonlinear parametric programming and to applications in operations research
+
+
+@incollection{Gal_Greenberg_1997,
+    editor = {Tomas Gal and Harvey J. Greenberg},
+    title = {Advances in Sensitivity Analysis and Parametric Programming},
+    series = {International Series in Operations Research \& Management Science},
+    volume = {6},
+    year = {1997},
+    publisher = {Springer New York}
+}
+% "Recent" survey book
+% ? not available on line or at KU Leuven
+
+
+
 % -----------------------------
 % Parametric linear programming
 % -----------------------------
 
+% Parameter-dependent right-hand side or linear objective
+
+@article{Saaty_Gass_1954,
+     title = {Parametric Objective Function (Part 1)},
+     author = {Saaty, Thomas and Gass, Saul},
+     journal = {Journal of the Operations Research Society of America},
+     volume = {2},
+     number = {3},
+     pages = {316-319},
+     url = {http://www.jstor.org/stable/166644},
+     ISSN = {00963984},
+     language = {English},
+     year = {1954},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1954 INFORMS},
+}
+% One of first parametric programming papers
+% parametric LP of which the objective is affected by one scalar parameter
+
+
 @article{Gass_Saaty_1955,
+     title = {Parametric Objective Function (Part 2)- Generalization},
+     author = {Gass, S. I. and Saaty, Thomas L.},
+     journal = {Journal of the Operations Research Society of America},
+     volume = {3},
+     number = {4},
+     pages = {pp. 395-401},
+     url = {http://www.jstor.org/stable/166754},
+     ISSN = {00963984},
+     language = {English},
+     year = {1955},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1955 INFORMS},
+}
+% One of first parametric programming papers
+% parametric LP of which the objective is affected by one scalar parameter
+
+
+@article{Gass_Saaty_1955b,
     author = {Gass, Saul and Saaty, Thomas},
     title = {The computational algorithm for the parametric objective function},
     journal = {Naval Research Logistics Quarterly},
@@ -43,52 +137,6 @@
 % The paper presents an effective method for finding all critical regions. This method uses an algorithm that finds all nodes of a finite connected graph.
 
 
-@incollection{Gal_1984,
-    year={1984},
-    isbn={978-3-642-00912-9},
-    booktitle={Sensitivity, Stability and Parametric Analysis},
-    volume={21},
-    series={Mathematical Programming Studies},
-    editor={Fiacco, AnthonyV.},
-    doi={10.1007/BFb0121210},
-    title={Linear parametric programming—A brief survey},
-    url={http://dx.doi.org/10.1007/BFb0121210},
-    publisher={Springer Berlin Heidelberg},
-    keywords={Linear Programming; Parametric Programming; Perturbation Analysis; Postoptimal Analysis},
-    author={Gal, T.},
-    pages={43-68}
-}
-% According to report Zuidwijk, this paper should contain references to multiparametric LP with parameter-dependent coefficient matrices
-
-
-@incollection{Gal_Greenberg_1997,
-    editor = {Gal, Tomas, Greenberg, Harvey J.},
-    title = {Advances in Sensitivity Analysis and Parametric Programming},
-    series = {International Series in Operations Research \& Management Science},
-    volume = {6},
-    year = {1997},
-    publisher = {Spring New York}
-}
-% "Recent" survey book
-
-
-
-@report{zuidwijk2005,
-  author = {Rob A. Zuidwijk},
-  institution = {Erasmus Research Institute of Management (ERIM)},
-  keywords = {sensitivity analysis; linear programming; rational matrix function; linear parametric programming},
-  month = {Oct},
-  number = {ERS-2005-055-LIS},
-  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient Matrix in Linear Programs},
-  type = {report},
-  url = {http://ideas.repec.org/p/dgr/eureri/30007631.html},
-  year = {2005}
-}
-% Parametric LP with parameter-dependent coefficient matrix
-% Explicit description of the solution
-% ? Only for one scalar parameter
-
-
 @article{Borrelli_et_al_2003,
     year={2003},
     issn={0022-3239},
@@ -111,6 +159,37 @@
 
 
 % Filippi_2004
+
+
+% Parameter-dependent coefficient matrix
+
+@article{Freund_1985,
+    year={1985},
+    journal={Mathematical Programming Study},
+    volume={24},
+    number={},
+    title={Postoptimal analysis of a linear program under simultaneous changes in matrix coefficients},
+    author={Robert M. Freund},
+    pages={1-13},
+}
+% Parametric LP with parameter-dependent coefficient matrix
+% Only one scalar parameter
+
+
+@report{zuidwijk2005,
+  author = {Rob A. Zuidwijk},
+  institution = {Erasmus Research Institute of Management (ERIM)},
+  keywords = {sensitivity analysis; linear programming; rational matrix function; linear parametric programming},
+  month = {Oct},
+  number = {ERS-2005-055-LIS},
+  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient Matrix in Linear Programs},
+  type = {report},
+  url = {http://ideas.repec.org/p/dgr/eureri/30007631.html},
+  year = {2005}
+}
+% Parametric LP with parameter-dependent coefficient matrix
+% Explicit description of the solution using rational realization theory
+% Only for one scalar parameter
 
 
 
@@ -136,7 +215,7 @@
 }
 
 @article{Tondel_et_al_2003,
-    title = {An algorithm for multi-parametric quadratic programming and explicit \{MPC\} solutions},
+    title = {An algorithm for multi-parametric quadratic programming and explicit {MPC} solutions},
     journal = {Automatica},
     volume = {39},
     number = {3},
@@ -162,7 +241,7 @@
 
 @article{Goldfarb_Scheinberg_1999,
     title = {On parametric semidefinite programming},
-    journal = "{Applied Numerical Mathematics},
+    journal = {Applied Numerical Mathematics},
     volume = {29},
     number = {3},
     pages = {361 - 377},
@@ -186,6 +265,8 @@
 % --------------------------------
 
 % To be completed?
+% Bank_et_al_1983
+% References in Gal_1984
 
 
 % ---------------------
@@ -248,7 +329,7 @@
 }
 
 
-@INPROCEEDINGS{Oishi2013,
+@inproceedings{Oishi2013,
 	author={Yasuaki Oishi},
 	booktitle={Control Applications (CCA), 2013 IEEE International Conference on},
 	title={Simplified approaches to polynomial design of model predictive controllers},
@@ -294,6 +375,20 @@
 % Application: multiobjective optimization
 % ----------------------------------------
 
+@article{Gal_1977,
+    title = {A general method for determining the set of all efficient solutions to a linear vectormaximum problem},
+    journal = {European Journal of Operational Research},
+    volume = {1},
+    number = {5},
+    pages = {307 - 322},
+    year = {1977},
+    issn = {0377-2217},
+    doi = {http://dx.doi.org/10.1016/0377-2217(77)90063-7},
+    url = {http://www.sciencedirect.com/science/article/pii/0377221777900637},
+    author = {Tomas Gal}
+}
+
+% Gal_1979, chapter 9
 
 @incollection{Romanko_et_al_2012,
     year={2012},
