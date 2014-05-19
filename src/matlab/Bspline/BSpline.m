@@ -11,7 +11,7 @@ classdef BSpline
             % Constructor for BSpline
             % validateattributes(coeffs(:), {'double'}, {'size', [length(basis), 1]}, 'BSpline', 'coeffs');
             s.basis = basis;
-            if strcmp(class(coeffs), 'BSplineCoeffs')
+            if isa(coeffs, 'BSplineCoeffs')
                 s.coeffs = coeffs;
             else
                 s.coeffs = BSplineCoeffs(coeffs);
@@ -43,7 +43,7 @@ classdef BSpline
         end
 
         function s = plus(self, other)
-            if strcmp(class(self), class(other))
+            if isa(self, class(other))
                 basis = self.basis + other.basis;
                 coeffs = basis.transform(self.basis) * self.coeffs + ...
                          basis.transform(other.basis) * other.coeffs;
@@ -68,7 +68,7 @@ classdef BSpline
         end
 
         function s = mtimes(self, other)
-            if strcmp(class(self), class(other))
+            if isa(self, class(other))
                 basis = self.basis * other.basis;
                 grev = basis.greville;
                 b_self = self.basis.f(grev);
@@ -101,14 +101,14 @@ classdef BSpline
             k_min = nan;
             k_max = nan;
             for i=1:length(varargin)
-                if strcmp(class(varargin{i}), 'BSpline')
+                if isa(varargin{i}, 'BSpline')
                     k_min = min(k_min, varargin{i}.basis.knots(1));
                     k_max = max(k_max, varargin{i}.basis.knots(end));
                 end
             end
             % Convert constants to Bspline bases
             for i=1:length(varargin)
-                if strcmp(class(varargin{i}), 'double')
+                if isa(varargin{i}, 'double')
                     varargin{i} = BSpline(BSplineBasis([k_min, k_max], 0), {varargin{i}}); %#ok<CCAT1>
                 end
             end
@@ -132,14 +132,14 @@ classdef BSpline
             k_min = nan;
             k_max = nan;
             for i=1:length(varargin)
-                if strcmp(class(varargin{i}), 'BSpline')
+                if isa(varargin{i}, 'BSpline')
                     k_min = min(k_min, varargin{i}.basis.knots(1));
                     k_max = max(k_max, varargin{i}.basis.knots(end));
                 end
             end
             % Convert constants to Bspline bases
             for i=1:length(varargin)
-                if strcmp(class(varargin{i}), 'double')
+                if isa(varargin{i}, 'double')
                     varargin{i} = BSpline(BSplineBasis([k_min, k_max], 0), {varargin{i}});
                 end
             end

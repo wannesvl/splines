@@ -81,10 +81,10 @@ classdef Basis
             %
             % Returns:
             %    Basis: The sum of self and other
-            if strcmp(class(other), class(self))
+            if isa(other, class(self))
                 degree = max(self.degree, other.degree);
                 b = self.combine(other, degree);
-            elseif strcmp(class(other), 'double')
+            elseif isa(other, 'double')
                 b = self;
             else
                 error('Incompatible datatype')
@@ -96,10 +96,10 @@ classdef Basis
             %
             % Returns:
             %    Basis: The product of self and other
-            if strcmp(class(other), class(self))
+            if isa(other, class(self))
                 degree = self.degree + other.degree;
                 b = self.combine(other, degree);
-            elseif strcmp(class(other), 'double')
+            elseif isa(other, 'double')
                 b = self;
             else
                 error('Incompatible datatype')

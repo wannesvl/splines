@@ -73,7 +73,7 @@ classdef BSplineBasis < Basis
 
         function T = transform(self, other)
             x = self.greville();
-            if strcmp(class(other), class(self))
+            if isa(other, class(self))
                 T = self.f(x) \ other.f(x);
             end
             T(abs(T) < 1e-10) = 0;
