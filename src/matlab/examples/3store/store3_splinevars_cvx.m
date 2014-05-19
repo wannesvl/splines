@@ -28,7 +28,7 @@ cvx_solver sedumi
 cvx_begin sdp
     variable cZ(nu, nu, length(BasisZL)) symmetric;
     variable cL(nu, nx, length(BasisZL));
-    variable cQ(nx, nx, length(BasisQ)) symmetric semidefinite;
+    variable cQ(nx, nx, length(BasisQ)) symmetric;
         
     Q = BSpline(BasisQ, squeeze(mat2cell(cQ, nx, nx, ones(length(BasisQ), 1))));
     Z = BSpline(BasisZL, squeeze(mat2cell(cZ, nu, nu, ones(length(BasisZL), 1))));
@@ -42,13 +42,13 @@ cvx_begin sdp
     minimize (Z.trace.integral)
     subject to
         for i=1:length(LMI1.basis)
-            LMI1.coeffs.coeffs{i} <= 0
+            LMI1.coeffs.coeffs{i} < 0
         end
         for i=1:length(LMI2.basis)
-            LMI2.coeffs.coeffs{i} <= 0
+            LMI2.coeffs.coeffs{i} < 0
         end
         for i=1:length(LMI3.basis)
-            LMI3.coeffs.coeffs{i} >= 0
+            LMI3.coeffs.coeffs{i} > 0
         end
 cvx_end
 
