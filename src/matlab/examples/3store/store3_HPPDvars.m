@@ -46,9 +46,9 @@ eps = 0;    % tuning parameter to enforce strict inequality of LMIs
 
 N = vertices(A);                 % #vertices plant
 g = degr(A);                     % polynomial degree A(a)
-p = 3;                           % degree of Lyapunov matrix Q(a)
+p = 2;                           % degree of Lyapunov matrix Q(a)
 d = 0;                           % degree of Pólya relaxation
-insknots = linspace(0.1,0.9,10); % inserted knots
+insknots = []; % linspace(0.1,0.9,20); % inserted knots
 
 % monomial sets and cardinalities
 KNg   = get_KNg(N,g);     JNg   = get_JNg(N,g);
@@ -65,7 +65,7 @@ KNgpd = get_KNg(N,g+p+d); JNgpd = get_JNg(N,g+p+d);
 
 % new LMI system
 LMIs = set([]);
-Info.rows = 0;
+Primal.rows = 0;
 
 % generate the LMI variables
 for j=1:JNp
@@ -144,24 +144,24 @@ for j = 1:JNpd % monomials Lyapunov matrix positive definite
     jj = gMS(KNpd(j,:));
     Term = eval(['Qd{' jj '};']);
     LMIs = LMIs + set(Term > eps*eye(nx));
-    Info.rows = Info.rows + nx;
+    Primal.rows = Primal.rows + nx;
 end
 for j = 1:JNgpd+length(insknots)
     jj = gMS(j-1);
     
     Term = eval(['newcoefsU{' jj '};']);
     LMIs = LMIs + set(Term < -eps*eye(nx+nw));
-    Info.rows = Info.rows + nx + nw;
+    Primal.rows = Primal.rows + nx + nw;
     
     Term = eval(['newcoefsV{' jj '};']);
     LMIs = LMIs + set(Term < -eps*eye(nz));
-    Info.rows = Info.rows + nz;
+    Primal.rows = Primal.rows + nz;
     
     Term = eval(['newcoefsW{' jj '};']);
     LMIs = LMIs + set(Term > eps*eye(nx+nu));
-    Info.rows = Info.rows + nx + nu;
+    Primal.rows = Primal.rows + nx + nu;
 end
-Info.vars = size(getvariables(LMIs),2); %number of LMI variables
+Primal.vars = size(getvariables(LMIs),2); %number of LMI variables
 
 % objective function
 % if the polynomial matrix function Z(a) is expressed in the Bspline basis: 
@@ -246,7 +246,7 @@ clear U11 U12 U22
  
 % new LMI system
 LMIs = set([]);
-Info.rows = 0;
+Dual.rows = 0;
 
 % generate the LMI variables
 for j=1:JNp
@@ -328,18 +328,18 @@ for j = 1:JNpd+length(insknots)
     jj = gMS(j-1);
     Term = eval(['newU{' jj '};']);
     LMIs = LMIs + set(Term > eps*eye(nx+nw));
-    Info.rows = Info.rows + nx + nw;
+    Dual.rows = Dual.rows + nx + nw;
     Term = eval(['newV{' jj '};']);
     LMIs = LMIs + set(Term > eps*eye(nz));
-    Info.rows = Info.rows + nz;
+    Dual.rows = Dual.rows + nz;
 end
 for j = 1:JNgpd+length(insknots)
     jj = gMS(j-1);
     Term = eval(['newT{' jj '};']);
     LMIs = LMIs + set(Term > eps*eye(nx+nu));
-    Info.rows = Info.rows + nx + nu;
+    Dual.rows = Dual.rows + nx + nu;
 end
-Info.vars = size(getvariables(LMIs),2); %number of LMI variables
+Dual.vars = size(getvariables(LMIs),2); %number of LMI variables
 
 % objective function
 goal = 0;
