@@ -51,7 +51,7 @@ classdef BSpline
             else
                 try
                     basis = self.basis;
-                    coeffs = other + self.coeffs;
+                    coeffs = self.coeffs + other;
                     s = self.cl(basis, coeffs);
                 catch err
                     s = other + self;
@@ -83,17 +83,49 @@ classdef BSpline
             else
                 try
                     basis = self.basis;
-                    coeffs = other * self.coeffs;
+                    coeffs = self.coeffs .* other;
                     s = self.cl(basis, coeffs);
                 catch err
+                    % s = other * self
                     basis = other.basis;
-                    coeffs = self * other.coeffs;
+                    coeffs = self .* other.coeffs;
                     s = other.cl(basis, coeffs);
                 end
             end
         end
 
         function s = vertcat(varargin)
+            % Concatenate two splines
+
+            % Determine support of concatenation
+            k_min = nan;
+            k_max = nan;
+            for i=1:length(varargin)
+                if strcmp(class(varargin{i}), 'BSpline')
+                    k_min = min(k_min, varargin{i}.basis.knots(1));
+                    k_max = max(k_max, varargin{i}.basis.knots(end));
+                end
+            end
+            % Convert constants to Bspline bases
+            for i=1:length(varargin)
+                if strcmp(class(varargin{i}), 'double')
+                    varargin{i} = BSpline(BSplineBasis([k_min, k_max], 0), {varargin{i}}); %#ok<CCAT1>
+                end
+            end
+            % Now concatenate the bases
+            b = varargin{1}.basis;
+            for i=2:length(varargin)
+                b = varargin{i}.basis + b;
+            end
+            c = cell(size(varargin));
+            for i=1:length(varargin)
+                c{i} = b.transform(varargin{i}.basis) * varargin{i}.coeffs;
+            end
+            c = vertcat(c{:});
+            s = varargin{1}.cl(b, c);
+        end
+
+        function s = horzcat(varargin)
             % Concatenate two splines
 
             % Determine support of concatenation
@@ -120,30 +152,16 @@ classdef BSpline
             for i=1:length(varargin)
                 c{i} = b.transform(varargin{i}.basis) * varargin{i}.coeffs;
             end
-            c = vertcat(c{:});
-            s = varargin{1}.cl(b, c);
-        end
-
-        function s = horzcat(varargin)
-            % Concatenate two splines
-            b = varargin{1}.basis;
-            for i=2:length(varargin)
-                b = varargin{i}.basis + b;
-            end
-            c = cell(size(varargin));
-            for i=1:length(varargin)
-                c{i} = b.transform(varargin{i}.basis) * varargin{i}.coeffs;
-            end
             c = horzcat(c{:});
             s = varargin{1}.cl(b, c);
         end
 
         function s = transpose(self)
-            s = self.cl(self.basis, self.coeffs')
+            s = self.cl(self.basis, self.coeffs');
         end
 
         function s = ctranspose(self)
-            s = self.cl(self.basis, self.coeffs.')
+            s = self.cl(self.basis, self.coeffs.');
         end
 
         function d = derivative(self, o)
@@ -169,7 +187,16 @@ classdef BSpline
         function i = integral(self)
             k = self.basis.knots;
             d = self.basis.degree;
-            i = sum((k(d + 2:end) - k(1:end - d - 1)) .* self.coeffs) / (d + 1);
+            i = (k(d + 2:end) - k(1:end - d - 1))'  / (d + 1) * self.coeffs;
+            i = i.coeffs{1};
+        end
+
+        function t = trace(self)
+            % Sum of the diagonal coeffs
+            for i=1:length(self.basis)
+                c(i) = trace(self.coeffs.coeffs{i});
+            end
+            t = self.cl(self.basis, c);
         end
     end
 end

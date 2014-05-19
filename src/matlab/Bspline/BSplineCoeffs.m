@@ -54,15 +54,17 @@ classdef BSplineCoeffs
 
         function c = plus(self, other)
             % Sum of two coefficients
-            if strcmp(class(self), class(other))
-                c = vertcat(self.coeffs{:}) + vertcat(other.coeffs{:});
-                c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
-                c = self.cl(reshape(c, size(self.coeffs)));
+            if isa(self, class(other))
+                % c = vertcat(self.coeffs{:}) + vertcat(other.coeffs{:});
+                % c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                % c = self.cl(reshape(c, size(self.coeffs)));
+                c = self.cl(cellfun(@plus, self.coeffs, other.coeffs, 'UniformOutput', false));
             else
                 try
-                    c = vertcat(self.coeffs{:}) + other;
-                    c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
-                    c = self.cl(reshape(c, size(self.coeffs)));
+                    % c = vertcat(self.coeffs{:}) + other;
+                    % c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                    % c = self.cl(reshape(c, size(self.coeffs)));
+                    c = self.cl(cellfun(@(v) v + other, self.coeffs, 'UniformOutput', false));
                 catch err
                     c = other + self;
                 end
@@ -81,7 +83,15 @@ classdef BSplineCoeffs
 
         function c = times(self, other)
             % pointwise product
-            c = cellfun(@mtimes, self.coeffs, other.coeffs, 'UniformOutput', false);
+            if isa(self, class(other))
+                c = cellfun(@mtimes, self.coeffs, other.coeffs, 'UniformOutput', false);
+            else
+                try
+                    c = cellfun(@(v) v * other, self.coeffs, 'UniformOutput', false);
+                catch err
+                    c = cellfun(@(v) self * v, other.coeffs, 'UniformOutput', false);
+                end
+            end
             c = BSplineCoeffs(c);
         end            
 
@@ -101,23 +111,23 @@ classdef BSplineCoeffs
         function c = vertcat(varargin)
             % Concatenate matrices
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@(v) builtin('vertcat', v{:}), d, 'uni', false));
+            c = BSplineCoeffs(cellfun(@vertcat, d{:}, 'uni', false));
         end
 
         function c = horzcat(varargin)
             % Concatenate matrices
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@(v) builtin('horzcat', v{:}), d, 'uni', false));
+            c = BSplineCoeffs(cellfun(@horzcat, d{:}, 'uni', false));
         end
 
         function c = transpose(self)
             % Transpose each of the coefficients
-            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false))
+            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false));
         end
 
         function c = ctranspose(self)
             % Transpose each of the coefficients
-            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false))
+            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false));
         end
 
         function varargout = subsref(self, s)
