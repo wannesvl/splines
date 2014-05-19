@@ -96,13 +96,22 @@ classdef BSpline
         function s = vertcat(varargin)
             % Concatenate two splines
 
+            % Determine support of concatenation
+            k_min = nan;
+            k_max = nan;
+            for i=1:length(varargin)
+                if strcmp(class(varargin{i}), 'BSpline')
+                    k_min = min(k_min, varargin{i}.basis.knots(1));
+                    k_max = max(k_max, varargin{i}.basis.knots(end));
+                end
+            end
             % Convert constants to Bspline bases
-            % k_min = min(cellfun(@(a) a.basis.knots(1), varargin))
-            % for i=1:length(varargin)
-            %     if strcmp(class(varargin{i}), 'double')
-            %         varargin{i} = BSpline(BSplineBasis([-inf, inf], 0), {varargin{i}})
-            %     end
-            % end
+            for i=1:length(varargin)
+                if strcmp(class(varargin{i}), 'double')
+                    varargin{i} = BSpline(BSplineBasis([k_min, k_max], 0), {varargin{i}});
+                end
+            end
+            % Now concatenate the bases
             b = varargin{1}.basis;
             for i=2:length(varargin)
                 b = varargin{i}.basis + b;
