@@ -81,17 +81,8 @@ classdef BSplineCoeffs
 
         function c = times(self, other)
             % pointwise product
-            if strcmp(class(self), class(other))
-                c = blkdiag(self.coeffs{:}) * vertcat(other.coeffs{:});
-                c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
-                c = self.cl(reshape(c, size(self.coeffs)));
-            else
-                try
-                    c = diag(self) * other;
-                catch err
-                    c = diag(other) * self;
-                end
-            end
+            c = cellfun(@mtimes, self.coeffs, other.coeffs, 'UniformOutput', false);
+            c = BSplineCoeffs(c);
         end            
 
         function c = mtimes(a, self)
@@ -101,7 +92,7 @@ classdef BSplineCoeffs
                     c = kron(a, eye(self.size(1))) * vertcat(self.coeffs{:});
                     % And now convert back to cell
                     c = mat2cell(c, ... 
-                        self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
+                        self.size(1) * ones(size(c, 1) / self.size(1), 1), size(c, 2));
                     c = self.cl(c);
                 end
             end
@@ -109,30 +100,14 @@ classdef BSplineCoeffs
 
         function c = vertcat(varargin)
             % Concatenate matrices
-            c = varargin{1}.coeffs;
-            c = horzcat(c{:});
-            for j = 2:length(varargin)
-                v = varargin{j}.coeffs;
-                v = horzcat(v{:});
-                c = [c; v];
-            end
-            % Convert back to cell
-            c = mat2cell(c, size(c, 1), varargin{1}.size(1) * ones(size(c , 2) / varargin{1}.size(1), 1))';
-            c = varargin{1}.cl(reshape(c, size(varargin{1}.coeffs)));
+            d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
+            c = BSplineCoeffs(cellfun(@(v) builtin('vertcat', v{:}), d, 'uni', false));
         end
 
         function c = horzcat(varargin)
             % Concatenate matrices
-            c = varargin{1}.coeffs;
-            c = vertcat(c{:});
-            for j = 2:length(varargin)
-                v = varargin{j}.coeffs;
-                v = vertcat(v{:});
-                c = [c v];
-            end
-            % Convert back to cell
-            c = mat2cell(c, varargin{1}.size(1) * ones(size(c , 1) / varargin{1}.size(1), 1), size(c, 2))';
-            c = varargin{1}.cl(reshape(c, size(varargin{1}.coeffs)));
+            d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
+            c = BSplineCoeffs(cellfun(@(v) builtin('horzcat', v{:}), d, 'uni', false));
         end
 
         function c = transpose(self)
