@@ -139,9 +139,9 @@ classdef Basis
             %
             % Returns:
             %    Basis: The new basis
-            degree = self.degree + d
-            knots = sort(repmat(self.knots, 1, d + 1))
-            b = self.cl(knots, degree)
+            degree = self.degree + d;
+            knots = sort([self.knots; repmat(unique(self.knots), d, 1)]);
+            b = self.cl(knots, degree);
         end
 
         function s = support(self)

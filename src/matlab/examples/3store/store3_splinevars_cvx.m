@@ -17,10 +17,10 @@ A  = BSpline(BSplineBasis([0 0 1 1], 1), cA);
 %_______________________________________________________________________      
 % STEP 2: solve parametric LMI optimization problems
 
-p = 3; % degree of Lyapunov matrix Q
+p = 2; % degree of Lyapunov matrix Q
 % n = 0; % #knots of Q
-BasisQ  = BSplineBasis([0 * ones(1, p + 1) 0.25 0.5 0.75 ones(1, p + 1)], p);
-BasisZL = BSplineBasis([0 * ones(1, p + 2) 0.25 0.5 0.75 ones(1, p + 2)], p + 1);
+BasisQ  = BSplineBasis([0 * ones(1, p + 1) ones(1, p + 1)], p);
+BasisZL = BSplineBasis([0 * ones(1, p + 2) ones(1, p + 2)], p + 1);
 
 %_______________________________________________________________________ 
 % 2.1: Solve parametric primal
@@ -36,6 +36,7 @@ cvx_begin sdp
 
     LMI1 = [Q * A' + A * Q + Bu * L + L' * Bu', Bw; Bw', -1]; % LMI1 < 0
     LMI2 = Cz * Q * Cz' - mu * eye(nz); % LMI2 < 0
+    LMI2 = LMI2.increase_degree(1)
     LMI3 = [Q, L'; L, Z]; % LMI3 > 0
 
     minimize (Z.trace.integral)
