@@ -1,14 +1,32 @@
 classdef BSplineBasis < Basis
     methods
         function B = BSplineBasis(knots, degree)
-            % Class constructor
+            % Constructor for BSplineBasis, a subclass of Basis
+            %
+            % Args:
+            %    knots (vector, double): the knot sequence of the basis
+            %    degree (int): the degree of the basis
+            %
+            % Returns:
+            %    BSplineBasis: an instance of the Basis class
+            %
+            % Example:
+            %    > B = BsplineBasis([0, 0, 0, 0.5, 1, 1, 1], 2)
             B@Basis(knots, degree)
         end
 
         function b = f(self, x)
             % Evaluate the BSplineBasis at x
             %
-            % 
+            % This function implements the Cox-de Boor recursive formula for
+            % the evaluation of B-spline basis functions
+            %
+            % Args:
+            %    x (vector, double): The evaluation sites
+            %
+            % Returns:            
+            %    matrix, double: Each column of b contains the evaluated basis
+            %        function at the evaluation sites
             x = x(:);
             k = self.knots;
             basis = cell(self.degree + 1, 1);
