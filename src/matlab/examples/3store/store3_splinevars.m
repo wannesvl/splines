@@ -1,8 +1,25 @@
-clear all
-% close all
-clear global
-clc
-
+function [Primal,Dual] = store3_splinevars(p,n,m,d)
+% State-feedback synthesis for the 3 store problem.
+% The spring coefficient k2 is a structural parameter, 
+% and is assumed to be constant and measurable.
+%
+% The objective is to solve only one primal and one dual optimization 
+% problem to obtain a good approximation of the performance as a function
+% of the parameter. Therefore, this problem is formulated as an LPV
+% state-feedback synthesis problem with a constant and measurable
+% parameter, giving rise to a semi-infinite convex optimization problem 
+% with LMI constraints. 
+%
+% The LMI variables are assumed 
+% 
+% Inputs:   p -> polynomial degree of the Lyapunov matrix
+%           n -> #internal knots spline LMI variables
+%           m -> #midpoint refinements, s.t. #inserted knots = 2^m - 1
+%           d -> degree of Pólya relaxation
+%
+% Outputs:  Primal: struct with info about primal solution
+%           Dual  : struct with info about dual solution
+%
 %_______________________________________________________________________
 % STEP 1. Load model and sampled solution
 load model_3store2
@@ -17,12 +34,7 @@ A  = BSpline(BSplineBasis([0 0 1 1],1),cA);
 
 %_______________________________________________________________________      
 % STEP 2: solve parametric LMI optimization problems
-p = 4; % degree of Lyapunov matrix Q
-n = 5; % #internal knots of LMI variables Q,Z,L
-m = 0; % #inserted knots 
-d = 0; % degree Pólya relaxation
-
-tol = 1e-5; % tolerance primal residual
+tol = 1e-6; % tolerance primal residual
 eps = 0;    % tuning parameter to enforce strict inequality LMIs
 
 %_______________________________________________________________________ 
@@ -51,16 +63,16 @@ Term1 = [Q*A' + A*Q + Bu*L + L'*Bu', Bw; Bw', -eye(nw)];
 Term2 = Cz*Q*Cz' - mu*eye(nz);
 Term3 = [Q, L'; L, Z];
 
+% knot insertion
+insknots = linspace(0,1,2^m+1); insknots(1) = []; insknots(end) = [];
+Term1 = Term1.insert_knots(insknots);
+Term2 = Term2.insert_knots(insknots);
+Term3 = Term3.insert_knots(insknots);
+
 % Pólya relaxations
 Term1 = Term1.increase_degree(d);
 Term2 = Term2.increase_degree(1+d);
 Term3 = Term3.increase_degree(d);
-
-% knot insertion
-insknots = linspace(0,1,m+2); insknots(1) = []; insknots(end) = [];
-Term1 = Term1.insert_knots(insknots);
-Term2 = Term2.insert_knots(insknots);
-Term3 = Term3.insert_knots(insknots);
 
 % sufficient LMIs (all Bspline coefficients >/< 0)
 for j = 1:length(Term1.basis)
@@ -81,7 +93,7 @@ Primal.vars = size(getvariables(LMIs),2); % #LMI variables
 obj = Z.trace.integral;
 
 % solve the SDP
-sol = solvesdp(LMIs, obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 1))
+sol = solvesdp(LMIs, obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 0));
 [p_res,d_res] = checkset(LMIs);
 
 % extract solution variables
@@ -122,7 +134,7 @@ Term = [A'*U11 + U11*A + Cz'*V*Cz, U11*Bu; Bu'*U11, eye(nu)];
 Term = Term.increase_degree(d);
 
 % knot insertion
-insknots = linspace(0,1,m+2); insknots(1) = []; insknots(end) = [];
+insknots = linspace(0,1,2^m+1); insknots(1) = []; insknots(end) = [];
 Term = Term.insert_knots(insknots);
 
 % sufficient LMIs (all Bspline coefficients >/< 0)
@@ -143,7 +155,7 @@ obj1 = U12*Bw'; obj2 = U12'*Bw; obj3 = -U22; obj4 = -mu*V;
 obj = obj1.trace.integral + obj2.trace.integral + obj3.trace.integral + obj4.trace.integral;
 
 % solve the SDP
-sol = solvesdp(LMIs, -obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 1))
+sol = solvesdp(LMIs, -obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 0));
 [p_res,d_res] = checkset(LMIs);
 
 % extract solution variables

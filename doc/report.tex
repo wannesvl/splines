@@ -204,6 +204,61 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
     \end{itemize}
 \end{itemize}
 
+\subsection{Case study: combined structure control design for earthquake isolation}
+Consider the 3-DOF model of \cite{Camino_2003}, that should be prevented against earhquakes. In this case study, the objective is to design a state-feedback controller with a good tradeoff between disturbance rejection and actuator effort, while optimizing a time-invariant structural parameter. Viewing this problem as an LPV state-feedback synthesis problem with time-invariant parameter, solving only one LMI optimization problem results in accurate approximations of the performance as a function of the structural parameter. In this way, a (nearly) optimal structural parameter can be efficiently selected.
+
+The structural parameter is selected as spring coefficient $k_2$, see \cite{Camino_2003}. Assuming that $k_2 \in [\underline{k}_2, \overline{k}_2]$, and defining $\theta := (k_2 - \underline{k}_2)/(\overline{k}_2 - \underline{k}_2)$, the system model is expressed in state-space form as
+\begin{equation*}
+\left\{ \begin{array}{rcl}
+	\dot{x}(t) & = & A(\theta)x(t) + B_u u(t) + B_w w(t), \\
+	z(t) & = & C_z x(t), \\
+\end{array} \right.
+\end{equation*}  
+where $A(\theta) \in \mathbb{R}^{6 \times 6}$ has an affine dependency on $\theta \in [0,1]$, and $B_u \in \mathbb{R}^{6 \times 3}$, $B_w \in \mathbb{R}^{6 \times 1}$ and $C_z \in \mathbb{R}^{3 \times 6}$ are constant matrices. A state-feedback controller $K(\theta) \in \mathbb{R}^{3 \times 6}$ is to be designed, such that the closed-loop system 
+\begin{equation*}
+\left\{ \begin{array}{rcl}
+	\dot{x}(t) & = & (A(\theta) + B_u K(\theta))x(t) + B_w w(t), \\
+	z(t) & = & C_z x(t), \\
+	u(t) & = & K(\theta) x(t),
+\end{array} \right.
+\end{equation*}  
+meets a $\mathcal{H}_2$ performance from $w$ to $z$ and from $w$ to $u$ for each parameter value $\theta \in [0,1]$. 
+
+The $\mathcal{H}_2$ performances (worst case, so for any parameter value!) from $w$ to $z$ and from $w$ to $u$ are respectively bounded by $\mu$ and $\gamma$ if, and only if, there exist matrix functions $Q(\theta)$, $Z(\theta)$ and $L(\theta)$ such that the following LMIs hold:
+\begin{eqnarray*}
+ & \left[ \begin{array}{cc} Q(\theta)A(\theta)^T + A(\theta)Q(\theta) + B_u L(\theta) + L(\theta)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
+ & C_z Q(\theta) C_z^T - \mu I \prec 0, \\
+ & \left[ \begin{array}{cc} Q(\theta) & L(\theta)^T \\ L(\theta) & Z(\theta) \end{array} \right] \succ 0, \\
+ & \text{Trace}\{Z(\theta)\} < \gamma,
+\end{eqnarray*}
+for all $\theta \in [0,1]$. We assume a fixed bound $\mu$ while optimizing $\gamma$, corresponding to a single-objective optimization problem.
+
+Instead of optimizing worst-case performance, we are actually interested in optimizing $\gamma$ as a function of parameter $\theta$. This is achieved by solving the convex optimization problem 
+\begin{eqnarray*}
+ \text{minimize} & \int_0^1 \text{Trace}\{Z(\theta)\} d\theta, \\
+ \text{subject to} & \left[ \begin{array}{cc} Q(\theta)A(\theta)^T + A(\theta)Q(\theta) + B_u L(\theta) + L(\theta)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
+ & C_z Q(\theta) C_z^T - \mu I \prec 0, \\
+ & \left[ \begin{array}{cc} Q(\theta) & L(\theta)^T \\ L(\theta) & Z(\theta) \end{array} \right] \succ 0.
+\end{eqnarray*}
+To make the above optimization problem numerically tractable, it is necessary to assume a specific parameterization of the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. Solving the resulting optimization problem yields an upper bound $\overline{p}(\theta)$ on the optimal value function $p^{\star}(\theta)$, while solving the associated dual problem
+\begin{eqnarray*}
+ \text{maximize} & \int_0^1 \text{Trace}\{U_{12}(\theta)B_w^T\} + \text{Trace}\{U_{12}(\theta)^T B_w\} - \text{Trace}\{U_{22}(\theta)\} - \mu \text{Trace}\{V(\theta)\}d\theta, \\
+ \text{subject to} & \left[ \begin{array}{cc} U_{11}(\theta) & U_{12}(\theta) \\ U_{12}(\theta)^T & U_{22}(\theta) \end{array} \right] \succ 0, \\
+ & V(\theta) \succ 0, \\
+ & \left[ \begin{array}{cc} A(\theta)^T U_{11}(\theta) + U_{11}(\theta)A(\theta) + C_z^T V(\theta) C_z & U_{11}(\theta)B_u \\ B_u^T U_{11}(\theta) & I \end{array} \right] \succ 0.
+\end{eqnarray*}
+provides a lower bound $\underline{p}(\theta)$:
+\begin{equation*}
+ \underline{p}(\theta) \leq p^{\star}(\theta) \leq \overline{p}(\theta), \quad \theta \in [0,1].
+\end{equation*}
+
+TO DO: 
+\begin{itemize}
+\item make notation more consistent???
+\item discuss sampled solution
+\item Pólya vs knot insertion for relaxation
+\item HPPD vs Bspline LMI variables (more knots vs higher polynomial degree)
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
