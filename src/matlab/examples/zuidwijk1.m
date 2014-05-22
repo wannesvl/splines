@@ -1,4 +1,4 @@
-% close all
+close all
 clear all
 clc
 
@@ -46,12 +46,12 @@ cvx_begin
     y4 = BSpline(Bl, c4);
     obj = 2 * y3 + 2 * y4;
     con = [y4 - y1, -y2 + y3 + l * y4];
-    con_coeffs = con.getcoeffs
+    con_coeffs = con.getcoeffs;
 
     minimize (obj.integral)
     subject to
-        con_coeffs(:, 1) == 1
-        con_coeffs(:, 2) == 2
+        con_coeffs(:, 1) == 1;
+        con_coeffs(:, 2) == 2;
         y1.getcoeffs >= 0;
         y2.getcoeffs >= 0;
         y3.getcoeffs >= 0;
@@ -61,4 +61,5 @@ y3 = BSpline(Bl, c3);
 y4 = BSpline(Bl, c4);
 obj = 2 * y3 + 2 * y4;
 plot(x, obj.f(x), 'g')
-
+xlabel('\theta')
+ylabel('x_1(\theta) + 2 x_2(\theta)')
