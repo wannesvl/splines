@@ -20,7 +20,7 @@ classdef BSplineCoeffs
             % TODO: validate and "tidy" incorrect input
             %
             % Currently only works 
-            if strcmp(class(coeffs), 'cell')
+            if isa(coeffs, 'cell')
                 % Check if all elements are of equal size
                 sizes = cellfun(@size, coeffs, 'UniformOutput', false);
                 if length(sizes) | isequal(sizes{:})
@@ -97,7 +97,7 @@ classdef BSplineCoeffs
 
         function c = mtimes(a, self)
             % Implement 'generalized' inner product
-            if strcmp(class(a), 'double')
+            if isa(a, 'double')
                 if isvector(self.coeffs)
                     c = kron(a, eye(self.size(1))) * vertcat(self.coeffs{:});
                     % And now convert back to cell
@@ -105,6 +105,8 @@ classdef BSplineCoeffs
                         self.size(1) * ones(size(c, 1) / self.size(1), 1), size(c, 2));
                     c = self.cl(c);
                 end
+            else  % Recursive implementation
+
             end
         end
 
