@@ -80,7 +80,7 @@ Below, we present an approach for computing approximate solutions of the conside
 The last assumption guarantees that for all $\ppar\in\Ppar$
 \[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
 \]
-and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\theta)$ and $Y^\star(\theta)$ are non-empty).
+and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty).
 
 \commentGP{We mainly need these last conditions, so maybe state them as assumption 3, and state below that this can be achieved using Slater's constraint qualification?}
 
@@ -111,14 +111,14 @@ with $b_x{\ppar}=(b_{x,i}(\ppar))$ and $b_y{\ppar}=(b_{y,i}(\ppar))$. \commentGP
 \begin{align*}
 \hat{p}(\ppar, C_x) &\;=\;  h(\ppar)\t  C_x b_x(\ppar)\;,\\
 \hat{d}(\ppar, C_y) &\;=\;  g(\ppar)\t  C_y b_y(\ppar)\;.
-\end{align*} 
+\end{align*}
 
 In computing the coefficients $C_x$, we impose $\hat{x}(\ppar)$ to be a feasible point of $\Pi(\ppar)$ for all $\ppar\in\Ppar$. Hence, we enforce that for all $\ppar\in\Ppar$, there exists $\epsilon(\ppar)<\infty$ such that
 \[ \hat{x}(\ppar, C_x) \in X^\star_{\epsilon(\ppar)}(\ppar) \;.
 \]
 To obtain the best possible approximation, we minimize $\int_{\Ppar}\epsilon(\ppar)d\ppar$ while respecting the containment constraint above for all $\ppar\in\Ppar$. Since
 \[ \int_{\Ppar}\epsilon(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar, C_x)-p^\star(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar,C_x)d\ppar-\int_{\Ppar}p^\star(\ppar)d\ppar%
-\] 
+\]
 we end up with the following semi-infinite cone program
 \begin{gather}\label{eq:semi-inf_primal}
 \begin{aligned}
@@ -134,13 +134,13 @@ Similarly for the dual:
               &&                 &&&  C_y b_y(\ppar)\succeq_K 0  \;, &&\forall\ppar\in\Ppar\;.%
 \end{aligned}
 \end{gather}
-Let $C_x^\star$ and $C_y^\star$ denote optimal points of $\hat{\Pi}$ respectively $\hat{\Delta}$ then 
+Let $C_x^\star$ and $C_y^\star$ denote optimal points of $\hat{\Pi}$ respectively $\hat{\Delta}$ then
 \[ \hat{d}(\ppar,C_y^\star) \leq d^\star(\ppar) \leq p^\star(\ppar) \leq \hat{p}(\ppar,C_x^\star)\,,\qquad\forall\ppar\in\Ppar\,,%
 \]
 and within the chosen parameterization, the average gap $\hat{p}(\ppar,C_x^\star)-\hat{d}(\ppar,C_y^\star)$ over $\Ppar$ is minimal.
 
 \vspace*{12pt}
-\noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients. 
+\noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients.
 
 In that last step we rely on properties of the B-spline bases functions (positivity and partition of unity):
 \[ b(\ppar)\geq0\,,~\forall\ppar\in\Ppar \qquad \mathbf{1}\t b \equiv 1\,.%
@@ -204,6 +204,61 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
     \end{itemize}
 \end{itemize}
 
+\subsection{Case study: combined structure control design for earthquake isolation}
+Consider the 3-DOF model of \cite{Camino_2003}, that should be prevented against earthquakes. In this case study, the objective is to design a state-feedback controller with a good tradeoff between disturbance rejection and actuator effort, while optimizing a time-invariant structural parameter. Viewing this problem as an LPV state-feedback synthesis problem with time-invariant parameter, solving only one LMI optimization problem results in accurate approximations of the performance as a function of the structural parameter. In this way, a (nearly) optimal structural parameter can be efficiently selected.
+
+The structural parameter is selected as spring coefficient $k_2$, see \cite{Camino_2003}. Assuming that $k_2 \in [\underline{k}_2, \overline{k}_2]$, and defining $\ppar := (k_2 - \underline{k}_2)/(\overline{k}_2 - \underline{k}_2)$, the system model is expressed in state-space form as
+\begin{equation*}
+\left\{ \begin{array}{rcl}
+	\dot{x}(t) & = & A(\ppar)x(t) + B_u u(t) + B_w w(t), \\
+	z(t) & = & C_z x(t), \\
+\end{array} \right.
+\end{equation*}
+where $A(\ppar) \in \mathbb{R}^{6 \times 6}$ has an affine dependency on $\ppar \in [0,1]$, and $B_u \in \mathbb{R}^{6 \times 3}$, $B_w \in \mathbb{R}^{6 \times 1}$ and $C_z \in \mathbb{R}^{3 \times 6}$ are constant matrices. A state-feedback controller $K(\ppar) \in \mathbb{R}^{3 \times 6}$ is to be designed, such that the closed-loop system
+\begin{equation*}
+\left\{ \begin{array}{rcl}
+	\dot{x}(t) & = & (A(\ppar) + B_u K(\ppar))x(t) + B_w w(t), \\
+	z(t) & = & C_z x(t), \\
+	u(t) & = & K(\ppar) x(t),
+\end{array} \right.
+\end{equation*}
+meets a $\mathcal{H}_2$ performance from $w$ to $z$ and from $w$ to $u$ for each parameter value $\ppar \in [0,1]$.
+
+The $\mathcal{H}_2$ performances (worst case, so for any parameter value!) from $w$ to $z$ and from $w$ to $u$ are respectively bounded by $\mu$ and $\gamma$ if, and only if, there exist matrix functions $Q(\ppar)$, $Z(\ppar)$ and $L(\ppar)$ such that the following LMIs hold:
+\begin{eqnarray*}
+ & \left[ \begin{array}{cc} Q(\ppar)A(\ppar)^T + A(\ppar)Q(\ppar) + B_u L(\ppar) + L(\ppar)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
+ & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
+ & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0, \\
+ & \text{Trace}\{Z(\ppar)\} < \gamma,
+\end{eqnarray*}
+for all $\ppar \in [0,1]$. We assume a fixed bound $\mu$ while optimizing $\gamma$, corresponding to a single-objective optimization problem.
+
+Instead of optimizing worst-case performance, we are actually interested in optimizing $\gamma$ as a function of parameter $\ppar$. This is achieved by solving the convex optimization problem
+\begin{eqnarray*}
+ \text{minimize} & \int_0^1 \text{Trace}\{Z(\ppar)\} d\ppar, \\
+ \text{subject to} & \left[ \begin{array}{cc} Q(\ppar)A(\ppar)^T + A(\ppar)Q(\ppar) + B_u L(\ppar) + L(\ppar)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
+ & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
+ & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0.
+\end{eqnarray*}
+To make the above optimization problem numerically tractable, it is necessary to assume a specific parameterization of the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. Solving the resulting optimization problem yields an upper bound $\overline{p}(\ppar)$ on the optimal value function $p^{\star}(\ppar)$, while solving the associated dual problem
+\begin{eqnarray*}
+ \text{maximize} & \int_0^1 \text{Trace}\{U_{12}(\ppar)B_w^T\} + \text{Trace}\{U_{12}(\ppar)^T B_w\} - \text{Trace}\{U_{22}(\ppar)\} - \mu \text{Trace}\{V(\ppar)\}d\ppar, \\
+ \text{subject to} & \left[ \begin{array}{cc} U_{11}(\ppar) & U_{12}(\ppar) \\ U_{12}(\ppar)^T & U_{22}(\ppar) \end{array} \right] \succ 0, \\
+ & V(\ppar) \succ 0, \\
+ & \left[ \begin{array}{cc} A(\ppar)^T U_{11}(\ppar) + U_{11}(\ppar)A(\ppar) + C_z^T V(\ppar) C_z & U_{11}(\ppar)B_u \\ B_u^T U_{11}(\ppar) & I \end{array} \right] \succ 0.
+\end{eqnarray*}
+provides a lower bound $\underline{p}(\ppar)$:
+\begin{equation*}
+ \underline{p}(\ppar) \leq p^{\star}(\ppar) \leq \overline{p}(\ppar), \quad \ppar \in [0,1].
+\end{equation*}
+
+TO DO:
+\begin{itemize}
+\item make notation more consistent???
+\item discuss sampled solution
+\item Pólya vs knot insertion for relaxation
+\item HPPD vs Bspline LMI variables (more knots vs higher polynomial degree)
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
