@@ -34,11 +34,12 @@ A  = BSpline(BSplineBasis([0 0 1 1],1),cA);
 
 %_______________________________________________________________________      
 % STEP 2: solve parametric LMI optimization problems
-tol = 1e-6; % tolerance primal residual
+tol = 1e-5; % tolerance primal residual
 eps = 0;    % tuning parameter to enforce strict inequality LMIs
 
 %_______________________________________________________________________ 
 % 2.1: Solve parametric primal
+tstart = tic;
 
 % new LMI system
 LMIs = set([]);
@@ -71,7 +72,7 @@ Term3 = Term3.insert_knots(insknots);
 
 % Pólya relaxations
 Term1 = Term1.increase_degree(d);
-Term2 = Term2.increase_degree(1+d);
+Term2 = Term2.increase_degree(d);
 Term3 = Term3.increase_degree(d);
 
 % sufficient LMIs (all Bspline coefficients >/< 0)
@@ -95,9 +96,11 @@ obj = Z.trace.integral;
 % solve the SDP
 sol = solvesdp(LMIs, obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 0));
 [p_res,d_res] = checkset(LMIs);
+tend = toc(tstart);
 
 % extract solution variables
 Primal.feas = 0;
+Primal.ctime = tend;
 if p_res > -tol
     Primal.feas = 1;
     cQ = cellfun(@double, cQ, 'uni', false);
@@ -108,6 +111,7 @@ end
 
 %_______________________________________________________________________
 % 2.2: Solve parametric dual
+tstart = tic;
 
 % new LMI system
 LMIs = set([]);
@@ -157,9 +161,11 @@ obj = obj1.trace.integral + obj2.trace.integral + obj3.trace.integral + obj4.tra
 % solve the SDP
 sol = solvesdp(LMIs, -obj, sdpsettings('solver', 'sdpt3', 'sdpt3.maxit', 100, 'dualize', 0, 'verbose', 0));
 [p_res,d_res] = checkset(LMIs);
+tend = toc(tstart);
 
 % extract solution variables
 Dual.feas = 0;
+Dual.ctime = tend;
 if p_res > -tol
     Dual.feas = 1;
     cU11 = cellfun(@double, cU11, 'uni', false);
