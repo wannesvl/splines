@@ -1,25 +1,25 @@
-classdef BSplineBasis < Basis
+classdef TSplineBasis < Basis
     methods
-        function B = BSplineBasis(knots, degree)
-            % Constructor for BSplineBasis, a subclass of Basis
+        function T = TSplineBasis(knots, degree)
+            % Constructor for TSplineBasis, a subclass of Basis
             %
             % Args:
             %    knots (vector, double): the knot sequence of the basis
             %    degree (int): the degree of the basis
             %
             % Returns:
-            %    BSplineBasis: an instance of the Basis class
+            %    TSplineBasis: an instance of the TSplineBasis class
             %
             % Example:
             %    > B = BsplineBasis([0, 0, 0, 0.5, 1, 1, 1], 2)
-            B@Basis(knots, degree)
+            T@Basis(knots, degree)
         end
 
         function b = f(self, x)
-            % Evaluate the BSplineBasis at x
+            % Evaluate the TSplineBasis at x
             %
-            % This function implements the Cox-de Boor recursive formula for
-            % the evaluation of B-spline basis functions
+            % This function implements the recursive formula for
+            % the evaluation of T-spline basis functions
             %
             % Args:
             %    x (vector, double): The evaluation sites
@@ -38,13 +38,13 @@ classdef BSplineBasis < Basis
                 for i=1:length(k) - d - 1
                     basisd = basis{d};
                     b = 0 * x;
-                    denom = k(i + d) - k(i);
+                    denom = sin(0.5 * (k(i + d) - k(i)));
                     if denom ~= 0
-                        b = (x - k(i)) .* basisd(:, i) / denom;
+                        b = sin(0.5 * (x - k(i))) .* basisd(:, i) / denom;
                     end
-                    denom = k(i + d + 1) - k(i + 1);
+                    denom = sin(0.5 * (k(i + d + 1) - k(i + 1)));
                     if denom ~= 0
-                        b = b + (k(i + d + 1) - x) .* basisd(:, i + 1) / denom;
+                        b = b + sin(0.5 * (k(i + d + 1) - x)) .* basisd(:, i + 1) / denom;
                     end
                     b(isnan(b)) = 0;
                     B(:, i) = b;
@@ -52,23 +52,6 @@ classdef BSplineBasis < Basis
                 basis{d + 1} = B;
             end
             b = basis{self.degree + 1};
-        end
-
-        function [B, P] = derivative(self, o)
-            if nargin == 1
-                o = 1;
-            end
-            P = eye(length(self));
-            k = self.knots;
-            B = self.cl(self.knots(o:end-o), self.degree - o);
-            for i=0:o-1
-                k = k(2:end-1);
-                delta_k = k(self.degree - i + 1:end) - k(1:end - self.degree + i);
-                T = zeros(length(self) - 1 - i, length(self) - i);
-                T(1:length(self) - i:end) = -1 ./ delta_k;
-                T(length(self) - i:length(self) - i:end) = 1 ./ delta_k;
-                P = (self.degree - i) * T * P;
-            end
         end
     end
 end

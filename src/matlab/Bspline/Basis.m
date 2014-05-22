@@ -170,6 +170,14 @@ classdef Basis
             end
             [i, j, dummy] = find(p);
         end
+
+        function T = transform(self, other)
+            x = self.greville();
+            if isa(other, class(self))
+                T = self.f(x) \ other.f(x);
+            end
+            T(abs(T) < 1e-10) = 0;
+        end
     end
 end
         
