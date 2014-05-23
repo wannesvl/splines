@@ -535,7 +535,21 @@ class TensorBSpline(object):
 
     def __mul__(self, other):
         if isinstance(other, TensorBSpline):
-            return NotImplementedError("Too complex to implement :-)")
+            if len(self.basis) > 2:
+                return NotImplementedError("Too complex to implement :-)")
+            basis = map(lambda x, y: x * y, self.basis, other.basis)
+            pairs = map(lambda x, y: x.pairs(y)[0], self.basis, other.basis)
+            basis_product = map(lambda x, y, p, b: x(b._x)[:, p[0]].multiply(y(b._x)[:, p[1]]), self.basis, other.basis, pairs, basis)
+            coeffs_product = (self.coeffs[pairs[0][0]].T[pairs[1][0]] *
+                              other.coeffs[pairs[0][1]].T[pairs[1][1]])
+            T = map(lambda x, b: b.transform(lambda y: x.toarray()[y, :]), basis_product, basis)
+            coeffs = coeffs_product.T
+            for i, t in enumerate(T):
+                coeffs = np.tensordot(t.toarray(), coeffs.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
+            return self.__class__(basis, coeffs, self.var)
+            return self.coeffs[pairs[0][0].tolist(), pairs[1][0].tolist()] * other.coeffs[pairs[0][1].tolist(), pairs[1][1].tolist()]
+            # coeffs_product = np.kron(self.coeffs, other.coeffs)
+
         else:
             try:
                 basis = self.basis
