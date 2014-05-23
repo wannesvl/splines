@@ -51,7 +51,7 @@ classdef TSplineBasis < Basis
                 end
                 basis{d + 1} = B;
             end
-            b = basis{self.degree + 1};
+            b = basis{self.degree};
         end
     end
 end

@@ -6,6 +6,7 @@
 \usepackage{color,graphics,graphicx}
 \usepackage[cmex10]{amsmath}
 \usepackage{amssymb,amsfonts,bm,amsthm}
+\usepackage{booktabs}
 \newcommand{\N}{\mathbb{N}}        % integer numbers
 \newcommand{\R}{\mathbb{R}}        % real numbers
 \newcommand{\C}{\mathbb{C}}        % complex numbers
@@ -14,11 +15,25 @@
 \renewcommand{\t}{^{\mbox{\tiny \sf T}}}    % matrix transpose
 \newcommand{\ppar}{\theta}                  % parameter in the pprog
 \newcommand{\Ppar}{\Theta}                  % capitalized parameter
+\newcommand{\Htwo}{\mathcal{H}_2}
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
 \newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
+\newcommand{\commentGH}[1]{\noindent \textcolor{blue}{\emph{$<\,$GH: #1$\,>$}}}%
 
+% Tikz
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.7}
+\usetikzlibrary{calc,positioning,shapes,matrix,patterns,decorations.pathmorphing}
+\usetikzlibrary{decorations.markings,plotmarks}
+
+% Define standardized height and width figures
+\newlength\fheight
+\setlength\fheight{4.5cm}
+\newlength\fwidth
+\setlength\fwidth{6cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +105,7 @@ and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\
 
 Research on parametric programming traces back to the 50s \cite{Saaty_Gass_1954,Gass_Saaty_1955}, for as soon as people in operations research were enabled to solve real decision problems by Dantzig's simplex method, they realized the dependency of the outcome on the numerical problem data. Contrary to sensitivity analysis, which investigates the effect of small data perturbations, parametric programming analyzes the solution of the optimization problem for the full range of parameters affecting the numerical data. In doing so, researchers resort to so-called critical regions: sets of parameter values for which the solution of the optimization problem features similar properties (e.g. a specific active set for LPs). Hence, parametric programming concerns characterizing and analyzing the critical regions, as well as the solution (i.e. the optimal value function and the optimal set mapping) both within and across critical regions. Apart from few exceptions, neither the critical regions nor the solution have an analytical expression, which renders the analyses technical and abstract. The exceptions most studied in the literature are parametric LPs of which either the right-hand side of the constraints or the linear objective depends affinely on the parameters \cite{Gal_1979,Gal_1984}. Early on is was realized that the critical regions are convex polyhedra and that within a region the solution depends affinely on the parameters. Hence both the optimal value function and the optimizer function are piecewise affine. By the 70s a complete explicit description of the case with multiple parameters was derived \cite{Gal_Nedoma_1972} and active research on reducing the complexity of computing the solution and on dealing with degeneracies (i.e. allowing non-singleton optimal sets for certain parameter values) continued \cite{Borrelli_et_al_2003} \commentGP{add more references from \cite{Alessio2009}}. If both the linear objective and the right-hand side of the constraints depend affinely on the parameters, the critical regions remain convex polyhedra, the optimizer function piecewise affine, yet the optimal value function becomes piecewise quadratic.
 
-In the beginning of the 20th century parametric programming was boosted by the advent of explicit model predictive control (MPC) strategies \cite{Alessio2009}. MPC is a control strategy that solves an optimization problem at every time sample to compute the next control action. These on line optimization problems only differ in the current sensor measurements, which affect the problem data. Explicit MPC solves the corresponding parametric program off line, yielding the optimal controls as an explicit functions of the sensor measurements. The parametric program is a QP where the parameters affect the linear part of the objective function as well as the right hand side of the linear constraints. As shown in \cite{Bemporad_et_al_2002}, the critical regions
+In the beginning of the 20th \commentGH{21st century?} century parametric programming was boosted by the advent of explicit model predictive control (MPC) strategies \cite{Alessio2009}. MPC is a control strategy that solves an optimization problem at every time sample to compute the next control action. These on line optimization problems only differ in the current sensor measurements, which affect the problem data. Explicit MPC solves the corresponding parametric program off line, yielding the optimal controls as an explicit functions of the sensor measurements. The parametric program is a QP where the parameters affect the linear part of the objective function as well as the right hand side of the linear constraints. As shown in \cite{Bemporad_et_al_2002}, the critical regions
 are convex \commentGP{??} polyhedra, the optimizer function is piecewise affine and the optimal value function is continuous and piecewise quadratic. These initial results sparked wide interest in parametric QPs, with particular focus on efficient computation of the parametric solution and dealing with degeneracies. \commentGP{add more references from \cite{Alessio2009}}
 
 Although the parametric programming problems mentioned above do admit an explicit characterization of the solution, in the worst case the number of critical regions increases exponentially with the number of constraints. This, for instance, inhibits the wide application of explicit MPC where the number of constraints is determined by the number of states, inputs and the prediction horizon. Therefore, recent research has turned to approximate solutions of parametric problems, primarily with a view to MPC applications. In \cite{Filippi_2004} an approximate solution for parametric LPs with parameter dependent right hand sides is presented. The parameter domain is split up into simplices, and for parameter values within a simplex an upper and lower bound on the optimal value function is constructed. Simplices are split up into smaller ones until the required accuracy is reached. \cite{Bemporad_et_al_2002} extended this procedure to general convex parametric programs, where the objective and constraint functions are jointly convex in the optimization variables and the parameters.
@@ -224,41 +239,111 @@ where $A(\ppar) \in \mathbb{R}^{6 \times 6}$ has an affine dependency on $\ppar 
 \end{equation*}
 meets a $\mathcal{H}_2$ performance from $w$ to $z$ and from $w$ to $u$ for each parameter value $\ppar \in [0,1]$.
 
-The $\mathcal{H}_2$ performances (worst case, so for any parameter value!) from $w$ to $z$ and from $w$ to $u$ are respectively bounded by $\mu$ and $\gamma$ if, and only if, there exist matrix functions $Q(\ppar)$, $Z(\ppar)$ and $L(\ppar)$ such that the following LMIs hold:
-\begin{eqnarray*}
- & \left[ \begin{array}{cc} Q(\ppar)A(\ppar)^T + A(\ppar)Q(\ppar) + B_u L(\ppar) + L(\ppar)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
- & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
- & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0, \\
- & \text{Trace}\{Z(\ppar)\} < \gamma,
-\end{eqnarray*}
-for all $\ppar \in [0,1]$. We assume a fixed bound $\mu$ while optimizing $\gamma$, corresponding to a single-objective optimization problem.
+%The $\mathcal{H}_2$ performances (worst case, so for any parameter value!) from $w$ to $z$ and from $w$ to $u$ are respectively bounded by $\mu$ and $\gamma$ if, and only if, there exist matrix functions $Q(\ppar)$, $Z(\ppar)$ and $L(\ppar)$ such that the following LMIs hold:
+%\begin{eqnarray*}
+% & \left[ \begin{array}{cc} Q(\ppar)A(\ppar)^T + A(\ppar)Q(\ppar) + B_u L(\ppar) + L(\ppar)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
+% & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
+% & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0, \\
+% & \text{Trace}\{Z(\ppar)\} < \gamma,
+%\end{eqnarray*}
+%for all $\ppar \in [0,1]$. We assume a fixed bound $\mu$ while optimizing $\gamma$, corresponding to a single-objective optimization problem.
 
-Instead of optimizing worst-case performance, we are actually interested in optimizing $\gamma$ as a function of parameter $\ppar$. This is achieved by solving the convex optimization problem
+We are interested in optimizing $\gamma$ as a function of parameter $\ppar$ (instead of optimizing worst-case performance). This is achieved by solving the convex optimization problem
 \begin{eqnarray*}
  \text{minimize} & \int_0^1 \text{Trace}\{Z(\ppar)\} d\ppar, \\
  \text{subject to} & \left[ \begin{array}{cc} Q(\ppar)A(\ppar)^T + A(\ppar)Q(\ppar) + B_u L(\ppar) + L(\ppar)^T B_u^T & B_w \\ B_w^T & -I \end{array} \right] \prec 0, \\
  & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
  & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0.
 \end{eqnarray*}
-To make the above optimization problem numerically tractable, it is necessary to assume a specific parameterization of the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. Solving the resulting optimization problem yields an upper bound $\overline{p}(\ppar)$ on the optimal value function $p^{\star}(\ppar)$, while solving the associated dual problem
+To make this optimization problem numerically tractable, it is necessary to impose a specific parameterization on the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. 
+
+The LMI variables are parameterized as polynomial splines of some preselected degree, and can thus be expressed in terms of Bspline basis functions and coefficients. For example, the variable $Q(\ppar)$ is parameterized as
+\begin{equation*}
+	Q(\ppar) = \sum_{i=1}^m C_{Q,i} b_{Q,i}(\ppar),
+\end{equation*}
+where $b_{Q,i}$ and $C_{Q,i}$, $i = 1,\dots,m$ are Bspline basis functions and constant matrix coefficients, respectively. A polynomial parameterization results as a special case.
+
+Solving the resulting optimization problem yields an upper bound $\hat{p}(\ppar)$ on the optimal value function $p^{\star}(\ppar)$, while solving the associated dual problem
 \begin{eqnarray*}
  \text{maximize} & \int_0^1 \text{Trace}\{U_{12}(\ppar)B_w^T\} + \text{Trace}\{U_{12}(\ppar)^T B_w\} - \text{Trace}\{U_{22}(\ppar)\} - \mu \text{Trace}\{V(\ppar)\}d\ppar, \\
- \text{subject to} & \left[ \begin{array}{cc} U_{11}(\ppar) & U_{12}(\ppar) \\ U_{12}(\ppar)^T & U_{22}(\ppar) \end{array} \right] \succ 0, \\
+ \text{subject to} & U(\ppar) := \left[ \begin{array}{cc} U_{11}(\ppar) & U_{12}(\ppar) \\ U_{12}(\ppar)^T & U_{22}(\ppar) \end{array} \right] \succ 0, \\
  & V(\ppar) \succ 0, \\
  & \left[ \begin{array}{cc} A(\ppar)^T U_{11}(\ppar) + U_{11}(\ppar)A(\ppar) + C_z^T V(\ppar) C_z & U_{11}(\ppar)B_u \\ B_u^T U_{11}(\ppar) & I \end{array} \right] \succ 0.
 \end{eqnarray*}
-provides a lower bound $\underline{p}(\ppar)$:
+provides a lower bound $\hat{d}(\ppar)$:
 \begin{equation*}
- \underline{p}(\ppar) \leq p^{\star}(\ppar) \leq \overline{p}(\ppar), \quad \ppar \in [0,1].
+ \hat{d}(\ppar) \leq d^{\star}(\ppar) \leq p^{\star}(\ppar) \leq \hat{p}(\ppar), \quad \ppar \in [0,1].
 \end{equation*}
 
-TO DO:
-\begin{itemize}
-\item make notation more consistent???
-\item discuss sampled solution
-\item Pólya vs knot insertion for relaxation
-\item HPPD vs Bspline LMI variables (more knots vs higher polynomial degree)
-\end{itemize}
+The optimal $\Htwo$ performance is obtained for fixed values of $\ppar$ by gridding the parameter space using 100 equidistant points on the interval $[ \underline{k}_2,\overline{k}_2] = [14546500,58186000]$. The resulting tradeoff curve is shown in Figure \ref{fig:sampled}, revealing an optimal value $k_2 \approx 4.9 \cdot 10^7$. The computation of this tradeoff curve requires solving 100 convex optimization problems. On the other hand, parametric programming allows the computation of an upper and a lower bound on the exact solution by only solving one convex optimization problem.
+
+\begin{figure}
+\centering
+\input{figures/sampled.tikz}
+\caption{The optimal $\Htwo$ performance as a function of $k_2$.}
+\label{fig:sampled}
+\end{figure}
+
+To assess the benefit of parametric programming for this example, we start by assuming a polynomial dependency of all the LMI variables on the parameter $\ppar$. See Table \ref{tab:degrees} for the selected polynomial degrees. We take $q = 2$. Subsequently, the application of Polya relaxations is compared to knot insertion, of which the results are given in Table \ref{tab:polya_insknot}. It is remarked that application of a Polya relaxation of degree $k$ yields the same increase in numerical complexity as the insertion of $k$ knots, which is confirmed by the computation times. In addition, note that both the upper bounds and the lower bounds resulting from knot insertion are tighter for all cases.
+
+\begin{table}
+	\centering
+	\caption{Selected polynomial degrees of the LMI variables.} \vspace{0.2cm}
+	\label{tab:degrees}
+	\begin{tabular}{cc}
+		\toprule
+	  LMI variable & degree \\
+	  \midrule
+		$Q(\ppar),U(\ppar),V(\ppar)$ & $q$ \\
+		$F(\ppar), L(\ppar)$ & $q+1$ \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}
+	\centering
+	\caption{Polya vs. knot insertion for polynomial LMI variables with $q = 2$.} \vspace{0.2cm}
+	\label{tab:polya_insknot}
+	\begin{tabular}{cccccc}
+		\toprule
+	  degree Polya relaxation & 0     & 1     & 2     & 4     & 8     \\
+	  primal objective        & 560.8 & 554.2 & 543.6 & 537.2 & 532.8 \\
+	  computation time [sec]  & 2.12  & 0.80  & 0.98  & 1.05  & 1.44  \\
+	  dual objective          & 445.9 & 451.4 & 462.4 & 468.6 & 472.3 \\
+	  computation time [sec]  & 1.28  & 0.69  & 0.76  & 0.84  & 1.10  \\
+	  \midrule
+	  inserted knots          & 0     & 1     & 2     & 4     & 8     \\
+	  primal objective        & 560.8 & 550.3 & 532.2 & 529.2 & 528.0 \\
+	  computation time [sec]  & 0.77  & 0.82  & 0.87  & 1.05  & 1.46  \\
+	  dual objective          & 445.9 & 467.8 & 472.0 & 474.8 & 475.8 \\
+	  computation time [sec]  & 1.23  & 0.70  & 0.79  & 0.88  & 1.06  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+To reduce conservatism, a first possibility is to increase the polynomial degree of the LMI variables. Another option is to assume the LMI variables to be polynomial splines, which boils down to increasing the number of knots instead of the polynomial degree of these variables. A comparison is shown in Table \ref{tab:incdeg_knot}.
+
+\begin{table}
+	\centering
+	\caption{Higher polynomial degree vs. more knots of LMI variables (no Polya relaxation or knot insertion)} \vspace{0.2cm}
+	\label{tab:incdeg_knot}
+	\begin{tabular}{cccccc}
+		\toprule
+	  Polynomial degree $q$ (0 knots) & 2     & 3     & 4     & 5     \\
+	  primal objective                & 560.8 & 536.2 & 530.2 & 526.5 \\
+	  computation time [sec]  	      & 2.24  & 0.95  & 0.94  & 1.00  \\
+	  dual objective          	      & 445.9 & 481.1 & 495.4 & 501.0 \\
+	  computation time [sec]  	      & 1.31  & 0.78  & 0.84  & 1.02  \\
+	  \midrule
+	  number of knots $(q = 2)$       & 0     & 1     & 2     & 3     \\
+	  primal objective                & 560.8 & 532.0 & 522.6 & 518.4 \\
+	  computation time [sec]          & 2.13  & 0.88  & 0.96  & 1.13  \\
+	  dual objective                  & 445.9 & 487.2 & 497.7 & 503.5 \\
+	  computation time [sec]          & 1.34  & 0.83  & 0.93  & 1.06  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
