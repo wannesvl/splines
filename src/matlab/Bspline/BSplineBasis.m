@@ -33,7 +33,7 @@ classdef BSplineBasis < Basis
             basis{1} = cell2mat(arrayfun(@(i) self.ind(i, x), ...
                                 (1:length(k) - 1), ...
                                 'UniformOutput', false));
-            for d=1:self.degree + 1
+            for d=1:self.degree
                 B = zeros(length(x), length(k) - d - 1);
                 for i=1:length(k) - d - 1
                     basisd = basis{d};

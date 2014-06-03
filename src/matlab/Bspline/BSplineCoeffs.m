@@ -1,7 +1,7 @@
 classdef BSplineCoeffs
     properties (Access=protected)
         cl
-        size
+        shape
     end
     properties
         coeffs
@@ -16,11 +16,10 @@ classdef BSplineCoeffs
             %
             % This is not the preferred way. Better to make class for
             % scalar, vector and matrix valued coefficients???
-            %
-            % TODO: validate and "tidy" incorrect input
-            %
-            % Currently only works 
             if isa(coeffs, 'cell')
+                if isvector(coeffs)
+                    coeffs = coeffs(:);
+                end
                 % Check if all elements are of equal size
                 sizes = cellfun(@size, coeffs, 'UniformOutput', false);
                 if length(sizes) | isequal(sizes{:})
@@ -34,12 +33,16 @@ classdef BSplineCoeffs
             else
                 error('Coeffs not correctly formatted');
             end
-            c.size = size(c.coeffs{1});
+            c.shape = size(c.coeffs{1});
             c.cl = str2func(class(c));
         end
 
         function l = length(self)
             l = length(self.coeffs);
+        end
+
+        function s = size(self)
+            s = size(self.coeffs);
         end
 
         function b = isscalar(self)
@@ -48,22 +51,21 @@ classdef BSplineCoeffs
         end
 
         function b = isvector(self)
-            % Are we dealing with scalar coefficients?
+            % Are we dealing with vector coefficients?
             b = isvector(self.coeffs{1});
         end
 
         function c = plus(self, other)
-            % Sum of two coefficients
+            % Returns the sum of coefficients
+            %
+            % Returns: 
+            %    BSplineCoeffs: The sum of self.coeffs and other.coeffs.
+            %       If either of the terms is a matrix the function sums each of
+            %       the coefficient with the matrix
             if isa(self, class(other))
-                % c = vertcat(self.coeffs{:}) + vertcat(other.coeffs{:});
-                % c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
-                % c = self.cl(reshape(c, size(self.coeffs)));
                 c = self.cl(cellfun(@plus, self.coeffs, other.coeffs, 'UniformOutput', false));
             else
                 try
-                    % c = vertcat(self.coeffs{:}) + other;
-                    % c = mat2cell(c, self.size(1) * ones(length(c) / self.size(1), 1), size(c, 2));
-                    % c = self.cl(reshape(c, size(self.coeffs)));
                     c = self.cl(cellfun(@(v) v + other, self.coeffs, 'UniformOutput', false));
                 catch err
                     c = other + self;
@@ -93,48 +95,64 @@ classdef BSplineCoeffs
                 end
             end
             c = BSplineCoeffs(c);
-        end            
+        end
 
         function c = mtimes(a, self)
             % Implement 'generalized' inner product
             if isa(a, 'double')
                 if isvector(self.coeffs)
-                    c = kron(a, eye(self.size(1))) * vertcat(self.coeffs{:});
+                    a = kron(a, eye(self.shape(1)));
+                    % s = self.size;
+                    % a = repmat(a, prod(s(2:end)));
+                    c = a * vertcat(self.coeffs{:});
                     % And now convert back to cell
                     c = mat2cell(c, ... 
-                        self.size(1) * ones(size(c, 1) / self.size(1), 1), size(c, 2));
+                        self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
+                    c = self.cl(c);
+                else
+                    a = kron(a, eye(self.shape(1)))
+                    s = self.size;
+                    % a = repmat(a, prod(s(2:end)));
+                    c = a * reshape(vertcat(self.coeffs{:}), [], s(2) * self.shape(2));
+                    % And now convert back to cell
+                    c = mat2cell(c, ... 
+                        self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
                     c = self.cl(c);
                 end
             else  % Recursive implementation
-
+                c = 0;
             end
         end
 
         function c = vertcat(varargin)
-            % Concatenate matrices
+            % Concatenate matrices vertically
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@vertcat, d{:}, 'uni', false));
+            c = BSplineCoeffs(cellfun(@vertcat, d{:}, 'UniformOutput', false));
         end
 
         function c = horzcat(varargin)
-            % Concatenate matrices
+            % Concatenate matrices horizontaly
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@horzcat, d{:}, 'uni', false));
+            c = BSplineCoeffs(cellfun(@horzcat, d{:}, 'UniformOutput', false));
         end
 
         function c = transpose(self)
             % Transpose each of the coefficients
-            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false));
+            %
+            % What about multivariate spline coefficients??
+            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false)');
         end
 
         function c = ctranspose(self)
-            % Transpose each of the coefficients
-            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false));
+            % Conjugate transpose each of the coefficients
+            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false)');
         end
 
         function varargout = subsref(self, s)
             % Note to this function: c.coeffs{:} does not work!!
             % Instead you should define dummy d = c.coeffs and d{:}
+            %
+            % For this reason I consider changing the implementation to object arrays
             if strcmp(s(1).type, '.')
                 if any(strcmp(s(1).subs, properties(self))) || ...
                    any(strcmp(s(1).subs, methods(self)))
