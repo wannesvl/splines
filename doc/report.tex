@@ -21,11 +21,12 @@
 \DeclareMathOperator*{\subj}{subject\;to}
 \newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
 \newcommand{\commentGH}[1]{\noindent \textcolor{blue}{\emph{$<\,$GH: #1$\,>$}}}%
+\newcommand{\commentWVL}[1]{\noindent \textcolor{blue}{\emph{$<\,$WVL: #1$\,>$}}}%
 
 % Tikz
 \usepackage{tikz}
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.7}
+\pgfplotsset{compat=newest}
 \usetikzlibrary{calc,positioning,shapes,matrix,patterns,decorations.pathmorphing}
 \usetikzlibrary{decorations.markings,plotmarks}
 
@@ -344,6 +345,56 @@ To reduce conservatism, a first possibility is to increase the polynomial degree
 	\end{tabular}
 \end{table}
 
+\subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
+Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
+in~\cite{Borrelli_et_al_2003}:
+\begin{gather*}
+\begin{aligned}
+\minimize_{x\in\R^2} &&& h(\ppar)\t -2 x_1 - x_2\\
+             \subj   &&& x_1 + 3 x_2 \leq 9 - 2\ppar_1 +\ppar_2 \\%
+                     &&& 2 x_1 + x_2 \leq 8 + \ppar_1 - 2\ppar_2 \\%
+                     &&& x_1 \leq 4 + \ppar_1 + \ppar_2 \\%
+                     &&& x_1, x_2 \geq 0 \;,
+\end{aligned}
+\end{gather*}
+on $\Ppar \in [-10, 10] \times [-10, 10]$.
+
+It can be shown that for this problem $\Ppar_\text{feas}$ is a triangular set.
+Hence, the optimization variables cannot be parameterized by a tensor spline
+in $\theta_1$ and $\theta_2$ as this would render the problem infeasible.
+Instead, a parameterization is chosen that maps a rectangular domain to a
+polyhedral set.
+
+Consider a spline parameterization $(p_{\ppar_1}(\alpha),
+p_{\ppar_2}(\alpha))$ of the boundary of $\Ppar_\text{feas}$ in terms of a
+scalar parameter $\alpha \in [0, 1]$ \commentWVL{What about higher dimensions?
+Is it straightforward to parameterize such polyhedral sets?}. To `fill' the
+polydral set an additional variable $\beta \in [0, 1]$ is introduced. By
+defining $\ppar_1(\alpha,\beta) = p_{\ppar_1}(\alpha) \beta$ and
+$\ppar_2(\alpha,\beta) = p_{\ppar_2}(\alpha) \beta$, any $(\alpha, \beta)$ now
+maps to a feasible $\ppar_1, \ppar_2$. Similarly, $x$ can also be
+parameterized as a tensor spline in $\alpha$ and $\beta$.
+
+Figure~\ref{fig:mplp_objective} shows the approximated objective function for
+a tensor spline of degree 1. The accordance with the true objective function
+is good, except near the switch in critical regions, as shown in
+figure~\ref{fig:mplp_error}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/mplp_poly_objective.png}
+\caption{The approximated objective function for a degree 1 tensor product
+spline with 21 equidistantly spaced knots in $\alpha$ and 51 in $\beta$.}
+\label{fig:mplp_objective}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/mplp_poly_error.png}
+\caption{The error between the true value of the objective function and our
+approximation.}
+\label{fig:mplp_error}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
