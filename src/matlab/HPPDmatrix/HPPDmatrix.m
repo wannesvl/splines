@@ -105,28 +105,48 @@ classdef HPPDmatrix
         function C = mtimes(A,B)       
             % The case that A and/or B is a constant matrix is taken into account  
             if isa(A.coeffs,'double') && isa(B.coeffs,'double')
-                coeffs = A.coeffs*B.coeffs;
-                C = A.cl(coeffs);
+                try 
+                    coeffs = A.coeffs*B.coeffs;
+                    C = A.cl(coeffs);
+                catch err 
+                    coeffs = A.coeffs.*B.coeffs;
+                end
             elseif isa(A.coeffs,'double') && isa(B.coeffs,'cell')
                 ind = find(~cellfun('isempty',B.coeffs),1);   
+                KNg = get_KNg(B.vertices,B.degree);
                 if size(A.coeffs,2) ~= size(B.coeffs{ind},1)
-                    error('dimensions of matrices must agree')
+                    try              
+                        for j = 1:get_JNg(B.vertices,B.degree)
+                            jj = get_monomial_string(KNg(j,:));
+                            eval(['coeffs{' jj '} = A.coeffs.*B.coeffs{' jj '};'])
+                        end
+                    catch err
+                        error('dimensions of matrices must agree')
+                    end
+                else             
+                    for j = 1:get_JNg(B.vertices,B.degree)
+                        jj = get_monomial_string(KNg(j,:));
+                        eval(['coeffs{' jj '} = A.coeffs*B.coeffs{' jj '};'])
+                    end
                 end 
-                KNg = get_KNg(B.vertices,B.degree);                
-                for j = 1:get_JNg(B.vertices,B.degree)
-                    jj = get_monomial_string(KNg(j,:));
-                    eval(['coeffs{' jj '} = A.coeffs*B.coeffs{' jj '};'])
-                end
                 C = B.cl(coeffs); 
             elseif isa(A.coeffs,'cell') && isa(B.coeffs,'double')
                 ind = find(~cellfun('isempty',A.coeffs),1);  
-                if size(A.coeffs{ind},2) ~= size(B.coeffs,1)
-                    error('dimensions of matrices must agree')
-                end                   
                 KNg = get_KNg(A.vertices,A.degree);                
-                for j = 1:get_JNg(A.vertices,A.degree)
-                    jj = get_monomial_string(KNg(j,:));
-                    eval(['coeffs{' jj '} = A.coeffs{' jj '}*B.coeffs;'])
+                if size(A.coeffs{ind},2) ~= size(B.coeffs,1)
+                    try              
+                        for j = 1:get_JNg(B.vertices,B.degree)
+                            jj = get_monomial_string(KNg(j,:));
+                            eval(['coeffs{' jj '} = A.coeffs{' jj '}.*B.coeffs;'])
+                        end
+                    catch err
+                        error('dimensions of matrices must agree')
+                    end
+                else
+                    for j = 1:get_JNg(A.vertices,A.degree)
+                        jj = get_monomial_string(KNg(j,:));
+                        eval(['coeffs{' jj '} = A.coeffs{' jj '}*B.coeffs;'])
+                    end
                 end
                 C = A.cl(coeffs);  
             else
@@ -208,7 +228,7 @@ classdef HPPDmatrix
             [max_degree, index] = max(degrees);
             vertices = varargin{index}.vertices;
             
-            % homogenize all terms
+            % homogenize all terms 
             for i = 1:length(varargin)
                 varargin{i} = varargin{i}.increase_degree(max_degree-degrees(i),vertices);
             end
@@ -216,16 +236,25 @@ classdef HPPDmatrix
             % concatenation
             dimension_coeffs = (varargin{1}.degree + 1)*ones(1,vertices);
             coeffs = cell(1,prod(dimension_coeffs));
-            index = find(~cellfun('isempty',varargin{1}.coeffs));
-            for j = 1:length(index)
+            if max_degree == 0
                 term = [];
                 for i = 1:length(varargin)
-                    term = [term, varargin{i}.coeffs{index(j)}];
+                    term = [term, varargin{i}.coeffs];
                 end
-                coeffs{index(j)} = term;
-            end                    
-            coeffs = reshape(coeffs,dimension_coeffs); 
-            s = varargin{1}.cl(coeffs);            
+                coeffs = term;
+                s = varargin{1}.cl(coeffs);
+            else
+                index = find(~cellfun('isempty',varargin{1}.coeffs));
+                for j = 1:length(index)
+                    term = [];
+                    for i = 1:length(varargin)
+                        term = [term, varargin{i}.coeffs{index(j)}];
+                    end
+                    coeffs{index(j)} = term;
+                end
+                coeffs = reshape(coeffs,dimension_coeffs);
+                s = varargin{1}.cl(coeffs);
+            end
         end
         
         function s = vertcat(varargin)
@@ -242,24 +271,33 @@ classdef HPPDmatrix
             [max_degree, index] = max(degrees);
             vertices = varargin{index}.vertices;
             
-            % homogenize all terms
+            % homogenize all terms 
             for i = 1:length(varargin)
                 varargin{i} = varargin{i}.increase_degree(max_degree-degrees(i),vertices);
             end
-            
+                  
             % concatenation
             dimension_coeffs = (varargin{1}.degree + 1)*ones(1,vertices);
             coeffs = cell(1,prod(dimension_coeffs));
-            index = find(~cellfun('isempty',varargin{1}.coeffs));
-            for j = 1:length(index)
+            if max_degree == 0
                 term = [];
                 for i = 1:length(varargin)
-                    term = [term; varargin{i}.coeffs{index(j)}];
+                    term = [term; varargin{i}.coeffs];
                 end
-                coeffs{index(j)} = term;
-            end                    
-            coeffs = reshape(coeffs,dimension_coeffs); 
-            s = varargin{1}.cl(coeffs);                      
+                coeffs = term;
+                s = varargin{1}.cl(coeffs);
+            else
+                index = find(~cellfun('isempty',varargin{1}.coeffs));
+                for j = 1:length(index)
+                    term = [];
+                    for i = 1:length(varargin)
+                        term = [term; varargin{i}.coeffs{index(j)}];
+                    end
+                    coeffs{index(j)} = term;
+                end
+                coeffs = reshape(coeffs,dimension_coeffs);
+                s = varargin{1}.cl(coeffs);
+            end               
         end
         
         function c = getcoeffs(A)
@@ -270,20 +308,37 @@ classdef HPPDmatrix
             end
         end
         
-        function s = f(A,x) % evaluate HPPD matrix at x in unit simplex
+        function s = f(A,x) % evaluate HPPD matrix at x (in unit simplex)
             KNg = get_KNg(A.vertices,A.degree);
             s = 0;
-            for j = 1:get_JNg(A.vertices,A.degree);
+            for j = 1:length(A.getcoeffs);
                jj = KNg(j,:);
                s = s + eval(['prod(x.^jj)*A.coeffs{' get_monomial_string(jj) '};']);
             end
+        end      
+        
+        function s = trace(A)
+            KNg = get_KNg(A.vertices,A.degree);
+            for j = 1:length(A.getcoeffs)
+                jj = get_monomial_string(KNg(j,:));
+                eval(['coeffs{' jj '} = trace(A.coeffs{' jj '});']);
+            end
+            s = A.cl(coeffs);
         end
         
+        function s = integral(A)
+            s = 0;
+            for j = 1:get_JNg(A.vertices,A.degree)
+                 s = s + A.getcoeffs{j}/nchoosek(get_JNg(A.vertices,A.degree)-1,j-1);
+            end
+            s = s / (A.degree + 1);
+        end
+            
         % TO DO: 
+        % - evaluation of HPPD matrix at different points simultaneously
         % - transformation to gamma-domain for given bound b (0 < b < 1) 
         %   on rate of parameter variation
         %   1) 6 vertices
         %   2) 4x 3 vertices
-        % - test class on 3store model
     end
 end

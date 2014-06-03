@@ -34,8 +34,8 @@ C = A*A; % two HPPD matrices (works!)
 
 % 7: increase polynomial degree
 d = 2;
-C = increase_degree(A,d);   % HPPD matrix (works!)
-C = increase_degree(B,d,2); % constant matrix (works!)
+C = A.increase_degree(d);   % HPPD matrix (works!)
+C = B.increase_degree(d,2); % constant matrix (works!)
 
 % 8: concatenation
 C = [A, B]; % horizontal concatenation (works!)
@@ -46,15 +46,21 @@ I2 = HPPDmatrix(eye(2));
 C = [A, O22; I2, B];
 
 % 9: get coefficients (works!)
-coeffs = getcoeffs(A);
+coeffs = A.getcoeffs;
 
 % 10: evaluation of HPPD matrix at point in unit simplex (works!)
-s = f(A,[1/2 1/2]);
+s = A.f([1/2 1/2]);
 
 % 11: test with sdp variables (works!)
 c{1,2} = sdpvar(2,2);
 c{2,1} = sdpvar(2,2);
-A = HPPDmatrix(c)
+A = HPPDmatrix(c);
+
+% 12: trace of HPPD matrix
+A.trace;
+
+% 13: integral of HPPD matrix
+A.integral;
 
 
 
