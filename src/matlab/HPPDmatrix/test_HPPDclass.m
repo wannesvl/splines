@@ -62,6 +62,7 @@ A.trace;
 % 13: integral of HPPD matrix
 A.integral;
 
-
+% 14: change of variables to gamma domain
+A.change_variables(1/2,'3v','hat')
 
 
