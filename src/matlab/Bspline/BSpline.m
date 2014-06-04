@@ -8,8 +8,7 @@ classdef BSpline
     end
     methods
         function s = BSpline(basis, coeffs)
-            % Constructor for BSpline
-            % validateattributes(coeffs(:), {'double'}, {'size', [length(basis), 1]}, 'BSpline', 'coeffs');
+            % Constructor for univariate (scalar, vector and matrix valued) BSpline
             s.basis = basis;
             if isa(coeffs, 'BSplineCoeffs')
                 s.coeffs = coeffs;
@@ -17,12 +16,9 @@ classdef BSpline
                 s.coeffs = BSplineCoeffs(coeffs);
             end
             % Validate input
-            % if length(s.basis) == 1 && length(s.coeffs) ~= length(s.basis)
-            % if any(size(s.coeffs.coeffs) ~= arrayfun(@length, s.basis))
-            %     error('Coefficient array is not of correct size')
-            % end
-            % Idea: make coeffs a seperate class
-            % to handle vector and matrix valued splines
+            if length(s.basis) ~= length(s.coeffs)
+                error('B-spline coefficient of different size than basis')
+            end
             s.cl = str2func(class(s));
         end
 

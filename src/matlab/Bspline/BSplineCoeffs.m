@@ -55,6 +55,52 @@ classdef BSplineCoeffs
             b = isvector(self.coeffs{1});
         end
 
+        function m = coeffs2tensor(self)
+            % Convert the coefficients to tensor
+            %
+            % Shortened copy of mat2cell
+            c = self.coeffs;
+            elements = numel(c);
+
+            if elements == 1
+                m = c{1};
+                return
+            end
+
+            csize = size(c);
+            % Construct the matrix by concatenating each dimension of the cell array into
+            %   a temporary cell array, CT
+            % The exterior loop iterates one time less than the number of dimensions,
+            %   and the final dimension (dimension 1) concatenation occurs after the loops
+
+            % Loop through the cell array dimensions in reverse order to perform the
+            %   sequential concatenations
+            for cdim=(length(csize)-1):-1:1
+                % Pre-calculated outside the next loop for efficiency
+                ct = cell([csize(1:cdim) 1]);
+                cts = size(ct);
+                ctsl = length(cts);
+                mref = {};
+
+                % Concatenate the dimension, (CDIM+1), at each element in the temporary cell
+                %   array, CT
+                for mind=1:prod(cts)
+                    [mref{1:ctsl}] = ind2sub(cts,mind);
+                    % Treat a size [N 1] array as size [N], since this is how the indices
+                    %   are found to calculate CT
+                    if ctsl==2 && cts(2)==1
+                        mref = {mref{1}};
+                    end
+                    % Perform the concatenation along the (CDIM+1) dimension
+                    ct{mref{:}} = cat(cdim+1,c{mref{:},:});
+                end
+                % Replace M with the new temporarily concatenated cell array, CT
+                c = ct;
+            end
+            % Finally, concatenate the final rows of cells into a matrix
+            m = cat(1,c{:});
+        end
+
         function c = plus(self, other)
             % Returns the sum of coefficients
             %
@@ -97,31 +143,50 @@ classdef BSplineCoeffs
             c = BSplineCoeffs(c);
         end
 
-        function c = mtimes(a, self)
-            % Implement 'generalized' inner product
-            if isa(a, 'double')
-                if isvector(self.coeffs)
-                    a = kron(a, eye(self.shape(1)));
-                    % s = self.size;
-                    % a = repmat(a, prod(s(2:end)));
-                    c = a * vertcat(self.coeffs{:});
-                    % And now convert back to cell
-                    c = mat2cell(c, ... 
-                        self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
-                    c = self.cl(c);
-                else
-                    a = kron(a, eye(self.shape(1)))
-                    s = self.size;
-                    % a = repmat(a, prod(s(2:end)));
-                    c = a * reshape(vertcat(self.coeffs{:}), [], s(2) * self.shape(2));
-                    % And now convert back to cell
-                    c = mat2cell(c, ... 
-                        self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
-                    c = self.cl(c);
-                end
-            else  % Recursive implementation
-                c = 0;
+        function c = mtimes(A, self)
+            % Multiplication of coeffs with matrix or cell array of matrices
+            if isa(A, 'double')
+                A = {A};
             end
+            coeffs = self.coeffs2tensor;
+            A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
+            if isvector(self.coeffs)
+                if length(A) == 1
+                    coeffs = A{1} * coeffs;
+                else
+                    error('A univariate polynomial cannot be multiplied by cell array of matrices')
+                end
+            else
+                coeffs = tmprod(coeffs, A, 1:ndims(self.coeffs));
+            end
+            % The tricky part is converting it to a cell again
+            D = {};
+            for i=1:ndims(self.coeffs)
+                D{i} = ones(size(coeffs, i) / self.shape(i), 1);
+            end
+            D{1} = self.shape(1) * D{1};
+            D{2} = self.shape(2) * D{2};
+            c = self.cl(mat2cell(coeffs, D{:}));
+                % if isvector(self.coeffs)
+                %     a = kron(a, eye(self.shape(1)));
+                %     % s = self.size;
+                %     % a = repmat(a, prod(s(2:end)));
+                %     c = a * vertcat(self.coeffs{:});
+                %     % And now convert back to cell
+                %     c = mat2cell(c, ... 
+                %         self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
+                %     c = self.cl(c);
+                % elseif ndims(self.coeffs) == 2
+                %     a = kron(a, eye(self.shape(1)))
+                %     s = self.size;
+                %     % a = repmat(a, prod(s(2:end)));
+                %     c = a * reshape(vertcat(self.coeffs{:}), [], s(2) * self.shape(2))
+                %     % And now convert back to cell
+                %     % Requires fixing!
+                %     c = mat2cell(c, ... 
+                %         self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
+                %     c = self.cl(c);
+                % end
         end
 
         function c = vertcat(varargin)
