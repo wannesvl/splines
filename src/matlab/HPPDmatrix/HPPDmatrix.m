@@ -54,7 +54,7 @@ classdef HPPDmatrix
              
         function s = plus(A,B)
             if A.vertices ~= B.vertices
-                error('self and other should have same number of vertices!')
+                error('A and B should have same number of vertices!')
             end
             if A.degree ~= B.degree % homogenize s.t. A and B have same degree
                 if A.degree > B.degree && B.degree > 0
@@ -333,12 +333,100 @@ classdef HPPDmatrix
             end
             s = s / (A.degree + 1);
         end
-            
+        
+        function s = change_variables(A,b,type_domain,type_transform)
+            % Apply a change of variables from alpha to gamma domain on the
+            % HPPDmatrix A.
+            % For a LPV system, this change of variables is useful to take 
+            % into account bounds on the rate of parameter variation in a
+            % nonconservative fashion.
+            % 
+            % inputs:
+            % b              -> bound on the rate of parameter variation
+            %                   b = 0: time-invariant parameter
+            %                   0<b<1: bounded rate of variation
+            %                   b = 1: unbounded rate of variation
+            % type_domain    -> '6v': use polytopic domain with 6 vertices
+            %                   '3v': divide polytopic domain in subdomains
+            %                         with 3 vertices
+            % type_transform -> 'hat'  : A(alpha(k))   -> A_hat(gamma(k))
+            %                   'tilde': A(alpha(k+1)) -> A_tilde(gamma(k))
+            %
+            % outputs:
+            % s -> HPPDmatrix or cell with HPPD matrices
+            %      '6v': HPPDmatrix with 2,6 or 4 vertices for,
+            %            respectively b=0, 0<b<1 and b=1
+            %      '3v': cell with HPPDmatrices, where the cell dimension
+            %            is 1,4,2 for, respectively, b=0, 0<b<1 and b=1.
+          
+            if strcmp(type_domain,'6v') 
+                
+                % 1) compute F and H matrices
+                [F,H] = get_FH_uncertainty_domain(A.vertices,b,'6v');
+                M = size(F,2); % #vertices gamma domain
+                
+                % 2) compute c_F_t_ell coefficient
+                if strcmp(type_transform,'hat')       
+                    c = get_coeff_t_ell_F(A.degree,F);
+                elseif strcmp(type_transform,'tilde')
+                    c = get_coeff_t_ell_F(A.degree,F+H);
+                else
+                    error('incorrect type of transformation selected')
+                end
+
+                % 3) construct transformed HPPDmatrix
+                KNg = get_KNg(A.vertices,A.degree);
+                KMg = get_KNg(M,A.degree);
+                for t = 1:get_JNg(M,A.degree) 
+                    tt = get_monomial_string(KMg(t,:));  
+                    eval(['coeffs{' tt '} = 0;'])
+                    for l = 1:get_JNg(A.vertices,A.degree)
+                        ll = get_monomial_string(KNg(l,:));
+                        eval(['coeffs{' tt '} = coeffs{' tt '} + c(t,l)*A.coeffs{' ll '};'])
+                    end   
+                end
+                s = A.cl(coeffs);
+                
+            elseif strcmp(type_domain,'3v')
+                
+                % 1) compute F and H matrices
+                [F,H] = get_FH_uncertainty_domain(A.vertices,b,'3v');
+                M = size(F{1},2); % #vertices gamma domain
+                
+                % 2) compute c_F_t_ell coefficient for each subdomain
+                for i = 1:length(F)
+                    if strcmp(type_transform,'hat')       
+                        c{i} = get_coeff_t_ell_F(A.degree,F{i});
+                    elseif strcmp(type_transform,'tilde')
+                        c{i} = get_coeff_t_ell_F(A.degree,F{i}+H{i});
+                    else
+                        error('incorrect type of transformation selected')
+                    end
+                end
+                
+                % 3) construct transformed HPPDmatrix for each subdomain
+                KNg = get_KNg(A.vertices,A.degree);
+                KMg = get_KNg(M,A.degree);
+                for i = 1:length(F)
+                    for t = 1:get_JNg(M,A.degree) 
+                        tt = get_monomial_string(KMg(t,:));  
+                        eval(['coeffs{' tt '} = 0;'])
+                        for l = 1:get_JNg(A.vertices,A.degree)
+                            ll = get_monomial_string(KNg(l,:));
+                            eval(['coeffs{' tt '} = coeffs{' tt '} + c{i}(t,l)*A.coeffs{' ll '};'])
+                        end   
+                    end
+                    s{i} = A.cl(coeffs);
+                end
+            else
+                error('select an appropriate change of variables')
+            end
+        end
+        
         % TO DO: 
         % - evaluation of HPPD matrix at different points simultaneously
-        % - transformation to gamma-domain for given bound b (0 < b < 1) 
-        %   on rate of parameter variation
-        %   1) 6 vertices
-        %   2) 4x 3 vertices
+        % - make implementation of transformation to gamma-domain more
+        % efficient: handle cell inputs to compute transformation for multiple HPPD matrices at once, 
+        % to avoid recomputing c_F_t_ell coefficient.
     end
 end
