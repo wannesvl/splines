@@ -10,13 +10,16 @@ classdef TensorSpline
         function s = TensorSpline(basis, coeffs)
             % Constructor for TensorSpline
             s.basis = basis;
+            lengths = cellfun(@length, s.basis);
             if isa(coeffs, 'BSplineCoeffs')
                 s.coeffs = coeffs;
             else
+                if size(coeffs) == lengths % Scalar coefficients
+                    coeffs = mat2cell(coeffs, ones(size(coeffs, 1), 1), ones(size(coeffs, 2), 1));
+                end
                 s.coeffs = BSplineCoeffs(coeffs);
             end
             % Validate input
-            lengths = cellfun(@length, s.basis);
             if lengths ~= size(s.coeffs)
                 error('B-spline coefficient of different size than basis')
             end
@@ -25,6 +28,9 @@ classdef TensorSpline
 
         function s = f(self, x)
             s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
+            if self.coeffs.isscalar
+                s = s.coeffs2tensor;
+            end
         end
 
         function d = dims(self)
@@ -154,6 +160,12 @@ classdef TensorSpline
 
         function s = ctranspose(self)
             s = self.cl(self.basis, self.coeffs.');
+        end
+
+        function i = integral(self)
+            i = cellfun(@(b) (b.knots(b.degree + 2:end) - b.knots(1:end - b.degree - 1))' ...
+                        / (b.degree + 1), self.basis, 'UniformOutput', false) * self.coeffs;
+            i = i.coeffs{1};
         end
     end
 end
