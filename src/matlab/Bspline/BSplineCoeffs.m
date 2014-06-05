@@ -145,20 +145,22 @@ classdef BSplineCoeffs
 
         function c = mtimes(A, self)
             % Multiplication of coeffs with matrix or cell array of matrices
-            if isa(A, 'double')
-                A = {A};
-            end
             coeffs = self.coeffs2tensor;
-            A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
-            if isvector(self.coeffs)
+            if isa(A, 'double')
+                if isvector(self.coeffs)
+                    coeffs = kron(A, eye(self.shape(1))) * coeffs;
+                else
+                    error('Univariate splines cannot be multiplied with cell array of matrices')
+                end
+            else  % A is cell array
+                A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
                 if length(A) == 1
                     coeffs = A{1} * coeffs;
                 else
-                    error('A univariate polynomial cannot be multiplied by cell array of matrices')
+                    coeffs = tmprod(coeffs, A, 1:ndims(self.coeffs));
                 end
-            else
-                coeffs = tmprod(coeffs, A, 1:ndims(self.coeffs));
             end
+
             % The tricky part is converting it to a cell again
             D = {};
             for i=1:ndims(self.coeffs)
@@ -167,26 +169,6 @@ classdef BSplineCoeffs
             D{1} = self.shape(1) * D{1};
             D{2} = self.shape(2) * D{2};
             c = self.cl(mat2cell(coeffs, D{:}));
-                % if isvector(self.coeffs)
-                %     a = kron(a, eye(self.shape(1)));
-                %     % s = self.size;
-                %     % a = repmat(a, prod(s(2:end)));
-                %     c = a * vertcat(self.coeffs{:});
-                %     % And now convert back to cell
-                %     c = mat2cell(c, ... 
-                %         self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
-                %     c = self.cl(c);
-                % elseif ndims(self.coeffs) == 2
-                %     a = kron(a, eye(self.shape(1)))
-                %     s = self.size;
-                %     % a = repmat(a, prod(s(2:end)));
-                %     c = a * reshape(vertcat(self.coeffs{:}), [], s(2) * self.shape(2))
-                %     % And now convert back to cell
-                %     % Requires fixing!
-                %     c = mat2cell(c, ... 
-                %         self.shape(1) * ones(size(c, 1) / self.shape(1), 1), size(c, 2));
-                %     c = self.cl(c);
-                % end
         end
 
         function c = vertcat(varargin)

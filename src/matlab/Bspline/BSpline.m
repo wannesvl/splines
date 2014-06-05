@@ -70,8 +70,7 @@ classdef BSpline
                 b_self = self.basis.f(grev);
                 b_other = other.basis.f(grev);
                 [i, j] = self.basis.pairs(other.basis);
-                basis_product = b_self(:, i) .* ...
-                                b_other(:, j);
+                basis_product = b_self(:, i) .* b_other(:, j);
                 T = basis.f(grev) \ basis_product;
                 T(abs(T) < 1e-10) = 0;
                 coeffs_product = self.coeffs(i) .* other.coeffs(j);
