@@ -28,7 +28,7 @@ classdef TensorSpline
 
         function s = f(self, x)
             s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
-            if self.coeffs.isscalar
+            if self.coeffs.isscalar  % If scalar coefficients, convert to regular matrix
                 s = s.coeffs2tensor;
             end
         end
