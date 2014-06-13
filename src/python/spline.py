@@ -4,6 +4,7 @@ import numpy as np
 import scipy.linalg as la
 import casadi as cas
 from scipy.sparse import csr_matrix
+from piecewise import PiecewisePolynomial as ppoly
 # from scipy.sparse.linalg import spsolve
 from collections import Counter
 import md5
@@ -113,8 +114,8 @@ class Basis(object):
         c_other = Counter(other.knots)
         breaks = set(self.knots).union(other.knots)
         # Should be corrected!
-        multiplicity = [max(c_self.get(b, np.nan) + degree - self.degree,
-                            c_other.get(b, np.nan) + degree - other.degree)
+        multiplicity = [max(c_self.get(b, -np.inf) + degree - self.degree,
+                            c_other.get(b, -np.inf) + degree - other.degree)
                         for b in breaks]
         knots = sum([[b] * m for b, m in zip(breaks, multiplicity)], [])
         return self.__class__(sorted(knots), degree)
@@ -263,6 +264,24 @@ class BSplineBasis(Basis):
                 T = la.solve(b[m, :], other(m))
         T[abs(T) < TOL] = 0.
         return csr_matrix_alt(T)
+
+    def as_poly(self):
+        """Returns polynomial description of the basis functions"""
+        k = self.knots
+        k_min, k_max = min(self.knots), max(self.knots)
+        basis = [[ppoly([a, b], [[1]]) for (a, b) in zip(k[:-1], k[1:])]]
+        for d in range(1, self.degree + 1):
+            basis.append([])
+            for i in range(len(k) - d - 1):
+                b = ppoly([k_min, k_max], [0])
+                bottom = k[i + d] - k[i]
+                if bottom != 0:
+                    b += ppoly([k_min, k_max], [[-k[i], 1]]) * basis[d - 1][i] * (1. / bottom)
+                bottom = k[i + d + 1] - k[i + 1]
+                if bottom != 0:
+                    b += ppoly([k_min, k_max], [[k[i + d + 1], -1]]) * basis[d - 1][i + 1] * (1. / bottom)
+                basis[-1].append(b)
+        return basis[-1]
 
 
 class NurbsBasis(Basis):
@@ -419,6 +438,23 @@ class BSpline(Spline):
         # try:
         #     return sum(coeffs * (knots[d + 1:] - knots[:-(d + 1)])) / (d + 1)
 
+    def roots(self):
+        """Return the roots of the B-spline
+
+        Algorithm:
+        * Determine polynomial description
+        * Determine roots of each polynomial subpiece
+        * Check if root is in the support of the polynomial piece
+        """
+        basis = self.basis.as_poly()
+        spline = np.sum([self.coeffs[i] * basis[i] for i in range(len(basis))])
+        roots = []
+        for i, f in enumerate(spline.functions):
+            root = f.roots()
+            roots.extend([r for r in root
+                         if spline.knots[i] <= r < spline.knots[i + 1]])
+        return roots
+
 
 class Nurbs(Spline):
     def __init__(self, basis, coeffs):
@@ -505,16 +541,24 @@ class TensorBSpline(object):
 
     def __add__(self, other):
         if isinstance(other, TensorBSpline) and other.var == self.var:
-            basis = map(lambda x, y: x + y, self.basis, other.basis)
-            Tself = map(lambda x, y: x.transform(y).toarray(), basis, self.basis)
-            Tother = map(lambda x, y: x.transform(y).toarray(), basis, other.basis)
-            cself = self.coeffs
-            for i in range(self.dims()):
-                cself = np.tensordot(Tself[i], cself.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
-            cother = other.coeffs
-            for i in range(other.dims()):
-                cother = np.tensordot(Tother[i], cother.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
-            coeffs = cself + cother
+            if self.dims() == 2 and get_module(self.coeffs) in ['cvxpy', 'cvxopt']:
+                basis = map(lambda x, y: x + y, self.basis, other.basis)
+                Tself = map(lambda x, y: cvxopt.matrix(x.transform(y).toarray()), basis, self.basis)
+                Tother = map(lambda x, y: cvxopt.matrix(x.transform(y).toarray()), basis, other.basis)
+                cself = Tself[0] * self.coeffs * Tself[1].T
+                cother = Tother[0] * other.coeffs * Tother[1].T
+                coeffs = cself + cother
+            else:
+                basis = map(lambda x, y: x + y, self.basis, other.basis)
+                Tself = map(lambda x, y: x.transform(y).toarray(), basis, self.basis)
+                Tother = map(lambda x, y: x.transform(y).toarray(), basis, other.basis)
+                cself = self.coeffs
+                for i in range(self.dims()):
+                    cself = np.tensordot(Tself[i], cself.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
+                cother = other.coeffs
+                for i in range(other.dims()):
+                    cother = np.tensordot(Tother[i], cother.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
+                coeffs = cself + cother
         else:
             try:
                 basis = self.basis
@@ -535,7 +579,21 @@ class TensorBSpline(object):
 
     def __mul__(self, other):
         if isinstance(other, TensorBSpline):
-            return NotImplementedError("Too complex to implement :-)")
+            if len(self.basis) > 2:
+                return NotImplementedError("Too complex to implement :-)")
+            basis = map(lambda x, y: x * y, self.basis, other.basis)
+            pairs = map(lambda x, y: x.pairs(y)[0], self.basis, other.basis)
+            basis_product = map(lambda x, y, p, b: x(b._x)[:, p[0]].multiply(y(b._x)[:, p[1]]), self.basis, other.basis, pairs, basis)
+            coeffs_product = (self.coeffs[pairs[0][0]].T[pairs[1][0]] *
+                              other.coeffs[pairs[0][1]].T[pairs[1][1]])
+            T = map(lambda x, b: b.transform(lambda y: x.toarray()[y, :]), basis_product, basis)
+            coeffs = coeffs_product.T
+            for i, t in enumerate(T):
+                coeffs = np.tensordot(t.toarray(), coeffs.swapaxes(0, i), axes=[1, 0]).swapaxes(0, i)
+            return self.__class__(basis, coeffs, self.var)
+            return self.coeffs[pairs[0][0].tolist(), pairs[1][0].tolist()] * other.coeffs[pairs[0][1].tolist(), pairs[1][1].tolist()]
+            # coeffs_product = np.kron(self.coeffs, other.coeffs)
+
         else:
             try:
                 basis = self.basis
@@ -557,6 +615,9 @@ class TensorBSpline(object):
         deg = [b.degree for b in self.basis]
         K = [(k[d + 1:] - k[:-(d + 1)]) / (d + 1)
              for (k, d) in zip(knots, deg)]
+        if self.dims() == 2: #get_module(self.coeffs) in ['cvxpy', 'cvxopt']:
+            i = cvxopt.matrix(K[0]).T * self.coeffs * cvxopt.matrix(K[1])
+            return i
         i = np.inner(K[-1], coeffs)
         for ki in K[:-1]:
             i = np.inner(ki, i)

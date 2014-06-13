@@ -86,6 +86,8 @@ classdef Basis
                 b = self.combine(other, degree);
             elseif isa(other, 'double')
                 b = self;
+            elseif isa(self, 'double')                
+                b = other;
             else
                 error('Incompatible datatype')
             end
