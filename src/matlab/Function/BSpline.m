@@ -43,5 +43,11 @@ classdef BSpline < Function
                 end
             end
         end
+
+        function i = integral(self)
+            T = cellfun(@(b) b.integral, self.basis, 'UniformOutput', false);
+            i = T * self.coeffs;
+            i = i.coeffs{1};
+        end
     end
 end
