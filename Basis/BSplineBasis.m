@@ -60,8 +60,8 @@ classdef BSplineBasis < PieceWiseBasis
             end
             P = eye(length(self));
             k = self.knots;
-            B = self.cl(self.knots(o:end-o), self.degree - o);
-            for i=0:o-1
+            B = self.cl(self.knots(o + 1:end - o), self.degree - o);
+            for i=0:o-1 
                 k = k(2:end-1);
                 delta_k = k(self.degree - i + 1:end) - k(1:end - self.degree + i);
                 T = zeros(length(self) - 1 - i, length(self) - i);
@@ -73,8 +73,8 @@ classdef BSplineBasis < PieceWiseBasis
 
         function i = integral(self)
         % Integral of the basis functions
-            k = self.basis.knots;
-            d = self.basis.degree;
+            k = self.knots;
+            d = self.degree;
             i = (k(d + 2:end) - k(1:end - d - 1))'  / (d + 1);
         end
     end
