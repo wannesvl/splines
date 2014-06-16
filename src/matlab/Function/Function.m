@@ -1,4 +1,4 @@
-classdef TensorSpline
+classdef Function
     properties (Access=protected)
         cl
     end
@@ -7,17 +7,31 @@ classdef TensorSpline
         basis
     end
     methods
-        function s = TensorSpline(basis, coeffs)
-            % Constructor for TensorSpline
+        function s = Function(basis, coeffs)
+            % A generic function class
+            % 
+            % Function(b, c) creates a function object defined by bases b and
+            % coefficients c.
+            %
+            % Args:
+            %    basis (cell of basis objects): The function bases to use     
+            %    coeffs (array, cell or Coefficients): The function
+            %      coefficients. Array input is allowed only for scalar coefficients
+            %
+            % Returns:
+            %    An instance of the function class
+            if isa(basis, 'UnivariateBasis') && isscalar(basis)
+                basis = {basis};
+            end
             s.basis = basis;
             lengths = cellfun(@length, s.basis);
-            if isa(coeffs, 'BSplineCoeffs')
+            if isa(coeffs, 'Coefficients')
                 s.coeffs = coeffs;
             else
-                if size(coeffs) == lengths % Scalar coefficients
+                if all(size(coeffs) == lengths)  % Scalar coefficients
                     coeffs = mat2cell(coeffs, ones(size(coeffs, 1), 1), ones(size(coeffs, 2), 1));
                 end
-                s.coeffs = BSplineCoeffs(coeffs);
+                s.coeffs = Coefficients(coeffs);
             end
             % Validate input
             if lengths ~= size(s.coeffs)
@@ -27,8 +41,9 @@ classdef TensorSpline
         end
 
         function s = f(self, x)
+            % Evaluate a Function at x
             s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
-            if self.coeffs.isscalar
+            if self.coeffs.isscalar  % If scalar coefficients, convert to regular matrix
                 s = s.coeffs2tensor;
             end
         end
@@ -38,45 +53,14 @@ classdef TensorSpline
         end
 
         function s = plus(self, other)
-            if isa(other, 'TensorSpline')
+            if isa(self, class(other))
                 basis = cellfun(@plus, self.basis, other.basis, 'UniformOutput', false);
                 Tself = cellfun(@(b1, b2) b1.transform(b2), basis, self.basis, 'UniformOutput', false);
                 Tother = cellfun(@(b1, b2) b1.transform(b2), basis, other.basis, 'UniformOutput', false);
                 coeffs = Tself * self.coeffs + Tother * other.coeffs;
-            else
-                basis = self.basis;
-                coeffs = self.coeffs + other;
-            end
-            s = self.cl(basis, coeffs);
-        end
-
-        function s = mtimes(self, other)
-            function T = transform(A, B)
-                T = A \ B;
-                T(abs(T) < 1e-10) = 0;
-            end
-            if isa(self, class(other))
-                basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
-                [p_self, p_other] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
-                grev = cellfun(@(b) b.greville, basis, 'UniformOutput', false);
-                b = cellfun(@(b, g) b.f(g), basis, grev, 'UniformOutput', false);
-                b_self = cellfun(@(b, g) b.f(g), self.basis, grev, 'UniformOutput', false);
-                b_other = cellfun(@(b, g) b.f(g), other.basis, grev, 'UniformOutput', false);
-                basis_product = cellfun(@(b1, b2, ps, po) b1(:, ps) .* b2(:, po), b_self, b_other, p_self, p_other, 'UniformOutput', false);
-                coeffs_product = self.coeffs(p_self{:}) .* other.coeffs(p_other{:});
-                T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
-                s = self.cl(basis, T * coeffs_product);
-            else
-                try
-                    basis = self.basis;
-                    coeffs = self.coeffs .* other;
-                    s = self.cl(basis, coeffs);
-                catch err
-                    % s = other * self
-                    basis = other.basis;
-                    coeffs = self .* other.coeffs;
-                    s = other.cl(basis, coeffs);
-                end
+                s = self.cl(basis, coeffs);
+            else  % This implementation depends on the type of basis we are dealing with and cannot be implemented
+                error('plus with other than Function objects is not defined. Consider defining plus in a subclass.')
             end
         end
 
@@ -86,6 +70,40 @@ classdef TensorSpline
 
         function s = minus(self, other)
             s = self + (- other);
+        end
+
+        function s = mtimes(self, other)
+            % This is a general implementation but could be performed more efficiently in subclasses
+            % It is recommended to overload mtimes in the subclass
+            function T = transform(A, B)
+                T = A \ B;
+                T(abs(T) < 1e-10) = 0;
+            end
+            if isa(self, class(other)) 
+                % Basis of product
+                basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
+                % Take kronecker product of coefficients
+                [i_other, i_self] = arrayfun(@(i) find(ones(size(other.coeffs, i), size(self.coeffs, i))), 1:self.dims, 'UniformOutput', false);  % Give all indices of products
+                coeffs_product = self.coeffs(i_self{:}) .* other.coeffs(i_other{:});
+                % Determine transformation matrices
+                x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
+                b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
+                b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
+                b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
+                basis_product = cellfun(@(b1, b2, is, io) b1(:, is) .* b2(:, io), b_self, b_other, i_self, i_other, 'UniformOutput', false);
+                T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
+                s = self.cl(basis, T * coeffs_product);
+            else   % Assume multiplication with array
+                try
+                    basis = self.basis;
+                    coeffs = self.coeffs .* other;
+                    s = self.cl(basis, coeffs);
+                catch err
+                    basis = other.basis;
+                    coeffs = self .* other.coeffs;
+                    s = other.cl(basis, coeffs);
+                end
+            end
         end
 
         function s = horzcat(varargin)
@@ -111,7 +129,7 @@ classdef TensorSpline
                     T = cellfun(@(b, bi) b.transform(bi), b, varargin{i}.basis, 'UniformOutput', false);
                     c{i} = T * varargin{i}.coeffs;
                 else  % Constant function: Simply repeat matrices along dimensions of b
-                    c{i} = BSplineCoeffs(repmat({varargin{i}}, size_b));
+                    c{i} = Coefficients(repmat({varargin{i}}, size_b));
                 end
             end
 
@@ -144,7 +162,7 @@ classdef TensorSpline
                     T = cellfun(@(b, bi) b.transform(bi), b, varargin{i}.basis, 'UniformOutput', false);
                     c{i} = T * varargin{i}.coeffs;
                 else  % Constant function: Simply repeat matrices along dimensions of b
-                    c{i} = BSplineCoeffs(repmat({varargin{i}}, size_b));
+                    c{i} = Coefficients(repmat({varargin{i}}, size_b));
                 end
             end
 
@@ -155,17 +173,11 @@ classdef TensorSpline
         end
 
         function s = transpose(self)
-            s = self.cl(self.basis, self.coeffs');
-        end
-
-        function s = ctranspose(self)
             s = self.cl(self.basis, self.coeffs.');
         end
 
-        function i = integral(self)
-            i = cellfun(@(b) (b.knots(b.degree + 2:end) - b.knots(1:end - b.degree - 1))' ...
-                        / (b.degree + 1), self.basis, 'UniformOutput', false) * self.coeffs;
-            i = i.coeffs{1};
+        function s = ctranspose(self)
+            s = self.cl(self.basis, self.coeffs');
         end
     end
 end

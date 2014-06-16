@@ -1,14 +1,11 @@
-classdef Basis
-    properties (Access=protected)
-        cl
-    end
+classdef PieceWiseBasis < UnivariateBasis
     properties
         knots
         degree
     end
     methods
-        function B = Basis(knots, degree)
-            % Constructor for Basis
+        function B = PieceWiseBasis(knots, degree)
+            % Constructor for PieceWiseBasis
             %
             % Args:
             %    knots (vector, double): the knot sequence of the basis
@@ -16,9 +13,9 @@ classdef Basis
             %
             % Returns:
             %    Basis: an instance of the Basis class
+            B@UnivariateBasis(degree);
             B.knots = knots(:);
-            B.degree = degree;
-            B.cl = str2func(class(B));
+            B.x_ = B.greville;
         end
 
         function s = length(self)

@@ -1,4 +1,4 @@
-classdef BSplineBasis < Basis
+classdef BSplineBasis < PieceWiseBasis
     methods
         function B = BSplineBasis(knots, degree)
             % Constructor for BSplineBasis, a subclass of Basis
@@ -12,7 +12,7 @@ classdef BSplineBasis < Basis
             %
             % Example:
             %    > B = BsplineBasis([0, 0, 0, 0.5, 1, 1, 1], 2)
-            B@Basis(knots, degree)
+            B@PieceWiseBasis(knots, degree)
         end
 
         function b = f(self, x)
@@ -60,8 +60,8 @@ classdef BSplineBasis < Basis
             end
             P = eye(length(self));
             k = self.knots;
-            B = self.cl(self.knots(o:end-o), self.degree - o);
-            for i=0:o-1
+            B = self.cl(self.knots(o + 1:end - o), self.degree - o);
+            for i=0:o-1 
                 k = k(2:end-1);
                 delta_k = k(self.degree - i + 1:end) - k(1:end - self.degree + i);
                 T = zeros(length(self) - 1 - i, length(self) - i);
@@ -69,6 +69,13 @@ classdef BSplineBasis < Basis
                 T(length(self) - i:length(self) - i:end) = 1 ./ delta_k;
                 P = (self.degree - i) * T * P;
             end
+        end
+
+        function i = integral(self)
+        % Integral of the basis functions
+            k = self.knots;
+            d = self.degree;
+            i = (k(d + 2:end) - k(1:end - d - 1))'  / (d + 1);
         end
     end
 end

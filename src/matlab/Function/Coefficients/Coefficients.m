@@ -1,4 +1,4 @@
-classdef BSplineCoeffs
+classdef Coefficients
     properties (Access=protected)
         cl
         shape
@@ -7,8 +7,8 @@ classdef BSplineCoeffs
         coeffs
     end
     methods
-        function c = BSplineCoeffs(coeffs)
-            % Constructor for BSplineCoeffs
+        function c = Coefficients(coeffs)
+            % Constructor for Coefficients
             %
             % The coefficients are either vector for scalar valued
             % splines, or cells of vectors and matrices for vector
@@ -41,8 +41,12 @@ classdef BSplineCoeffs
             l = length(self.coeffs);
         end
 
-        function s = size(self)
-            s = size(self.coeffs);
+        function s = size(self, i)
+            if nargin == 1
+                s = size(self.coeffs);
+            else
+                s = size(self.coeffs, i);
+            end
         end
 
         function b = isscalar(self)
@@ -105,7 +109,7 @@ classdef BSplineCoeffs
             % Returns the sum of coefficients
             %
             % Returns: 
-            %    BSplineCoeffs: The sum of self.coeffs and other.coeffs.
+            %    Coefficients: The sum of self.coeffs and other.coeffs.
             %       If either of the terms is a matrix the function sums each of
             %       the coefficient with the matrix
             if isa(self, class(other))
@@ -140,7 +144,7 @@ classdef BSplineCoeffs
                     c = cellfun(@(v) self * v, other.coeffs, 'UniformOutput', false);
                 end
             end
-            c = BSplineCoeffs(c);
+            c = Coefficients(c);
         end
 
         function c = mtimes(A, self)
@@ -174,13 +178,13 @@ classdef BSplineCoeffs
         function c = vertcat(varargin)
             % Concatenate matrices vertically
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@vertcat, d{:}, 'UniformOutput', false));
+            c = Coefficients(cellfun(@vertcat, d{:}, 'UniformOutput', false));
         end
 
         function c = horzcat(varargin)
             % Concatenate matrices horizontaly
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
-            c = BSplineCoeffs(cellfun(@horzcat, d{:}, 'UniformOutput', false));
+            c = Coefficients(cellfun(@horzcat, d{:}, 'UniformOutput', false));
         end
 
         function c = transpose(self)
@@ -206,7 +210,7 @@ classdef BSplineCoeffs
                     [varargout{1:nargout}] = builtin('subsref', self, s);
                 else
                     error(['''%s'' is not a public property or method ' ...
-                        'of the BSplineCoeffs class.'],s(1).subs);
+                        'of the Coefficients class.'],s(1).subs);
                 end
             else
                 varargout{1} = self.cl(subsref(self.coeffs, s));
