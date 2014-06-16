@@ -155,6 +155,9 @@ Let $C_x^\star$ and $C_y^\star$ denote optimal points of $\hat{\Pi}$ respectivel
 \]
 and within the chosen parameterization, the average gap $\hat{p}(\ppar,C_x^\star)-\hat{d}(\ppar,C_y^\star)$ over $\Ppar$ is minimal.
 
+\commentGP{This could be a general way to set up the problem: minimize a norm of the duality gap.}
+
+
 \vspace*{12pt}
 \noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients.
 
@@ -166,7 +169,8 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
 \vspace*{12pt}
 \noindent\textbf{To include somewhere:} Reasons for choosing a B-spline parameterization
 \begin{itemize}
-\item Great approximating power. Whereas polynomials form a basis for analytical functions, in most cases neither the optimizer function nor the optimal value function of the considered parametric programs is analytical. \commentGP{From the viewpoint of approximation the true solution, a simplicial subdivision of the parameter domain would be more appropriate than a hyperrectangular one \ldots}
+\item Great approximating power. Whereas polynomials form a basis for analytical functions, in most cases neither the optimizer function nor the optimal value function of the considered parametric programs is analytical. \commentGP{From the viewpoint of approximating the true solution, a simplicial subdivision of the parameter domain would be more appropriate than a hyperrectangular one \ldots}
+\item Local support of the basis functions. This should allow for cheap local refinements both in the relaxation of the semi-infinite constraints as in the approximation $x(\ppar)$ or $y(\ppar)$.   
 \item Transformation of semi-infinite constraints to a finite dimensional set of constraints. Generally good trade-off between conservatism and computational complexity (in contrast to sum-of-squares, particularly for matrix constraints), and 2 ways to reduce conservatism: knot insertion and degree augmentation. \commentGP{We should include some guidelines for choosing between these two and on where to insert knots.}
 \item It allows for various extensions:
     \begin{itemize}
@@ -181,6 +185,7 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
         \[ g(C_{x,i})\leq 0\,,~\forall i=1,\ldots,m \qquad \Rightarrow \qquad g(x(\ppar))\leq0\,,~\forall \ppar\in\Ppar\,.%
         \]
         \end{itemize}
+    \item Extension to general parameter domains: star-shaped with a Bspline parameterized boundary.
 \end{itemize}
 
 
@@ -256,7 +261,7 @@ We are interested in optimizing $\gamma$ as a function of parameter $\ppar$ (ins
  & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
  & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0.
 \end{eqnarray*}
-To make this optimization problem numerically tractable, it is necessary to impose a specific parameterization on the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. 
+To make this optimization problem numerically tractable, it is necessary to impose a specific parameterization on the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs.
 
 The LMI variables are parameterized as polynomial splines of some preselected degree, and can thus be expressed in terms of Bspline basis functions and coefficients. For example, the variable $Q(\ppar)$ is parameterized as
 \begin{equation*}
