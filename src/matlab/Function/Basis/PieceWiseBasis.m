@@ -4,22 +4,25 @@ classdef PieceWiseBasis < UnivariateBasis
         degree
     end
     methods
-        function B = PieceWiseBasis(knots, degree)
-            % Constructor for PieceWiseBasis
+        function basis = PieceWiseBasis(knots, degree)
+            % An abstract base class for univariate piecewise basis functions.
+            % A piecewise basis is defined by a nondecreasing sequence of
+            % knots and a degree.
             %
             % Args:
-            %    knots (vector, double): the knot sequence of the basis
+            %    knots (vector, double): the (nondecreasing) knot sequence of the basis
             %    degree (int): the degree of the basis
             %
             % Returns:
-            %    Basis: an instance of the Basis class
-            B@UnivariateBasis(degree);
-            B.knots = knots(:);
-            B.x_ = B.greville;
+            %    PieceWiseBasis: an instance of the Basis class
+            basis@UnivariateBasis(degree);
+            validateattributes(knots, {'numeric'}, {'nondecreasing'})
+            basis.knots = knots(:);
+            basis.x_ = B.greville;
         end
 
-        function s = length(self)
-            s = length(self.knots) - self.degree - 1;
+        function l = length(self)
+            l = length(self.knots) - self.degree - 1;
         end
 
         function I = ind(self, i, x)
@@ -33,13 +36,14 @@ classdef PieceWiseBasis < UnivariateBasis
             %    vector, boolean: 1 if knots(i) < x <= knots(i + 1) else 0
             x = x(:);
             if i < self.degree + 2 && self.knots(1) == self.knots(i)
+                % To avoid difficulties with the first knot
                 I = (x >= self.knots(i)) .* (x <= self.knots(i+1));
             else
                 I = (x > self.knots(i)) .* (x <= self.knots(i+1));
             end
         end
 
-        function c = count_knots(self, k)
+        function count = count_knots(self, k)
             % Count occurence of knot k
             %
             % Args:
@@ -47,9 +51,9 @@ classdef PieceWiseBasis < UnivariateBasis
             %
             % Returns:
             %    int: Number of occurences of the knot or nan if count == 0
-            c = histc(self.knots, k);
-            if c == 0
-                c = nan;
+            count = histc(self.knots, k);
+            if count == 0
+                count = nan;
             end
         end
 
@@ -61,7 +65,7 @@ classdef PieceWiseBasis < UnivariateBasis
             %    degree (int): Desired degree of the combination
             %
             % Returns:
-            %    Basis: The combined basis
+            %    PieceWiseBasis: The combined basis
             breaks = union(self.knots, other.knots);
             knots = [];
             for i = 1:length(breaks)
@@ -76,8 +80,11 @@ classdef PieceWiseBasis < UnivariateBasis
         function b = plus(self, other)
             % Returns the sum of two bases
             %
+            % Args:
+            %    other (Basis)
+            %
             % Returns:
-            %    Basis: The sum of self and other
+            %    PieceWiseBasis: The sum of self and other
             if isa(other, class(self))
                 degree = max(self.degree, other.degree);
                 b = self.combine(other, degree);
@@ -93,8 +100,11 @@ classdef PieceWiseBasis < UnivariateBasis
         function b = mtimes(self, other)
             % Returns the product of two bases
             %
+            % Args:
+            %    other (Basis)
+            %
             % Returns:
-            %    Basis: The product of self and other
+            %    PieceWiseBasis: The product of self and other
             if isa(other, class(self))
                 degree = self.degree + other.degree;
                 b = self.combine(other, degree);
@@ -125,22 +135,22 @@ classdef PieceWiseBasis < UnivariateBasis
             %    knots (vector, double): The desired knot insertion locations
             %
             % Returns:
-            %    Basis: The refined basis
+            %    PieceWiseBasis: The refined basis
             knots = sort([self.knots; knots(:)]);
             b = self.cl(knots, self.degree);
         end
 
-        function b = increase_degree(self, d)
+        function basis = increase_degree(self, d)
             % Increase the degree of the basis by d
             %
             % Args:
             %    d (int): The desired degree increase
             %
             % Returns:
-            %    Basis: The new basis
+            %    PieceWiseBasis: The new basis
             degree = self.degree + d;
             knots = sort([self.knots; repmat(unique(self.knots), d, 1)]);
-            b = self.cl(knots, degree);
+            basis = self.cl(knots, degree);
         end
 
         function s = support(self)
@@ -171,7 +181,16 @@ classdef PieceWiseBasis < UnivariateBasis
         end
 
         function T = transform(self, other)
-            x = self.greville();
+            % Returns a transformation matrix T from self to other such that
+            % self * T = other. The transformation matrix is only defined if
+            % other is included in self.
+            %
+            % Args:
+            %    other (PieceWiseBasis): Transforming basis.
+            %
+            % Returns:
+            %    array: the transformation matrix
+            x = self.x_;
             if isa(other, class(self))
                 T = self.f(x) \ other.f(x);
             end

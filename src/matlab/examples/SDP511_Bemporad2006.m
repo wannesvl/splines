@@ -13,8 +13,8 @@ Ax3 = [5 4 2; 4 1 1; 2 1 -1];
 % Feasible region
 % ===============
 degree = 3;
-knots = [0 * ones(1, degree), linspace(0, 2 * pi, 3), 2 * pi * ones(1, degree)];
-step = 0.005;
+knots = [0 * ones(1, degree), linspace(0, 2 * pi, 20), 2 * pi * ones(1, degree)];
+step = 1 / 50;
 knots = 2 * pi * ((-degree * step):step:(1 + degree * step));
 b_phi = BSplineBasis(knots, degree);
 
@@ -44,7 +44,7 @@ cvx_begin sdp
 
     K = A0 + At1 * t1 + At2 * t2 + Ax1 * x1 + Ax2 * x2 + Ax3 * x3;
 
-    maximize(integ(f_sin, Ct1) + integ(f_cos, Ct2))
+    maximize(integ(f_sin, Ct1) + integ(f_cos, Ct2))  % Add regularization for spacing points evenly
     subject to
         for i=1:length(K.coeffs)
             K.coeffs.coeffs{i} >= 0;
@@ -56,6 +56,10 @@ cvx_begin sdp
             Ct1(i) == Ct1(end - degree + i);
             Ct2(i) == Ct2(end - degree + i);
         end
+        % for i=1:1
+        %     Ct1(i) == Ct1(end - i + 1);
+        %     Ct2(i) == Ct2(end - i + 1);
+        % end
 cvx_end
 
 t1 = BSpline(b_phi, Ct1);
@@ -73,15 +77,15 @@ b_beta = BSplineBasis([0, 0, 1, 1], 1);
 c_beta = [0, 1];
 beta = BSpline(b_beta, c_beta);
 
-c_t1 = Ct1 * c_beta;
-c_t2 = Ct2 * c_beta;
+c_t1 = (Ct1 - 2) * c_beta + 2;
+c_t2 = (Ct2 + 2) * c_beta - 2;
 t1 = BSpline({b_phi, b_beta}, c_t1);
 t2 = BSpline({b_phi, b_beta}, c_t2);
 
 % Define optimization problem
 degree = 3;
 na = 5;
-nb = 5;
+nb = 10;
 Ba = b_phi;
 Bb = BSplineBasis([0 * ones(1, degree), linspace(0, 1, nb), ones(1, degree)], degree);
 
@@ -112,10 +116,11 @@ x1 = BSpline({Ba, Bb}, Cx1);
 x2 = BSpline({Ba, Bb}, Cx2);
 x3 = BSpline({Ba, Bb}, Cx3);
 objective = x1 - 2 * x2 + x3;
+O_approx = objective.f({a, b});
 figure
-surf(T1, T2, objective.f({a, b}), 'EdgeColor', 'none')
+surf(T1, T2, O_approx, 'EdgeColor', 'none')
 camlight left; light; lighting phong; shading interp; alpha(0.5);
-
+return
 % Solve gridded problem
 % =====================
 
@@ -141,3 +146,7 @@ end
 hold on;
 surf(T1(1:5:length(a), 1:5:length(b)), T2(1:5:length(a), 1:5:length(b)), O)
 camlight left; light; lighting phong; shading interp; alpha(0.5);
+
+
+figure
+surf(T1(1:5:length(a), 1:5:length(b)), T2(1:5:length(a), 1:5:length(b)), O - O_approx(1:5:length(a), 1:5:length(b)))

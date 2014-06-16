@@ -1,7 +1,7 @@
 classdef BSplineBasis < PieceWiseBasis
     methods
         function B = BSplineBasis(knots, degree)
-            % Constructor for BSplineBasis, a subclass of Basis
+            % Constructor for BSplineBasis, a subclass of PieceWiseBasis
             %
             % Args:
             %    knots (vector, double): the knot sequence of the basis

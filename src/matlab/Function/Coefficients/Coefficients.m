@@ -1,10 +1,13 @@
 classdef Coefficients
     properties (Access=protected)
         cl
-        shape
     end
+    % properties (Access={?Coefficients,?Function})
+    %     shape
+    % end
     properties
         coeffs
+        shape
     end
     methods
         function c = Coefficients(coeffs)
@@ -136,7 +139,7 @@ classdef Coefficients
         function c = times(self, other)
             % pointwise product
             if isa(self, class(other))
-                c = cellfun(@mtimes, self.coeffs, other.coeffs, 'UniformOutput', false);
+                c = cellfun(@times, self.coeffs, other.coeffs, 'UniformOutput', false);
             else
                 try
                     c = cellfun(@(v) v * other, self.coeffs, 'UniformOutput', false);
@@ -148,15 +151,19 @@ classdef Coefficients
         end
 
         function c = mtimes(A, self)
-            % Multiplication of coeffs with matrix or cell array of matrices
+            % Matrix multiplication with same type or transformation matrices
+            if isa(A, class(self))  % Both inputs are coefficients
+                c = self.cl(cellfun(@mtimes, A.coeffs, self.coeffs, 'UniformOutput', false));
+                return
+            end
             coeffs = self.coeffs2tensor;
-            if isa(A, 'double')
+            if isa(A, 'double')  % Univariate transformation matrix
                 if isvector(self.coeffs)
                     coeffs = kron(A, eye(self.shape(1))) * coeffs;
                 else
                     error('Univariate splines cannot be multiplied with cell array of matrices')
                 end
-            else  % A is cell array
+            elseif isa(A, 'cell')  % Multivariate transformation matrices
                 A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
                 if length(A) == 1
                     coeffs = A{1} * coeffs;
