@@ -1,28 +1,38 @@
 classdef (Abstract) UnivariateBasis
+
     properties (Access=protected)
-        cl
+        cl  % The name of the class
     end
-
     properties (SetAccess={?UnivariateBasis}, GetAccess={?Function})
-        x_  % length of basis independent points on which the basis can be evaluated
+        x_  % #length(basis) of independent points 
     end
-
     properties (Abstract)
         degree
     end
+
+    % Each subclass should implement these methods
     methods (Abstract)
-        % Each subclass must define these methods
         length(self)
         plus(self, other)
         mtimes(self, other)
-        transform(self, other)  % Transformation matrix from 1 basis to another
-        f(self, x)  % Call the basis at x
+        transform(self, other)
+        f(self, x)
     end
+
     methods
-        function b = UnivariateBasis(degree)
+        function basis = UnivariateBasis(degree)
+            % An abstract base class for a general function basis.
+            % A basis is defined by its integer valued degree
+            % 
+            % Each subclass must overload the following methods:
+            %   * length: return the number of basis functions
+            %   * plus: return a new basis formed by the sum of two bases 
+            %   * mtimes: return a new basis formed by the product of two bases 
+            %   * transform: return a transformation matrix from one basis to another
+            %   * f: return the evaluation of the basis at points x
             validateattributes(degree, {'numeric'}, {'scalar', 'integer'});
-            b.degree = degree;
-            b.cl = str2func(class(b));
+            basis.degree = degree;
+            basis.cl = str2func(class(b));
         end
     end
 end

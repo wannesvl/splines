@@ -16,7 +16,7 @@ classdef BSpline < Function
             if isa(self, class(other))
                 basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
                 [i_other, i_self] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
-                coeffs_product = self.coeffs(i_self{:}) .* other.coeffs(i_other{:});
+                coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
                 % Determine transformation matrices
                 x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
                 b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
