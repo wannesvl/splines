@@ -1,6 +1,6 @@
 classdef BSplineBasis < PieceWiseBasis
     methods
-        function B = BSplineBasis(knots, degree)
+        function basis = BSplineBasis(knots, degree)
             % Constructor for BSplineBasis, a subclass of PieceWiseBasis
             %
             % Args:
@@ -12,7 +12,7 @@ classdef BSplineBasis < PieceWiseBasis
             %
             % Example:
             %    > B = BsplineBasis([0, 0, 0, 0.5, 1, 1, 1], 2)
-            B@PieceWiseBasis(knots, degree)
+            basis@PieceWiseBasis(knots, degree)
         end
 
         function b = f(self, x)

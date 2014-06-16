@@ -15,7 +15,7 @@ classdef BSpline < Function
             end
             if isa(self, class(other))
                 basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
-                [i_other, i_self] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
+                [i_self, i_other] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
                 coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
                 % Determine transformation matrices
                 x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
@@ -48,6 +48,17 @@ classdef BSpline < Function
             T = cellfun(@(b) b.integral, self.basis, 'UniformOutput', false);
             i = T * self.coeffs;
             i = i.coeffs{1};
+        end
+
+        function d = derivative(self, ord, coord)
+            % Derivative on coord of self
+            b = self.basis;
+            bi = self.basis{coord};
+            [dbi, P] = bi.derivative(ord);
+            T = cellfun(@(p) eye(length(p)), b, 'UniformOutput', false);
+            T{coord} = P;
+            b{coord} = dbi;
+            d = self.cl(b, T * self.coeffs);
         end
     end
 end
