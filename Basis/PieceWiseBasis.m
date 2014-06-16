@@ -18,7 +18,7 @@ classdef PieceWiseBasis < UnivariateBasis
             basis@UnivariateBasis(degree);
             validateattributes(knots, {'numeric'}, {'nondecreasing'})
             basis.knots = knots(:);
-            basis.x_ = B.greville;
+            basis.x_ = basis.greville;
         end
 
         function l = length(self)

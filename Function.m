@@ -29,7 +29,8 @@ classdef Function
                 s.coeffs = coeffs;
             else
                 if all(size(coeffs) == lengths)  % Scalar coefficients
-                    coeffs = mat2cell(coeffs, ones(size(coeffs, 1), 1), ones(size(coeffs, 2), 1));
+                    sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
+                    coeffs = mat2cell(coeffs, sp{:});
                 end
                 s.coeffs = Coefficients(coeffs);
             end
@@ -137,7 +138,7 @@ classdef Function
             end
 
             % Find a common basis for all terms
-            b = cell(1, l);
+            b = cell(1, l(1));
             for i=1:length(varargin)
                 if isa(varargin{i}, mfilename)
                     b = cellfun(@plus, b, varargin{i}.basis, 'UniformOutput', false);
@@ -170,7 +171,7 @@ classdef Function
             end
 
             % Find a common basis for all terms
-            b = cell(1, l);
+            b = cell(1, l(1));
             for i=1:length(varargin)
                 if isa(varargin{i}, mfilename)
                     b = cellfun(@plus, b, varargin{i}.basis, 'UniformOutput', false);
