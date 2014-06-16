@@ -173,12 +173,17 @@ classdef Coefficients
             end
 
             % The tricky part is converting it to a cell again
-            D = cell(1, ndims(self.coeffs));
+            % D = cell(1, ndims(self.coeffs));
+            D = {};
             for i=1:ndims(self.coeffs)
-                D{i} = ones(size(coeffs, i), 1);
+                if i > 2
+                    D{i} = ones(size(coeffs, i), 1);
+                else
+                    D{i} = ones(size(coeffs, i) / self.shape(i), 1);
+                end
             end
-            % D{1} = self.shape(1) * D{1};
-            % D{2} = self.shape(2) * D{2};
+            D{1} = self.shape(1) * D{1};
+            D{2} = self.shape(2) * D{2};
             c = self.cl(mat2cell(coeffs, D{:}));
         end
 
