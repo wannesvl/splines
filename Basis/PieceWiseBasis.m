@@ -105,7 +105,7 @@ classdef PieceWiseBasis < UnivariateBasis
             %
             % Returns:
             %    PieceWiseBasis: The product of self and other
-            if isa(other, class(self))
+            if isa(other, class(self)) || isa(self, class(other))
                 degree = self.degree + other.degree;
                 b = self.combine(other, degree);
             elseif isa(other, 'double')
