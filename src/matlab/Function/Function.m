@@ -36,7 +36,7 @@ classdef Function
             end
             % Validate input
             if lengths ~= size(s.coeffs)
-                error('B-spline coefficient of different size than basis')
+                error('Function coefficient of different size than bases')
             end
             s.cl = str2func(class(s));
         end
@@ -48,6 +48,14 @@ classdef Function
                 s = s.coeffs2tensor;
             end
         end
+
+        function s = f_partial(self, x, i)
+            % Partial evaluation of f
+            %
+            % Returns a new Function object
+
+        end
+
 
         function d = dims(self)
             d = length(self.basis);
@@ -145,6 +153,9 @@ classdef Function
                 end
             end
             size_b = cellfun(@length, b);
+            if isscalar(size_b)  % Correction for univariate splines
+                size_b = [size_b, 1];
+            end
             
             % Compute coefficients in common basis
             c = cell(size(varargin));
@@ -154,6 +165,7 @@ classdef Function
                     c{i} = T * varargin{i}.coeffs;
                 else  % Constant function: Simply repeat matrices along dimensions of b
                     c{i} = Coefficients(repmat({varargin{i}}, size_b));
+                    c{i}
                 end
             end
 
@@ -178,6 +190,9 @@ classdef Function
                 end
             end
             size_b = cellfun(@length, b);
+            if isscalar(size_b)  % Correction for univariate splines
+                size_b = [size_b, 1];
+            end
             
             % Compute coefficients in common basis
             c = cell(size(varargin));
