@@ -3,9 +3,8 @@ classdef BSpline < Function
         function p = BSpline(basis, coeffs)
             p@Function(basis, coeffs);
             if ~all(cellfun(@(c) isa(c, 'BSplineBasis'), p.basis))
-                error('All bases are required to be polynomial basis')
-            end 
-
+                error('All bases are required to be BSplineBasis basis')
+            end
         end
 
         function s = mtimes(self, other)
@@ -18,7 +17,7 @@ classdef BSpline < Function
                 [i_self, i_other] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
                 coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
                 % Determine transformation matrices
-                x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
+                x = cellfun(@(b) b.greville, basis, 'UniformOutput', false);
                 b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
                 b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
                 b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
@@ -59,6 +58,21 @@ classdef BSpline < Function
             T{coord} = P;
             b{coord} = dbi;
             d = self.cl(b, T * self.coeffs);
+        end
+
+        function d = add_basis(self, basis, i)
+            % Add basis to dimension i to the spline
+            rep = ones(1, self.dims + 1);
+            rep(i) = length(basis) + 1;
+            % Repeat and permute coefficients along the new dimension
+            coeffs = Coefficients(repmat(...
+                                  permute(self.coeffs.coeffs, circshift((1:self.dims+1)', i)),...
+                                  rep));
+            % Add basis to list of bases
+            b = cell(1, self.dims + 1);
+            b(arrayfun(@(a) a ~= i, 1:self.dims+1)) = self.basis;
+            b(i) = basis;
+            d = self.cl(b, coeffs);
         end
     end
 end
