@@ -28,7 +28,7 @@ classdef Function
             if isa(coeffs, 'Coefficients')
                 s.coeffs = coeffs;
             else
-                if all(size(coeffs) == lengths)  % Scalar coefficients
+                if all(size(coeffs) == lengths) && ~isa(coeffs, 'cell') % Scalar coefficients
                     sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
                     coeffs = mat2cell(coeffs, sp{:});
                 end
@@ -43,17 +43,25 @@ classdef Function
 
         function s = f(self, x)
             % Evaluate a Function at x
-            s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
+            if self.dims == 1
+                s = self.basis{1}.f(x) * self.coeffs;
+            else
+                s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
+            end
             if self.coeffs.isscalar  % If scalar coefficients, convert to regular matrix
                 s = s.coeffs2tensor;
+            else  % Return cell array
+                s = s.coeffs;
             end
         end
 
-        function s = f_partial(self, x, i)
-            % Partial evaluation of f
+        function s = f_partial(self, x, idx)
+            % Partial evaluation of coordinate idx of f
             %
             % Returns a new Function object
-
+            b = arrayfun(@(i) self.basis{i}.f(x{i}), idx, 'UniformOutput', false);
+            
+            s = 0;
         end
 
 
@@ -115,28 +123,28 @@ classdef Function
             end
         end
 
-        function s = times(self, other)
-            % Elementwise multiplication for vector or matrix valued splines
-            function T = transform(A, B)
-                T = A \ B;
-                T(abs(T) < 1e-10) = 0;
-            end
-            if any(self.coeffs.shape ~= other.coeffs.shape)
-                error('Coefficient shape are not compatible')
-            end
-            basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
-            % Take kronecker product of coefficients
-            [i_other, i_self] = arrayfun(@(i) find(ones(size(other.coeffs, i), size(self.coeffs, i))), 1:self.dims, 'UniformOutput', false);  % Give all indices of products
-            coeffs_product = self.coeffs(i_self{:}) .* other.coeffs(i_other{:});
-            % Determine transformation matrices
-            x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
-            b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
-            b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
-            b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
-            basis_product = cellfun(@(b1, b2, is, io) b1(:, is) .* b2(:, io), b_self, b_other, i_self, i_other, 'UniformOutput', false);
-            T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
-            s = self.cl(basis, T * coeffs_product);
-        end
+        % function s = times(self, other)
+        %     % Elementwise multiplication for vector or matrix valued splines
+        %     function T = transform(A, B)
+        %         T = A \ B;
+        %         T(abs(T) < 1e-10) = 0;
+        %     end
+        %     if any(self.coeffs.shape ~= other.coeffs.shape)
+        %         error('Coefficient shape are not compatible')
+        %     end
+        %     basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
+        %     % Take kronecker product of coefficients
+        %     [i_other, i_self] = arrayfun(@(i) find(ones(size(other.coeffs, i), size(self.coeffs, i))), 1:self.dims, 'UniformOutput', false);  % Give all indices of products
+        %     coeffs_product = self.coeffs(i_self{:}) .* other.coeffs(i_other{:});
+        %     % Determine transformation matrices
+        %     x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
+        %     b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
+        %     b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
+        %     b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
+        %     basis_product = cellfun(@(b1, b2, is, io) b1(:, is) .* b2(:, io), b_self, b_other, i_self, i_other, 'UniformOutput', false);
+        %     T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
+        %     s = self.cl(basis, T * coeffs_product);
+        % end
 
         function s = horzcat(varargin)
             l = cellfun(@(b) length(b.basis), varargin, 'ErrorHandler', @(varargin) NaN);
@@ -217,6 +225,54 @@ classdef Function
 
         function s = ctranspose(self)
             s = self.cl(self.basis, self.coeffs');
+        end
+
+        function b = ge(self, other)
+            % Overload comparisons to allow more intuitive constraints
+            %
+            % Only works for YALMIP at the moment
+            b = [];
+            if isa(self, 'double')
+                temp = self;
+                self = other;
+                other = temp;
+            end
+            c = self.coeffs.coeffs;
+            for i=1:numel(c)
+                b = [b, c{i} >= other];
+            end
+        end
+
+        function b = le(self, other)
+            % Overload comparisons to allow more intuitive constraints
+            %
+            % Only works for YALMIP at the moment
+            b = [];
+            if isa(self, 'double')
+                temp = self;
+                self = other;
+                other = temp;
+            end
+            c = self.coeffs.coeffs;
+            for i=1:numel(c)
+                b = [b, c{i} <= other];
+            end
+        end
+
+        function b = eq(self, other)
+            % Overload comparisons to allow more intuitive constraints
+            %
+            % Only works for YALMIP at the moment
+            b = [];
+            if isa(self, 'double')
+                temp = self;
+                self = other;
+                other = temp;
+            end
+            c = self.coeffs.coeffs;
+            for i=1:numel(c)
+                b = [b, c{i} == other];
+            end
         end
     end
 end
