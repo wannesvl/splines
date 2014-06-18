@@ -50,6 +50,8 @@ classdef Function
             end
             if self.coeffs.isscalar  % If scalar coefficients, convert to regular matrix
                 s = s.coeffs2tensor;
+            else  % Return cell array
+                s = s.coeffs;
             end
         end
 
