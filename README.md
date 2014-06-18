@@ -5,6 +5,10 @@ programs using B-splines.
 
 For example the following code solves a simple parametric LP
 
+
+```
+#!matlab
+
     deg = 3;
     L = 4;
     n = 21;
@@ -18,6 +22,7 @@ For example the following code solves a simple parametric LP
     obj = x1 + 2 * x2;
     options = sdpsettings('verbose',1);
     sol = solvesdp([x1 >= 0, x2 >= 0, x2 <= 2, x1 + l * x2 <= 2], -obj.integral, options);
+```
 
 A working document on the theory is found in the doc folder of this repository.
 
@@ -88,7 +93,7 @@ A multivariate matrix valued 3x3 spline:
 
 Summation, multiplication, concatenation and (conjugated) transposition are
 overloaded in the BSpline class. Therefore, the regular MATLAB syntax `S1 +
-S2`, `S1 * S2`, `[S1, S2]` and `S1'' can be used. Furthermore, the instance
+S2`, `S1 * S2`, `[S1, S2]` and `S1'` can be used. Furthermore, the instance
 method `integrate` returns the definite integral over the spline domain and
 `derivative` returns the derivative of the B-spline as a `BSpline` object.
 
@@ -96,4 +101,4 @@ method `integrate` returns the definite integral over the spline domain and
 
 Polynomials are defined using a similar syntax to B-splines:
 
-    P = Polynomial(bases, coefficients);    
+    P = Polynomial(bases, coefficients);
