@@ -67,7 +67,7 @@ t2 = BSpline(b_phi, Ct2);
 
 figure
 t = linspace(0, 2 * pi, 501);
-plot(t1.f({t}), t2.f({t}))
+plot(t1.f(t), t2.f(t))
 
 % Solve original problem
 % ======================

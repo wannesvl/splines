@@ -45,7 +45,7 @@ xlabel('x_1'), ylabel('x_2')
 figure(2)
 area(fB(:,1), fB(:,2), 'FaceColor', [0.9,0.9,0.9], 'Edgecolor', 'none'), hold all
 set(gca,'Layer','top')
-axis([-2,5,-4,5]), grid on
+axis([-3,5,-4,5]), grid on
 xlabel('f_1'), ylabel('f_2')
 
 
@@ -118,7 +118,7 @@ P = BSpline(B1, {P2; P1});
 q = BSpline(B1, {q2; q1});
 r = BSpline(B1, {r2; r1});
 
-degree = 2;
+degree = 1;
 Nknots = 5;
 B = BSplineBasis([0 * ones(1, degree) linspace(0, 1, Nknots) ones(1, degree)], degree);
 
@@ -130,16 +130,17 @@ constr = set( c.coeffs.coeffs2tensor <= 0 );
 goal = f.integral;
 sol = solvesdp(constr, goal)
 Cx = double(Cx);
+goal_prim = double(goal)
 
 x = BSpline(B, mat2cell(Cx, 2, ones(B.length,1)));
 f = 0.5 * x'*P*x + q'*x + r;
 f1 = 0.5 * x'*P1*x + q1'*x + r1;
 f2 = 0.5 * x'*P2*x + q2'*x + r2;
 lam = linspace(0,1,1e3)';
-F = f.f({lam});
-F1 = f1.f({lam});
-F2 = f2.f({lam});
-X = x.f({lam}).coeffs2tensor;
+F = f.f(lam);
+F1 = f1.f(lam);
+F2 = f2.f(lam);
+X = cell2mat(x.f(lam));
 X1 = X(1:2:end);
 X2 = X(2:2:end);
 
@@ -179,7 +180,7 @@ plot(lam, X2, 'b:')
 % Parameterized dual solution
 % ===========================
 
-degree = 2;
+degree = 1;
 Nknots = 5;
 B = BSplineBasis([0 * ones(1, degree) linspace(0, 1, Nknots) ones(1, degree)], degree);
 
@@ -187,7 +188,6 @@ Cnu = sdpvar(5, B.length);
 nu = BSpline(B, mat2cell(Cnu, 5, ones(B.length,1)));
 Ct = sdpvar(1, B.length);
 t = BSpline(B, Ct);
-
 cLMI = [2*P, A'*nu+q; nu'*A+q', t];
 cLMIc = cLMI.coeffs.coeffs2tensor;
 constr = set(Cnu >= 0);
@@ -197,14 +197,27 @@ end
 g = t - r - nu'*b;
 goal = g.integral;
 sol = solvesdp(constr, goal)
+goal_dual = double(goal)
 Cnu = double(Cnu);      nu = BSpline(B, mat2cell(Cnu, 5, ones(B.length,1)));
-Ct  = double(Ct);       t = BSpline(B, Ct);
+Ct  = double(Ct);       t  = BSpline(B, Ct);
 cLMI = [2*P, A'*nu+q; nu'*A+q', t];
 g = t - r - nu'*b;
-G = g.f({lam});
+G = -g.f(lam);
 
 figure(3), hold all
-plot(lam, -G, 'Color', [0,0.5,0])
+plot(lam, G, 'Color', [0,0.5,0])
+
+
+% Get outer approximation of Pareto front
+w = linspace(-2,2,1e2)';
+figure(2), hold all
+for i = 1:10:length(lam)
+    c = [lam(i), 1-lam(i)];
+    nc = [lam(i)-1, lam(i)];
+    Fline = G(i)/norm(c)^2 * ones(size(w))*c + w*nc;
+    plot(Fline(:,1), Fline(:,2), ':', 'Color', [0.5,0.8,0.5])
+    plot(G(i)/norm(c)^2 * ones(size(w))*c(1), G(i)/norm(c)^2 * ones(size(w))*c(2), 'rx')
+end
 
 
 % Reconstruct feasible primal solution 
@@ -228,10 +241,10 @@ f = 0.5 * x'*P*x + q'*x + r;
 f1 = 0.5 * x'*P1*x + q1'*x + r1;
 f2 = 0.5 * x'*P2*x + q2'*x + r2;
 
-F = f.f({lam});
-F1 = f1.f({lam});
-F2 = f2.f({lam});
-X = x.f({lam}).coeffs2tensor;
+F = f.f(lam);
+F1 = f1.f(lam);
+F2 = f2.f(lam);
+X = cell2mat(x.f(lam));
 X1 = X(1:2:end);
 X2 = X(2:2:end);
 
