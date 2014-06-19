@@ -37,6 +37,33 @@ classdef Polynomial < Function
             end
         end
 
+        function s = mtimes(self, other)
+            % This is a general implementation but could be performed more efficiently in subclasses
+            % It is recommended to overload mtimes in the subclass
+            function T = transform(A, B)
+                lA = length(A);
+                lB = length(B);
+                T = zeros(lA + lB - 1, lA * lB);
+                for i = 1:lA
+                    T(i:lB-1+i, lB*(i-1)+1:lB*i) = eye(lB)
+                end
+            end
+            if isa(self, class(other)) 
+                % Basis of product
+                basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
+                % Take kronecker product of coefficients
+                [i_other, i_self] = arrayfun(@(i) find(ones(size(other.coeffs, i), size(self.coeffs, i))), 1:self.dims, 'UniformOutput', false);  % Give all indices of products
+                coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
+                % Determine transformation matrices
+                T = cellfun(@(b1, b2) transform(b1, b2), self.basis, other.basis, 'UniformOutput', false);
+                s = self.cl(basis, T * coeffs_product);
+            elseif isa(other, 'BSpline')
+                s = other * self;
+            else       % Assume multiplication with array
+                s = mtimes@Function(self, other);
+            end
+        end
+
         function s = to_bspline(self, domain)
             % Convert the polynomial to a BSpline representation on the
             % rectangular domain
