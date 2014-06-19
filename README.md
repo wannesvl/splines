@@ -5,19 +5,21 @@ programs using B-splines.
 
 For example the following code solves a simple parametric LP
 
-    deg = 3;
-    L = 4;
-    n = 21;
-    Bl = BSplineBasis([0 * ones(1, deg), linspace(0, L, n), L * ones(1, d)], deg);
-    l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]');
+```
+#!matlab
+d = 3;  % degree
+L = 4;  % Range [0, L]
+n = 21;  % Number of knots
+Bl = BSplineBasis([0 * ones(1, d) linspace(0, L, n) L * ones(1, d)], d);
+l = Polynomial([0, 1]);  % The parameter
 
-    c1 = sdpvar(length(Bl), 1);
-    c2 = sdpvar(length(Bl), 1);
-    x1 = BSpline(Bl, c1);
-    x2 = BSpline(Bl, c2);
-    obj = x1 + 2 * x2;
-    options = sdpsettings('verbose',1);
-    sol = solvesdp([x1 >= 0, x2 >= 0, x2 <= 2, x1 + l * x2 <= 2], -obj.integral, options);
+c = sdpvar(2 * ones(1, length(Bl)), ones(1, length(Bl)));
+x = BSpline(Bl, c);
+obj = x(1) + 2 * x(2);
+con = [x(1) >= 0, x(2) >= 0, x(2) <= 2, x(1) + l * x(2) <= 2];
+options = sdpsettings('verbose',1);
+sol = solvesdp(con, -obj.integral, options);
+```
 
 A working document on the theory is found in the doc folder of this repository.
 
@@ -88,7 +90,7 @@ A multivariate matrix valued 3x3 spline:
 
 Summation, multiplication, concatenation and (conjugated) transposition are
 overloaded in the BSpline class. Therefore, the regular MATLAB syntax `S1 +
-S2`, `S1 * S2`, `[S1, S2]` and `S1'' can be used. Furthermore, the instance
+S2`, `S1 * S2`, `[S1, S2]` and `S1'` can be used. Furthermore, the instance
 method `integrate` returns the definite integral over the spline domain and
 `derivative` returns the derivative of the B-spline as a `BSpline` object.
 
