@@ -191,9 +191,7 @@ classdef PieceWiseBasis < UnivariateBasis
             % Returns:
             %    array: the transformation matrix
             x = self.x_;
-            if isa(other, class(self))
-                T = self.f(x) \ other.f(x);
-            end
+            T = self.f(x) \ other.f(x);
             T(abs(T) < 1e-10) = 0;
         end
     end

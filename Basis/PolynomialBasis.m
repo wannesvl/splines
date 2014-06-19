@@ -1,7 +1,6 @@
 classdef PolynomialBasis < UnivariateBasis
     properties
         degree
-        x_
     end
     methods
         function p = PolynomialBasis(degree)
