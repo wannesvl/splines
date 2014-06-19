@@ -23,3 +23,7 @@
 *.synctex.gz
 *.pyc
 *.asv
+*.synctex
+test_feas.m
+tradeoff_klamroth2008.mat
+report.pdf
