@@ -29,8 +29,9 @@ classdef Function
                 s.coeffs = coeffs;
             else
                 if all(size(coeffs) == lengths) && ~isa(coeffs, 'cell') % Scalar coefficients
-                    sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
-                    coeffs = mat2cell(coeffs, sp{:});
+                    % sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
+                    % coeffs = mat2cell(coeffs, sp{:});
+                    coeffs = num2cell(coeffs);
                 end
                 s.coeffs = Coefficients(coeffs);
             end
@@ -43,7 +44,7 @@ classdef Function
 
         function s = f(self, x)
             % Evaluate a Function at x
-            if self.dims == 1
+            if self.dims == 1 && ~isa(x, 'cell')
                 s = self.basis{1}.f(x) * self.coeffs;
             else
                 s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
@@ -225,6 +226,24 @@ classdef Function
 
         function s = ctranspose(self)
             s = self.cl(self.basis, self.coeffs');
+        end
+
+        function varargout = subsref(self, s)
+            if strcmp(s(1).type, '.')
+                if any(strcmp(s(1).subs, properties(self))) || ...
+                   any(strcmp(s(1).subs, methods(self)))
+                    [varargout{1:nargout}] = builtin('subsref', self, s);
+                else
+                    error(['''%s'' is not a public property or method ' ...
+                        'of the Coefficients class.'], s(1).subs);
+                end
+            elseif strcmp(s(1).type, '()')
+                basis = self.basis;
+                coeffs = cellfun(@(c) builtin('subsref', c, s), self.coeffs.coeffs, 'UniformOutput', false);
+                varargout{1} = self.cl(basis, Coefficients(coeffs));
+            else
+                error('Invalid use of {}')
+            end
         end
 
         function b = ge(self, other)
