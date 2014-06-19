@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Explicitely parameterized approximate solutions of parametric cone programs
 
 This software provides MATLAB and Python tools for solving parametric cone
