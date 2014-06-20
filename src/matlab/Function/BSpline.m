@@ -12,18 +12,27 @@ classdef BSpline < Function
                 T = A \ B;
                 T(abs(T) < 1e-10) = 0;
             end
+            if ~isa(self, mfilename)  % make sure self is the BSpline object
+                temp = self;
+                self = other;
+                other = temp;
+            end
+            if isa(other, 'Polynomial')
+                domain = cellfun(@(b) [b.knots(1), b.knots(end)], self.basis, 'UniformOutput', false);
+                other = other.to_bspline(domain);
+            end
             if isa(self, class(other))
                 basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
                 [i_self, i_other] = cellfun(@(b1, b2) b1.pairs(b2), self.basis, other.basis, 'UniformOutput', false);
                 coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
                 % Determine transformation matrices
-                x = cellfun(@(b) b.greville, basis, 'UniformOutput', false);
+                x = cellfun(@(b) b.x_, basis, 'UniformOutput', false);
                 b = cellfun(@(b, x) b.f(x), basis, x, 'UniformOutput', false);
                 b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
                 b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
                 basis_product = cellfun(@(b1, b2, is, io) b1(:, is) .* b2(:, io), b_self, b_other, i_self, i_other, 'UniformOutput', false);
                 T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
-                s = self.cl(basis, T * coeffs_product);;
+                s = self.cl(basis, T * coeffs_product);
             else
                 s = mtimes@Function(self, other);
             end

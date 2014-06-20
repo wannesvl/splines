@@ -187,6 +187,21 @@ classdef Coefficients
             c = self.cl(mat2cell(coeffs, D{:}));
         end
 
+        function c = multiply(self, A, dims)
+            % Multiply coeffs with cell array A along dimensions dims
+            coeffs = self.coeffs2tensor;
+            A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
+            coeffs = squeeze(tmprod(coeffs, A, dims))
+            s = size(self);
+            if ndims(self.coeffs) - length(dims) > 0
+                reshape(coeffs, s(1:end - dims))
+            end
+            c = 0;
+            % D = {};
+            % for i=1:ndims(self.coeffs)
+            %     D{i} = ones(size(coeffs, i))
+        end
+
         function c = vertcat(varargin)
             % Concatenate matrices vertically
             d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);

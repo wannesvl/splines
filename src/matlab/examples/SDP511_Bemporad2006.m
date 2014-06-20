@@ -85,7 +85,7 @@ t2 = BSpline({b_phi, b_beta}, c_t2);
 % Define optimization problem
 degree = 3;
 na = 5;
-nb = 10;
+nb = 20;
 Ba = b_phi;
 Bb = BSplineBasis([0 * ones(1, degree), linspace(0, 1, nb), ones(1, degree)], degree);
 
@@ -120,7 +120,7 @@ O_approx = objective.f({a, b});
 figure
 surf(T1, T2, O_approx, 'EdgeColor', 'none')
 camlight left; light; lighting phong; shading interp; alpha(0.5);
-return
+
 % Solve gridded problem
 % =====================
 
