@@ -72,7 +72,7 @@ classdef BSpline < Function
         function d = add_basis(self, basis, i)
             % Add basis to dimension i to the spline
             rep = ones(1, self.dims + 1);
-            rep(i) = length(basis) + 1;
+            rep(i) = length(basis);
             % Repeat and permute coefficients along the new dimension
             coeffs = Coefficients(repmat(...
                                   permute(self.coeffs.coeffs, circshift((1:self.dims+1)', i)),...
@@ -80,7 +80,7 @@ classdef BSpline < Function
             % Add basis to list of bases
             b = cell(1, self.dims + 1);
             b(arrayfun(@(a) a ~= i, 1:self.dims+1)) = self.basis;
-            b(i) = basis;
+            b(i) = {basis};
             d = self.cl(b, coeffs);
         end
 
