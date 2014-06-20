@@ -122,7 +122,7 @@ degree = 1;
 Nknots = 5;
 B = BSplineBasis([0 * ones(1, degree) linspace(0, 1, Nknots) ones(1, degree)], degree);
 
-Cx = sdpvar(2, B.length);
+Cx = sdpvar(2, B.length, 'full');
 x = BSpline(B, mat2cell(Cx, 2, ones(B.length,1)));
 c = A*x + b;
 f = 0.5 * x'*P*x + q'*x + r;
@@ -184,9 +184,9 @@ degree = 1;
 Nknots = 5;
 B = BSplineBasis([0 * ones(1, degree) linspace(0, 1, Nknots) ones(1, degree)], degree);
 
-Cnu = sdpvar(5, B.length);
+Cnu = sdpvar(5, B.length, 'full');
 nu = BSpline(B, mat2cell(Cnu, 5, ones(B.length,1)));
-Ct = sdpvar(1, B.length);
+Ct = sdpvar(1, B.length, 'full');
 t = BSpline(B, Ct);
 cLMI = [2*P, A'*nu+q; nu'*A+q', t];
 cLMIc = cLMI.coeffs.coeffs2tensor;
