@@ -239,7 +239,7 @@ classdef Function
                 end
             elseif strcmp(s(1).type, '()')
                 basis = self.basis;
-                coeffs = cellfun(@(c) builtin('subsref', c, s), self.coeffs.coeffs, 'UniformOutput', false);
+                coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
                 varargout{1} = self.cl(basis, Coefficients(coeffs));
             else
                 error('Invalid use of {}')
@@ -292,6 +292,19 @@ classdef Function
             for i=1:numel(c)
                 b = [b, c{i} == other];
             end
+        end
+
+        function s = increase_degree(self, degree)
+            % Increase each basis by degree(i)
+            %
+            % Args: 
+            %    degree (vector): Degree increase for each basis
+            %
+            % Returns:            
+            %    BSpline: Bspline with updated coefficients
+            b = arrayfun(@(i) self.basis{i}.increase_degree(degree(i)), 1:self.dims, 'UniformOutput', false);
+            T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
+            s = self.cl(b, T * self.coeffs);
         end
     end
 end
