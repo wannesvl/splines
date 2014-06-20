@@ -240,7 +240,11 @@ classdef Function
             elseif strcmp(s(1).type, '()')
                 basis = self.basis;
                 coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
-                varargout{1} = self.cl(basis, Coefficients(coeffs));
+                if isscalar(s)
+                    varargout{1} = self.cl(basis, Coefficients(coeffs));
+                else
+                    [varargout{1:nargout}] = builtin('subsref', self.cl(basis, Coefficients(coeffs)), s(2:end));
+                end
             else
                 error('Invalid use of {}')
             end
