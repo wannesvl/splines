@@ -298,6 +298,11 @@ classdef Function
             end
         end
 
+        function s = double(self)
+            % Overload double for use with YALMIP variables
+            s = self.cl(self.basis, double(self.coeffs));
+        end
+
         function s = increase_degree(self, degree)
             % Increase each basis by degree(i)
             %
@@ -309,6 +314,23 @@ classdef Function
             b = arrayfun(@(i) self.basis{i}.increase_degree(degree(i)), 1:self.dims, 'UniformOutput', false);
             T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
             s = self.cl(b, T * self.coeffs);
+        end
+    end
+
+    methods (Static)
+        function s = splinevar(basis, dim)
+            if isscalar(basis)
+                basis = {basis};
+            end
+            dim = num2cell(dim);
+            cl = strsplit(class(basis{1}), 'Basis');
+            cl = str2func(cl{1});  % Determine type of function (Polynomial, BSpline, ...)
+            lengths = cellfun(@length, basis);
+            if isscalar(lengths)
+                lengths = [lengths, 1];
+            end
+            coeffs = arrayfun(@(i) sdpvar(dim{:}), zeros(lengths), 'UniformOutput', false);
+            s = cl(basis, coeffs);
         end
     end
 end

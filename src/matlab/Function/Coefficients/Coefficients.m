@@ -251,5 +251,9 @@ classdef Coefficients
                 varargout{1} = self.cl(subsref(self.coeffs, s));
             end
         end
+
+        function c = double(self)
+            c = self.cl(cellfun(@double, self.coeffs, 'uni', false));
+        end
     end
 end
