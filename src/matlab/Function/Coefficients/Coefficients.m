@@ -136,6 +136,10 @@ classdef Coefficients
             c = self.cl(cellfun(@uminus, self.coeffs, 'UniformOutput', false));
         end
 
+        function c = minus(self, other)
+            c = self + (-other);
+        end
+
         function c = times(self, other)
             % pointwise product
             if isa(self, class(other))
@@ -204,13 +208,17 @@ classdef Coefficients
 
         function c = vertcat(varargin)
             % Concatenate matrices vertically
-            d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
+            d = cellfun(@(v) v.coeffs, varargin, ...
+                        'UniformOutput', false, ...
+                        'ErrorHandler', @(s, i) num2cell(i));  % Concatenation with arrays
             c = Coefficients(cellfun(@vertcat, d{:}, 'UniformOutput', false));
         end
 
         function c = horzcat(varargin)
             % Concatenate matrices horizontaly
-            d = cellfun(@(v) v.coeffs, varargin, 'UniformOutput', false);
+            d = cellfun(@(v) v.coeffs, varargin, ...
+                        'UniformOutput', false, ...
+                        'ErrorHandler', @(s, i) num2cell(i));
             c = Coefficients(cellfun(@horzcat, d{:}, 'UniformOutput', false));
         end
 
