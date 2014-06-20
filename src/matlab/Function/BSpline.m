@@ -83,5 +83,20 @@ classdef BSpline < Function
             b(i) = basis;
             d = self.cl(b, coeffs);
         end
+
+        function s = insert_knots(self, knots)
+            % Insert knots in each basis
+            %
+            % Args: 
+            %    knots (cell): Desired knot insertions for each
+            %    basis
+            %
+            % Returns:            
+            %    BSpline: Bspline with updated coefficients for the refined
+            %    knot sequences
+            b = cellfun(@(b, k) b.insert_knots(k), self.basis, knots, 'UniformOutput', false);
+            T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
+            s = self.cl(b, T * self.coeffs);
+        end
     end
 end
