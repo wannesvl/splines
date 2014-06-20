@@ -24,6 +24,7 @@
 *.pyc
 *.asv
 *.synctex
-test_feas.m
 tradeoff_klamroth2008.mat
+pars_ellipsoid_Np100.mat
+pars_ellipsoid_Np1000.mat
 report.pdf
