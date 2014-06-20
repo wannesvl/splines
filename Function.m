@@ -159,6 +159,7 @@ classdef Function
             for i=1:length(varargin)
                 if isa(varargin{i}, mfilename)
                     b = cellfun(@plus, b, varargin{i}.basis, 'UniformOutput', false);
+                    func = str2func(class(varargin{i}));
                 end
             end
             size_b = cellfun(@length, b);
@@ -180,8 +181,7 @@ classdef Function
 
             % Finally concatenate all coefficients
             c = horzcat(c{:});
-            cl = str2func(mfilename);
-            s = cl(b, c);
+            s = func(b, c);
         end
 
         function s = vertcat(varargin)
@@ -196,6 +196,7 @@ classdef Function
             for i=1:length(varargin)
                 if isa(varargin{i}, mfilename)
                     b = cellfun(@plus, b, varargin{i}.basis, 'UniformOutput', false);
+                    func = str2func(class(varargin{i}));
                 end
             end
             size_b = cellfun(@length, b);
@@ -216,8 +217,7 @@ classdef Function
 
             % Finally concatenate all coefficients
             c = vertcat(c{:});
-            cl = str2func(mfilename);
-            s = cl(b, c);
+            s = func(b, c);
         end
 
         function s = transpose(self)
