@@ -1,5 +1,4 @@
 close all; clear all; clc;
-double_ = @(c) cellfun(@double, c, 'uni', false);  % Shortcut for taking double of cell array
 
 % Problem data
 % ============
@@ -20,8 +19,8 @@ b_phi = BSplineBasis(knots, degree);
 phi = linspace(0, 2 * pi, 501)';
 
 % Optimization problem
-t = BSpline.splinevar(b_phi, [1, 2]);
-x = BSpline.splinevar(b_phi, [1, 3]);
+t = BSpline.sdpvar(b_phi, [1, 2]);
+x = BSpline.sdpvar(b_phi, [1, 3]);
 K = A0 + At1 * t(1) + At2 * t(2) + Ax1 * x(1) + Ax2 * x(2) + Ax3 * x(3);
 options = sdpsettings('verbose', 1, 'solver', 'sdpt3');
 con = [K >= 0, t(2) >= -2, t(1) <= 2];
@@ -54,7 +53,7 @@ nb = 10;
 Ba = b_phi;
 Bb = BSplineBasis([0 * ones(1, degree), linspace(0, 1, nb), ones(1, degree)], degree);
 
-x = BSpline.splinevar({Ba, Bb}, [3, 1]);
+x = BSpline.sdpvar({Ba, Bb}, [3, 1]);
 K = A0 + At1 * t(1) + At2 * t(2) + Ax1 * x(1) + Ax2 * x(2) + Ax3 * x(3);
 objective = x(1) - 2 * x(2) + x(3);
 sol = solvesdp([K >= 0], objective.integral, options);
@@ -70,7 +69,7 @@ O_approx = objective.f({a, b});
 figure
 surf(T1, T2, O_approx, 'EdgeColor', 'none')
 camlight left; light; lighting phong; shading interp; alpha(0.5);
-
+return
 % Solve gridded problem
 % =====================
 O = zeros(21, 21);

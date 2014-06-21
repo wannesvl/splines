@@ -13,8 +13,7 @@ n = 21;  % Number of knots
 Bl = BSplineBasis([0 * ones(1, d) linspace(0, L, n) L * ones(1, d)], d);
 l = Polynomial([0, 1]);  % The parameter
 
-c = sdpvar(2 * ones(1, length(Bl)), ones(1, length(Bl)));
-x = BSpline(Bl, c);
+x = BSpline.sdpvar(Bl, [1, 2]);
 obj = x(1) + 2 * x(2);
 con = [x(1) >= 0, x(2) >= 0, x(2) <= 2, x(1) + l * x(2) <= 2];
 options = sdpsettings('verbose',1);

@@ -253,7 +253,7 @@ classdef Coefficients
         end
 
         function c = double(self)
-            c = self.cl(cellfun(@double, self.coeffs, 'uni', false));
+            c = self.cl(cellfun(@double, self.coeffs, 'UniformOutput', false));
         end
     end
 end
