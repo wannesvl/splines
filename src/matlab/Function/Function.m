@@ -315,10 +315,16 @@ classdef Function
             T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
             s = self.cl(b, T * self.coeffs);
         end
+
+        function s = trace(self)
+            % Return the trace of a matrix valued spline
+            c = cellfun(@trace, self.coeffs.coeffs, 'UniformOutput', false);
+            s = self.cl(self.basis, c);
+        end
     end
 
     methods (Static)
-        function s = sdpvar(basis, dim)
+        function s = sdpvar(basis, dim, p)
             if isscalar(basis)
                 basis = {basis};
             end
@@ -329,7 +335,11 @@ classdef Function
             if isscalar(lengths)
                 lengths = [lengths, 1];
             end
-            coeffs = arrayfun(@(i) sdpvar(dim{:}), zeros(lengths), 'UniformOutput', false);
+            if nargin == 2
+                coeffs = arrayfun(@(i) sdpvar(dim{:}), zeros(lengths), 'UniformOutput', false);
+            elseif nargin == 3
+                coeffs = arrayfun(@(i) sdpvar(dim{:}, p), zeros(lengths), 'UniformOutput', false);
+            end
             s = cl(basis, coeffs);
         end
     end
