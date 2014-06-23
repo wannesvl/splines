@@ -318,7 +318,7 @@ classdef Function
     end
 
     methods (Static)
-        function s = splinevar(basis, dim)
+        function s = sdpvar(basis, dim)
             if isscalar(basis)
                 basis = {basis};
             end

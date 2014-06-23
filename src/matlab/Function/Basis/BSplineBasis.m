@@ -30,9 +30,14 @@ classdef BSplineBasis < PieceWiseBasis
             x = x(:);
             k = self.knots;
             basis = cell(self.degree + 1, 1);
-            basis{1} = cell2mat(arrayfun(@(i) self.ind(i, x), ...
-                                (1:length(k) - 1), ...
-                                'UniformOutput', false));
+            % basis{1} = cell2mat(arrayfun(@(i) self.ind(i, x), ...
+            %                     (1:length(k) - 1), ...
+            %                     'UniformOutput', false));
+            B = zeros(length(x), length(k) - 1);
+            for i=1:length(k) - 1
+                B(:, i) = self.ind(i, x);
+            end
+            basis{1} = B;
             for d=1:self.degree
                 B = zeros(length(x), length(k) - d - 1);
                 for i=1:length(k) - d - 1
