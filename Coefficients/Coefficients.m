@@ -145,9 +145,9 @@ classdef Coefficients
             if isa(self, class(other))
                 c = cellfun(@times, self.coeffs, other.coeffs, 'UniformOutput', false);
             else
-                try
+                if isa(self, 'Coefficients')
                     c = cellfun(@(v) v * other, self.coeffs, 'UniformOutput', false);
-                catch err
+                else
                     c = cellfun(@(v) self * v, other.coeffs, 'UniformOutput', false);
                 end
             end
@@ -197,6 +197,8 @@ classdef Coefficients
             A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
             coeffs = squeeze(tmprod(coeffs, A, dims))
             s = size(self);
+            c = 0;
+            return
             if ndims(self.coeffs) - length(dims) > 0
                 reshape(coeffs, s(1:end - dims))
             end
