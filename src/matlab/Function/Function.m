@@ -175,7 +175,6 @@ classdef Function
                     c{i} = T * varargin{i}.coeffs;
                 else  % Constant function: Simply repeat matrices along dimensions of b
                     c{i} = Coefficients(repmat({varargin{i}}, size_b));
-                    c{i}
                 end
             end
 

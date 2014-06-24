@@ -12,7 +12,7 @@ classdef BSpline < Function
                 T = A \ B;
                 T(abs(T) < 1e-10) = 0;
             end
-            if ~isa(self, mfilename)  % make sure self is the BSpline object
+            if ~isa(self, mfilename) && isa(self, 'Function')  % make sure self is the BSpline object
                 temp = self;
                 self = other;
                 other = temp;
