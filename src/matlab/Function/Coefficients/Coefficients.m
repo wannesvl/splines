@@ -168,7 +168,11 @@ classdef Coefficients
                     error('Univariate splines cannot be multiplied with cell array of matrices')
                 end
             elseif isa(A, 'cell')  % Multivariate transformation matrices
-                A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
+                if isvector(self.coeffs)
+                    A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
+                else  % Is this truly correct?
+                    A = cellfun(@(a, i) kron(a, eye(self.shape(i))), A, num2cell(1:ndims(self.coeffs)), 'uni', false);
+                end
                 if length(A) == 1
                     coeffs = A{1} * coeffs;
                 else
@@ -193,7 +197,10 @@ classdef Coefficients
 
         function c = multiply(self, A, dims)
             % Multiply coeffs with cell array A along dimensions dims
+            %
+            % 
             coeffs = self.coeffs2tensor;
+            size1 = cellfun(@(a) size(a, 1), A)
             A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
             coeffs = squeeze(tmprod(coeffs, A, dims))
             s = size(self);

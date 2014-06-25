@@ -261,7 +261,7 @@ classdef Function
             end
             c = self.coeffs.coeffs;
             for i=1:numel(c)
-                b = [b, c{i} >= other];
+                b = [b, 0.5 * (c{i} + c{i}') >= other];
             end
         end
 
@@ -277,7 +277,7 @@ classdef Function
             end
             c = self.coeffs.coeffs;
             for i=1:numel(c)
-                b = [b, c{i} <= other];
+                b = [b, 0.5 * (c{i} + c{i}') <= other];
             end
         end
 
@@ -324,7 +324,7 @@ classdef Function
 
     methods (Static)
         function s = sdpvar(basis, dim, p)
-            if isscalar(basis)
+            if isscalar(basis) && ~isa(basis, 'cell')
                 basis = {basis};
             end
             dim = num2cell(dim);
