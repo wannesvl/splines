@@ -328,8 +328,8 @@ classdef Function
                 basis = {basis};
             end
             dim = num2cell(dim);
-            cl = strsplit(class(basis{1}), 'Basis');
-            cl = str2func(cl{1});  % Determine type of function (Polynomial, BSpline, ...)
+            cl = class(basis{1});
+            cl = str2func(cl(1:end-5));  % Determine type of function (Polynomial, BSpline, ...)
             lengths = cellfun(@length, basis);
             if isscalar(lengths)
                 lengths = [lengths, 1];
