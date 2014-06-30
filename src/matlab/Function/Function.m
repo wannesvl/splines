@@ -228,6 +228,14 @@ classdef Function
             s = self.cl(self.basis, self.coeffs');
         end
 
+        function s = diag(self, v)
+            % Create a matrix valued spline from a vector valued one
+            if nargin == 1
+                v = 0;
+            end
+            s = self.cl(self.basis, diag(self.coeffs, v));
+        end
+
         function varargout = subsref(self, s)
             if strcmp(s(1).type, '.')
                 if any(strcmp(s(1).subs, properties(self))) || ...
