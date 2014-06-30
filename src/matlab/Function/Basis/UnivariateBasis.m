@@ -1,4 +1,5 @@
-classdef (Abstract) UnivariateBasis
+% classdef (Abstract) UnivariateBasis
+classdef UnivariateBasis
 
     properties (Access=protected)
         cl  % The name of the class
@@ -6,18 +7,18 @@ classdef (Abstract) UnivariateBasis
     properties (SetAccess={?UnivariateBasis}, GetAccess={?UnivariateBasis,?Function})
         x_  % #length(basis) of independent points 
     end
-    properties (Abstract)
-        degree
-    end
+    % properties %(Abstract)
+    %     degree
+    % end
 
     % Each subclass should implement these methods
-    methods (Abstract)
-        length(self)
-        plus(self, other)
-        mtimes(self, other)
-        transform(self, other)
-        f(self, x)
-    end
+    % methods (Abstract)
+    %     length(self)
+    %     plus(self, other)
+    %     mtimes(self, other)
+    %     transform(self, other)
+    %     f(self, x)
+    % end
 
     methods
         function basis = UnivariateBasis(degree)
