@@ -250,6 +250,11 @@ classdef Function
             end
         end
 
+        function last = end(self, idx, n)
+            % Overload end
+            last = length(self.coeffs.shape(idx));
+        end
+
         function b = ge(self, other)
             % Overload comparisons to allow more intuitive constraints
             %
