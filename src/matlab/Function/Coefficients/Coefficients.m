@@ -170,8 +170,8 @@ classdef Coefficients
             elseif isa(A, 'cell')  % Multivariate transformation matrices
                 if isvector(self.coeffs)
                     A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
-                else  % Is this truly correct?
-                    A = cellfun(@(a, i) kron(a, eye(self.shape(i))), A, num2cell(1:ndims(self.coeffs)), 'uni', false);
+                else  % Not yet correct for dims >= 3
+                    A = cellfun(@(a, i) kron(a, eye(self.shape(i))), A, num2cell(1:ndims(self.coeffs)), 'UniformOutput', false, 'ErrorHandler', @(varargin) varargin{2});
                 end
                 if length(A) == 1
                     coeffs = A{1} * coeffs;
@@ -235,12 +235,12 @@ classdef Coefficients
             % Transpose each of the coefficients
             %
             % What about multivariate spline coefficients??
-            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false)');
+            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false));
         end
 
         function c = ctranspose(self)
             % Conjugate transpose each of the coefficients
-            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false)');
+            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false));
         end
 
         function varargout = subsref(self, s)
