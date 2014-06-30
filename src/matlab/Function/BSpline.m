@@ -117,5 +117,35 @@ classdef BSpline < Function
             T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
             s = self.cl(b, T * self.coeffs);
         end
+
+        function d = domain(self)
+            % Get domain of the Bspline
+            d = cellfun(@(b) [b.knots(1 + b.degree), b.knots(end - b.degree)], self.basis, 'UniformOutput', false);
+        end
+
+        function [X, m] = min(self)
+            % Determine minimum of function using fmincon with simple bounds
+            % Get an initial guess
+            coeffs = self.coeffs.coeffs2tensor;
+            [c_min, idx] = min(coeffs(:));
+            i = cell(1, self.dims);
+            [i{:}] = ind2sub(size(coeffs), idx);
+            g = cellfun(@(b) b.greville, self.basis, 'uni', false);
+            x0 = cellfun(@(g, j) g(j), g, i);
+            % Setup and solve optimization problem
+            options = optimoptions(@fmincon, 'GradObj','on', 'TolX', 1e-9, 'TolFun', 1e-9);
+            obj = @(x) self.f(num2cell(x));
+            Jself = self.gradient;
+            grad = @(x) Jself.f(num2cell(x));
+            dom = self.domain;            
+            lb = cellfun(@(k) k(1), dom);
+            ub = cellfun(@(k) k(2), dom);
+            if self.dims == 1
+                X = fmincon(@(x) deal(obj(x), grad(x)), x0, [], [], [], [], lb, ub, [], options);
+            else
+                X = fmincon(@(x) deal(obj(x), cell2mat(grad(x))), x0, [], [], [], [], lb, ub, [],  options);
+            end
+            m = self.f(num2cell(X));
+        end
     end
 end
