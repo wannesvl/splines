@@ -243,6 +243,10 @@ classdef Coefficients
             c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false));
         end
 
+        function c = diag(self, v)
+            c = self.cl(cellfun(@(c) diag(c, v), self.coeffs, 'UniformOutput', false));
+        end
+
         function varargout = subsref(self, s)
             % Note to this function: c.coeffs{:} does not work!!
             % Instead you should define dummy d = c.coeffs and d{:}
