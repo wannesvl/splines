@@ -53,7 +53,7 @@ classdef BSpline < Function
         end
 
         function i = integral(self)
-            T = cellfun(@(b) b.integral, self.basis, 'UniformOutput', false);
+            T = cellfun(@(b) [b.integral; zeros(1, length(b))], self.basis, 'UniformOutput', false);
             i = T * self.coeffs;
             i = i.coeffs{1};
         end
@@ -67,6 +67,25 @@ classdef BSpline < Function
             T{coord} = P;
             b{coord} = dbi;
             d = self.cl(b, T * self.coeffs);
+        end
+
+        function g = gradient(self)
+            % The gradient of a (scalar) B-spline
+            g = [];
+            for i=1:self.dims
+                g = [g; self.derivative(1, i)];
+            end
+        end
+
+        function H = hessian(self)
+            % The hessian of a (scalar) B-spline
+            H = [];
+            g = self.gradient;
+            for i=1:self.dims
+                % For some reason we have to call subsref explicitely
+                s = struct('type', {'()', '.'}, 'subs', {{i}, 'gradient'});
+                H = [H; g.subsref(s)'];
+            end
         end
 
         function d = add_basis(self, basis, i)

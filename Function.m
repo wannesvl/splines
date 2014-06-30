@@ -44,6 +44,7 @@ classdef Function
 
         function s = f(self, x)
             % Evaluate a Function at x
+            warning('OFF', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved')
             if self.dims == 1 && ~isa(x, 'cell')
                 s = self.basis{1}.f(x) * self.coeffs;
             else
@@ -260,8 +261,14 @@ classdef Function
                 other = temp;
             end
             c = self.coeffs.coeffs;
-            for i=1:numel(c)
-                b = [b, 0.5 * (c{i} + c{i}') >= other];
+            if ~isvector(c{1})
+                for i=1:numel(c)
+                    b = [b, 0.5 * (c{i} + c{i}') >= other];
+                end
+            else
+                for i=1:numel(c)
+                    b = [b, c{i} >= other];
+                end
             end
         end
 
@@ -276,8 +283,14 @@ classdef Function
                 other = temp;
             end
             c = self.coeffs.coeffs;
-            for i=1:numel(c)
-                b = [b, 0.5 * (c{i} + c{i}') <= other];
+            if ~isvector(c{1})
+                for i=1:numel(c)
+                    b = [b, 0.5 * (c{i} + c{i}') <= other];
+                end
+            else
+                for i=1:numel(c)
+                    b = [b, c{i} <= other];
+                end
             end
         end
 

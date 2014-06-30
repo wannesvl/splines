@@ -56,7 +56,7 @@ classdef BSplineBasis < PieceWiseBasis
                 end
                 basis{d + 1} = B;
             end
-            b = basis{self.degree + 1};
+            b = sparse(basis{self.degree + 1});
         end
 
         function [B, P] = derivative(self, o)
@@ -74,6 +74,7 @@ classdef BSplineBasis < PieceWiseBasis
                 T(length(self) - i:length(self) - i:end) = 1 ./ delta_k;
                 P = (self.degree - i) * T * P;
             end
+            P = sparse(P);
         end
 
         function i = integral(self)

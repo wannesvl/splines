@@ -191,8 +191,15 @@ classdef PieceWiseBasis < UnivariateBasis
             % Returns:
             %    array: the transformation matrix
             x = self.x_;
+            if any(diff(x) == 0)  % Fix bad x
+                x = linspace(x(1), x(end), 501);
+            end
             T = self.f(x) \ other.f(x);
+            if any(isnan(T))
+                error('Transformation matrix cannot be determined')
+            end
             T(abs(T) < 1e-10) = 0;
+            T = sparse(T);
         end
     end
 end
