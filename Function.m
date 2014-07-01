@@ -353,7 +353,7 @@ classdef Function
             if isscalar(basis) && ~isa(basis, 'cell')
                 basis = {basis};
             end
-            dim = num2cell(dim);
+            % dim = num2cell(dim);
             cl = class(basis{1});
             cl = str2func(cl(1:end-5));  % Determine type of function (Polynomial, BSpline, ...)
             lengths = cellfun(@length, basis);
@@ -361,11 +361,11 @@ classdef Function
                 lengths = [lengths, 1];
             end
             if nargin == 2
-                coeffs = arrayfun(@(i) sdpvar(dim{:}), zeros(lengths), 'UniformOutput', false);
+                coeffs = sdpvar(dim(1) * ones(1, prod(lengths)), dim(2) * ones(1, prod(lengths)));
             elseif nargin == 3
-                coeffs = arrayfun(@(i) sdpvar(dim{:}, p), zeros(lengths), 'UniformOutput', false);
+                coeffs = sdpvar(dim(1) * ones(1, prod(lengths)), dim(2) * ones(1, prod(lengths)), p);
             end
-            s = cl(basis, coeffs);
+            s = cl(basis, reshape(coeffs, lengths));
         end
     end
 end
