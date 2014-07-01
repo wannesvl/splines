@@ -1,6 +1,7 @@
 classdef Coefficients
     properties (Access=protected)
         cl
+        tensor
     end
     % properties (Access={?Coefficients,?Function})
     %     shape
@@ -66,46 +67,50 @@ classdef Coefficients
             % Convert the coefficients to tensor
             %
             % Shortened copy of mat2cell
-            c = self.coeffs;
-            elements = numel(c);
+            if isempty(self.tensor)
+                c = self.coeffs;
+                elements = numel(c);
 
-            if elements == 1
-                m = c{1};
-                return
-            end
-
-            csize = size(c);
-            % Construct the matrix by concatenating each dimension of the cell array into
-            %   a temporary cell array, CT
-            % The exterior loop iterates one time less than the number of dimensions,
-            %   and the final dimension (dimension 1) concatenation occurs after the loops
-
-            % Loop through the cell array dimensions in reverse order to perform the
-            %   sequential concatenations
-            for cdim=(length(csize)-1):-1:1
-                % Pre-calculated outside the next loop for efficiency
-                ct = cell([csize(1:cdim) 1]);
-                cts = size(ct);
-                ctsl = length(cts);
-                mref = {};
-
-                % Concatenate the dimension, (CDIM+1), at each element in the temporary cell
-                %   array, CT
-                for mind=1:prod(cts)
-                    [mref{1:ctsl}] = ind2sub(cts,mind);
-                    % Treat a size [N 1] array as size [N], since this is how the indices
-                    %   are found to calculate CT
-                    if ctsl==2 && cts(2)==1
-                        mref = {mref{1}};
-                    end
-                    % Perform the concatenation along the (CDIM+1) dimension
-                    ct{mref{:}} = cat(cdim+1,c{mref{:},:});
+                if elements == 1
+                    m = c{1};
+                    return
                 end
-                % Replace M with the new temporarily concatenated cell array, CT
-                c = ct;
+
+                csize = size(c);
+                % Construct the matrix by concatenating each dimension of the cell array into
+                %   a temporary cell array, CT
+                % The exterior loop iterates one time less than the number of dimensions,
+                %   and the final dimension (dimension 1) concatenation occurs after the loops
+
+                % Loop through the cell array dimensions in reverse order to perform the
+                %   sequential concatenations
+                for cdim=(length(csize)-1):-1:1
+                    % Pre-calculated outside the next loop for efficiency
+                    ct = cell([csize(1:cdim) 1]);
+                    cts = size(ct);
+                    ctsl = length(cts);
+                    mref = {};
+
+                    % Concatenate the dimension, (CDIM+1), at each element in the temporary cell
+                    %   array, CT
+                    for mind=1:prod(cts)
+                        [mref{1:ctsl}] = ind2sub(cts,mind);
+                        % Treat a size [N 1] array as size [N], since this is how the indices
+                        %   are found to calculate CT
+                        if ctsl==2 && cts(2)==1
+                            mref = {mref{1}};
+                        end
+                        % Perform the concatenation along the (CDIM+1) dimension
+                        ct{mref{:}} = cat(cdim+1,c{mref{:},:});
+                    end
+                    % Replace M with the new temporarily concatenated cell array, CT
+                    c = ct;
+                end
+                % Finally, concatenate the final rows of cells into a matrix
+                m = cat(1,c{:});
+            else
+                m = self.tensor;
             end
-            % Finally, concatenate the final rows of cells into a matrix
-            m = cat(1,c{:});
         end
 
         function c = plus(self, other)

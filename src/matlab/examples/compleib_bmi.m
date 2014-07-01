@@ -3,15 +3,15 @@ clear all; close all; clc;
 % BMI H_inf test
 
 % General COMPleib syntax:
-name = 'AC7';
-K_range = {[1, 9], [1, 8]};  % AC7
+name = 'HE1';
+% K_range = {[1, 9], [1, 8]};  % AC7
 % K_range = {[0, 10], [0, 10]};  % AC17
-% K_range = {[0.5, 2], [10, 20]};  % HE1
+K_range = {[0.5, 2], [10, 20]};  % HE1
 % K_range = {[-3, -2]};  % EB2
 % K_range = {[-1.5, -1]}; % NN2
 % K_range = {[-15, -5], [-10, -1], [0.5, 10], [-10, -0.5]};  % REA2
 degree = 2;
-n_knots = 5;
+n_knots = 8;
 
 % Load data
 [A,B1,B,C1,C,D11,D12,D21,nx,nw,nu,nz,ny] = COMPleib(name);
