@@ -25,15 +25,18 @@ plot(L_(L_>=2), 2 * ones(length(L_(L_ >= 2))), 'r')
 
 % 2. Solve Dual
 % =============
-y = BSpline.sdpvar(Bl, [1, 4]);
-obj = 2 * y(3) + 2 * y(4);
-con = [y >= 0, y(4) - y(1) == 1, -y(2) + y(3) + l * y(4) == 2];
+% y = BSpline.sdpvar(Bl, [1, 4]);
+% obj = 2 * y(3) + 2 * y(4);
+% con = [y >= 0, y(4) - y(1) == 1, -y(2) + y(3) + l * y(4) == 2];
+y = BSpline.sdpvar(Bl, [1, 2]);
+obj = 2 * y(1) + 2 * y(2);
+con = [y >= 0, y(2) >= 1, y(1) + l * y(2) >= 2];
 options = sdpsettings('verbose',1);
 sol = solvesdp(con, obj.integral, options);
 
 L_ = linspace(0, L, 101);
 y = double(y);
-obj = 2 * y(3) + 2 * y(4);
+obj = double(obj);
 plot(L_, obj.f(L_), 'g')
 xlabel('\theta')
 ylabel('x_1(\theta) + 2 x_2(\theta)')
