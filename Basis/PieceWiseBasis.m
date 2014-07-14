@@ -192,7 +192,7 @@ classdef PieceWiseBasis < UnivariateBasis
             %    array: the transformation matrix
             x = self.x_;
             if any(diff(x) == 0)  % Fix bad x
-                x = linspace(x(1), x(end), 501);
+                x = linspace(x(1), x(end), 1001);
             end
             T = self.f(x) \ other.f(x);
             if any(isnan(T))
