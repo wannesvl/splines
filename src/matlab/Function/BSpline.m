@@ -39,7 +39,12 @@ classdef BSpline < Function
         end
 
         function s = plus(self, other)
-            if isa(self, class(other))
+            if isa(self, 'Function') & isa(other, 'Function')
+                % First convert to same subclass
+                if ~isa(other, mfilename)
+                    domain = cellfun(@(b) [b.knots(1), b.knots(end)], self.basis, 'UniformOutput', false);
+                    other = other.to_bspline(domain);
+                end
                 s = plus@Function(self, other);
             else  % Assume plus with array
                 try

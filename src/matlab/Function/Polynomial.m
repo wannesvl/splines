@@ -23,7 +23,11 @@ classdef Polynomial < Function
         end
 
         function s = plus(self, other)
-            if isa(self, class(other))
+            if isa(self, 'Function') & isa(other, 'Function')
+                if ~isa(other, mfilename)
+                    s = other + self;  % Let the other class handle summation
+                    return
+                end
                 s = plus@Function(self, other);
             else  % Assume plus with array
                 try
