@@ -64,9 +64,10 @@ xlabel('theta_1'), ylabel('theta_2'), zlabel('obj')
 
 
 
-% Solve phase-1 problem (primal)
-% ==============================
+% Solve phase-1 problem
+% =====================
 
+% Primal with t>=0
 x = BSpline.sdpvar({Bth, Bth}, [3, 1]);
 t = BSpline.sdpvar({Bth, Bth}, [1, 1]);
 con = [A0 + At1 * th(1) + At2 * th(2) + Ax1 * x(1) + Ax2 * x(2) + Ax3 * x(3) + t * eye(3) >= 0 , ...
@@ -74,6 +75,7 @@ con = [A0 + At1 * th(1) + At2 * th(2) + Ax1 * x(1) + Ax2 * x(2) + Ax3 * x(3) + t
 sol = solvesdp(con, t.integral, sdpsettings('verbose', 1, 'solver', 'sdpt3'));
 t1 = double(t);
 
+% Primal without t>=0
 x = BSpline.sdpvar({Bth, Bth}, [3, 1]);
 t = BSpline.sdpvar({Bth, Bth}, [1, 1]);
 con = [A0 + At1 * th(1) + At2 * th(2) + Ax1 * x(1) + Ax2 * x(2) + Ax3 * x(3) + t * eye(3) >= 0];
@@ -81,32 +83,81 @@ sol = solvesdp(con, t.integral, sdpsettings('verbose', 1, 'solver', 'sdpt3'));
 t2 = double(t);
 t3 = BSpline({Bth, Bth}, max(t2.coeffs.coeffs2tensor, 0));
 
+% Dual with t>=0
+Z = BSpline.sdpvar({Bth, Bth}, [3, 3], 'symmetric');
+con = [Z >= 0, trace(Z) <= 1, trace(Z*Ax1) == 0, trace(Z*Ax2) == 0, trace(Z*Ax3) == 0];
+obj = trace(Z * (A0 + At1*th(1) + At2*th(2)));
+solvesdp(con, obj.integral, sdpsettings('verbose',1));
+s1 = -double(obj);
+% s1 = BSpline(s1.basis, max(s1.coeffs.coeffs2tensor, 0));
+
+% Dual without t>=0
+Z = BSpline.sdpvar({Bth, Bth}, [3, 3], 'symmetric');
+con = [Z >= 0, trace(Z) == 1, trace(Z*Ax1) == 0, trace(Z*Ax2) == 0, trace(Z*Ax3) == 0];
+obj = trace(Z * (A0 + At1*th(1) + At2*th(2)));
+solvesdp(con, obj.integral, sdpsettings('verbose',1));
+s2 = -double(obj);
+s3 = BSpline(s2.basis, max(s2.coeffs.coeffs2tensor, 0));
+
+
 % Overview figure
 T1 = t1.f({th1, th2})';
 T2 = t2.f({th1, th2})';
-T3 = t3.f({th1, th2})';
+T3 = t3.f({th1, th2})';     
 figure
 subplot(231)
 surf(Th1, Th2, T1), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('LMI relax')
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('primal with t>=0')
 subplot(232)
 surf(Th1, Th2, T2), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('LMI relax')
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('primal without t>=0')
 subplot(233)
 surf(Th1, Th2, T3), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('LMI relax')
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('primal without t>=0 postprocessed')
 subplot(234)
 contour(Th1, Th2, feas, [0.5,0.5]), hold on
 contour(Th1, Th2, T1, [1e-9,1e-6]), hold off
-xlabel('theta_1'), ylabel('theta_2')
+xlabel('\theta_1'), ylabel('\theta_2')
 subplot(235)
 contour(Th1, Th2, feas, [0.5,0.5]), hold on
 contour(Th1, Th2, T2, [1e-9,1e-6]), hold off
-xlabel('theta_1'), ylabel('theta_2')
+xlabel('\theta_1'), ylabel('\theta_2')
 subplot(236)
 contour(Th1, Th2, feas, [0.5,0.5]), hold on
 contour(Th1, Th2, T3, [1e-9,1e-6]), hold off
-xlabel('theta_1'), ylabel('theta_2')
+xlabel('\theta_1'), ylabel('\theta_2')
+
+S1 = s1.f({th1, th2})';
+S2 = s2.f({th1, th2})';
+S3 = s3.f({th1, th2})';     
+figure
+subplot(231)
+surf(Th1, Th2, S1), shading interp
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('dual with t>=0')
+subplot(232)
+surf(Th1, Th2, S2), shading interp
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('dual without t>=0')
+subplot(233)
+surf(Th1, Th2, S3), shading interp
+xlabel('\theta_1'), ylabel('\theta_2'), zlabel('LMI relax'), title('dual without t>=0 postprocessed')
+subplot(234)
+contour(Th1, Th2, feas, [0.5,0.5]), hold on
+contour(Th1, Th2, S1, [1e-9,1e-6]), hold off
+xlabel('\theta_1'), ylabel('\theta_2')
+subplot(235)
+contour(Th1, Th2, feas, [0.5,0.5]), hold on
+contour(Th1, Th2, S2, [1e-9,1e-6]), hold off
+xlabel('\theta_1'), ylabel('\theta_2')
+subplot(236)
+contour(Th1, Th2, feas, [0.5,0.5]), hold on
+contour(Th1, Th2, S3, [1e-9,1e-6]), hold off
+xlabel('\theta_1'), ylabel('\theta_2')
+
+figure
+contour(Th1, Th2, feas, [0.5,0.5]), hold on
+contour(Th1, Th2, T2, [1e-9,1e-6])
+contour(Th1, Th2, S2, [1e-9,1e-6]), hold off
+xlabel('\theta_1'), ylabel('\theta_2')
 
 
 
@@ -140,13 +191,13 @@ eG2 = abs(G2-F);            eG2u = max(eG2(:));
 figure
 subplot(231)
 surf(Th1, Th2, F1), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('obj')
+xlabel('theta_1'), ylabel('theta_2'), zlabel('obj'), title('primal')
 subplot(232)
 surf(Th1, Th2, G1), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('obj')
+xlabel('theta_1'), ylabel('theta_2'), zlabel('obj'), title('dual')
 subplot(233)
 surf(Th1, Th2, G2), shading interp
-xlabel('theta_1'), ylabel('theta_2'), zlabel('obj')
+xlabel('theta_1'), ylabel('theta_2'), zlabel('obj'), title('dual, original objective')
 subplot(234)
 surf(Th1, Th2, eF1, eF1 / max([eF1u,eG1u,eG2u])), shading interp
 set(gca, 'CLim', [0,1], 'CLimMode', 'manual')
