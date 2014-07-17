@@ -16,7 +16,6 @@ n_knots = 20;
 knots = [-2 * ones(1, degree), linspace(-2, 2, n_knots), 2 * ones(1, degree)];
 Bth = BSplineBasis(knots, degree);
 th = Polynomial({[0, 0], [0, 1]; [1, 0], [0, 0]});
-th = th.to_bspline({[-2, 2], [-2, 2]});
 
 % Solve phase-1 problem
 % =====================

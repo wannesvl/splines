@@ -157,6 +157,46 @@ and within the chosen parameterization, the average gap $\hat{p}(\ppar,C_x^\star
 
 \commentGP{This could be a general way to set up the problem: minimize a norm of the duality gap.}
 
+To convert the problem to a tractable optimization a piecewise polynomial
+parameterization is adopted for the optimizer functions. B-splines are
+commonly used as a basis for piecewise polynomial functions. Given a
+nondecreasing knot sequence
+\[
+\xi = (\xi_1, \ldots, \xi_l)
+\]
+the $i$-th normalized B-spline function of degree $d$, defined on $[\xi_i,
+\xi_{i+d+1})$, is computed using the Cox-de Boor recursive formula
+\commentWVL{add reference}:
+\[
+    b_{i,k,\xi}(x) = \frac{x-\xi_i}{\xi_{i+k} - \xi_i}
+    b_{i,k-1,\xi}(x) +
+    \frac{\xi_{i+k+1}-x}{\xi_{i+k+1} - \xi_{i+1}}
+    b_{i+1,k-1,\xi}(x) ,
+\]
+starting with
+\[
+    b_{i,0,\xi}(x)  = 
+    \begin{cases}
+        1 , \text{if } x \in [\xi_i , \xi_{i+1} ) , \\
+        0, \text{if } x \notin [\xi_i , \xi_{i+1} ) . 
+    \end{cases}
+\]
+
+Using the multi-index $\alpha=(\alpha_1, \ldots, \alpha_t)$, we can now
+define the primal and dual optimizer functions as
+\[
+\begin{gathered}
+\hat{x}(\ppar, C^x) = \sum_\alpha C^x_\alpha b^x_\alpha(\ppar), \\
+\hat{y}(\ppar, C^y) = \sum_\alpha C^y_\alpha b^y_\alpha(\ppar),
+\end{gathered}
+\]
+where $b_\alpha^\cdot(\ppar)$ is composed of the product of basis functions:
+\[
+b_\alpha^\cdot(\ppar) = \prod_{j=1}^t b^\cdot_{\alpha_j, \lambda_j,
+k_j}(\ppar_j),
+\]
+and $\lambda_j$ and $k_j$ denote the knot sequence and degree of the basis
+associated with coordinate $\ppar_j$.
 
 \vspace*{12pt}
 \noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients.

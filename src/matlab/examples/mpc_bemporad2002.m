@@ -14,6 +14,7 @@ N_c = 1;  % Constraint horizon
 % Q = eye(2);
 % P = dlyap(A', Q);
 % R = 0.01;
+% bla
 % A_pow_B = @(n) cell2mat(arrayfun(@(p) A^p * B, 0:n, 'uni', false));
 % H = 2 * (A_pow_B(1)' * P * A_pow_B(1) + A_pow_B(0)' * Q * A_pow_B(0)) + R * eye(2);
 
