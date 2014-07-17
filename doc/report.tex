@@ -16,6 +16,11 @@
 \newcommand{\ppar}{\theta}                  % parameter in the pprog
 \newcommand{\Ppar}{\Theta}                  % capitalized parameter
 \newcommand{\Htwo}{\mathcal{H}_2}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\Pfeas}{\Pi \text{feas}}
+\newcommand{\Dfeas}{\Delta \text{feas}}
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
@@ -45,61 +50,12 @@
 
 \maketitle
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Parametric Programming}\label{sec:overall_approach}
+\section{Introduction}
 
-
-\subsection{Parametric Cone Programs}\label{subsec:parametric_program}
-
-Parametric programming considers optimization problems of which the data are affected by one or more parameters, and analyzes the solution of the problem in function of the parameters. Let us consider the following parametric cone program:
-\begin{gather}\label{eq:parametric_primal}
-\begin{aligned}
-\Pi(\ppar): && \minimize_{x\in\R^n} &&& h(\ppar)\t x\\
-             && \subj                &&& F(\ppar)x+g(\ppar)\preceq_K 0 \;,%
-\end{aligned}
-\end{gather}
-where the problem data depend on parameters $\ppar\in\R^t$. For the proper cone $K$, (combinations of) the nonnegative orthant, the second-order cone and the positive semidefinite cone are considered. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Ppar_\text{feas}$:
-\[ \Ppar_\text{feas} = \{\ppar\in\R^t ~:~ \exists x ,~ F(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
-\]
-The optimal value function $p^\star:\Ppar_\text{feas}\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$. More generally, we will consider $\epsilon$-suboptimal set mappings $X_\epsilon^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$ which give the $\epsilon$-suboptimal set of $\Pi(\ppar)$ as a function of $\ppar$:
-\[ X^\star_\epsilon(\ppar) = \{x ~:~ F(\ppar)x+g(\ppar)\preceq_K 0 ~,~ h(\ppar)\t x \leq p^\star(\ppar)+\epsilon\} \,.%
-\]
-An optimizer function $x^*:\Ppar_\text{feas}\rightarrow\R^n$ associates to each parameter $\ppar\in\Ppar_{\text{feas}}$ an optimizer $x^*(\ppar)\in X^*(\ppar)$.
-
-Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
-\begin{gather}\label{eq:parametric_dual}
-\begin{aligned}
-\Delta(\ppar): && \maximize_{y} &&& g(\ppar)\t y\\
-                && \subj         &&& F(\ppar)\t y + h(\ppar)= 0\\
-                &&               &&& y \succeq_K 0  \;.
-\end{aligned}
-\end{gather}
-Its optimal value function is denoted $d^\star$, its optimal set mapping $Y^\star$ and its $\epsilon$-suboptimal set mappings $Y^\star_\epsilon$.
-
-\commentGP{Above, $\Ppar_\text{feas}$ is purely linked to the feasibility of the primal while feasibility of the dual also matters. Notation: $\Ppar_{\text{pf}}$, $\Ppar_{\text{df}}$?}
-
-\commentGP{Should we mention strict feasibility here? Notation: $\Ppar_{\text{psf}}$, $\Ppar_{\text{dsf}}$?}
-
-
-\subsubsection*{Assumptions}
-
-Below, we present an approach for computing approximate solutions of the considered parametric cone programs on a subset $\Ppar$ of $\Ppar_\text{feas}$. Our approach relies on the following assumptions:
-
-\begin{enumerate}[\bf\text{A}1.]
-\item\label{ass_pdep} The problem data depend polynomially on $\ppar$. That is, $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$ are polynomial functions. \commentGP{This dependency may be considered piecewise polynomial, but do we have applications for this?}
-\item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$. \commentGP{In a second step we may extend hyperrectangles to general polyhedra.}
-\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible.
-\end{enumerate}
-The last assumption guarantees that for all $\ppar\in\Ppar$
-\[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
-\]
-and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty).
-
-\commentGP{We mainly need these last conditions, so maybe state them as assumption 3, and state below that this can be achieved using Slater's constraint qualification?}
-
+Parametric programming considers optimization problems of which the data are affected by one or more parameters, and analyzes the solution of the problem in function of the parameters. In this report we present an approach for computing approximate solutions to parametric programs.
 
 
 \subsection{Literature Survey}
@@ -113,8 +69,72 @@ Although the parametric programming problems mentioned above do admit an explici
 
 Recently, \cite{Oishi2013} presented an alternative approach to construct an approximate solution of the parametric QPs emerging in MPC. The optimizer function is explicitly parameterized as a polynomial function of the parameters. The coefficients are computed to guarantee feasibility for all parameter values and to minimize either the $\ell_\infty$ or the $\ell_1$ norm of the resulting optimal value function approximation. The semi-infinite constraints emerging in this formulation are transformed to finitely many LMIs using sum of squares.
 
+\commentGP{References to SOS approximations of trade-off curves?}
 
-\subsection{Explicitly Parameterized Solutions}\label{subsec:parameterized_solution}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Methodology}\label{sec:methodology}
+
+
+\subsection{Parametric Cone Programs}\label{subsec:parametric_program}
+
+Let us consider a parametric cone program in inequality form:
+\begin{gather}\label{eq:parametric_primal}
+\begin{aligned}
+\Pi(\ppar): && \minimize_{x\in\X} &&& \langle h(\ppar), x \rangle\\
+            && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_K 0 \;,%
+\end{aligned}
+\end{gather}
+where the optimization variable $x$ lives is a finite dimensional vector space $\X$, and $\ppar\in\R^t$ groups the parameters affecting the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into another vector space $\Y$:
+\begin{align*}
+\calF(\ppar) ~:~ \X~ &\rightarrow~ \Y \\
+                  x~ &\mapsto~ \calF(\ppar)x ~.
+\end{align*}
+The proper cone $K\subset\Y$ is considered to be a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Ppar_{\Pfeas}$:
+\[ \Ppar_{\Pfeas} = \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
+\]
+The optimal value function $p^\star:\Ppar_{\Pfeas}\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Ppar_{\Pfeas}\rightarrow 2^{\X}$. More generally, we will consider $\epsilon$-suboptimal set mappings $X_\epsilon^\star:\Ppar_{\Pfeas}\rightarrow 2^{\X}$ which give the $\epsilon$-suboptimal set of $\Pi(\ppar)$ as a function of $\ppar$:
+\[ X^\star_\epsilon(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_K 0 ~,~ \langle h(\ppar), x \rangle \leq p^\star(\ppar)+\epsilon\} \,.%
+\]
+An optimizer function $x^*:\Ppar_{\Pfeas}\rightarrow\R^n$ associates to each parameter $\ppar\in\Ppar_{\Pfeas}$ an optimizer $x^*(\ppar)\in X^*(\ppar)$.
+
+Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
+\begin{gather}\label{eq:parametric_dual}
+\begin{aligned}
+\Delta(\ppar): && \maximize_{y\in\Y} &&& \langle g(\ppar) , y \rangle\\
+               && \subj              &&& \calF(\ppar)^* y + h(\ppar)= 0\\
+               &&                    &&& y \succeq_K 0  \;,
+\end{aligned}
+\end{gather}
+where $\calF(\ppar)^*: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is feasible is denoted by $\Ppar_{\Dfeas}$. The dual optimal value function is denoted by $d^\star$, the corresponding optimal set mapping $Y^\star$ and its $\epsilon$-suboptimal set mappings $Y^\star_\epsilon$.
+
+
+\subsubsection*{Assumptions}
+
+Below, we present an approach for computing approximate solutions of the considered parametric cone programs for $\ppar$ is a given set $\Ppar$. initially, we will rely on the following assumptions:
+\begin{enumerate}[\bf\text{A}1.]
+\item\label{ass_pdep} The problem data depend piecewise-polynomially on $\ppar$. That is, the mappings $h:\R^t\rightarrow\X$ and $g:\R^t\rightarrow\Y$ are piecewise polynomial, as well as the mappings
+    \begin{align*}
+    f_x(\ppar) ~:~ \R^t~  &\rightarrow~\Y\\
+                   \ppar~ &\mapsto~\calF(\ppar)x     
+    \end{align*} 
+    for all $x\in\X$.
+\item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$. 
+\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are feasible and strong duality holds. 
+\end{enumerate}
+The last assumption guarantees that for all $\ppar\in\Ppar$
+\[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
+\]
+and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty). \commentGP{Is this ok, or do we need strict feasibility (for the nonlinear constraints...)}
+
+In a second step, Assumption~\ref{ass_feas} will be relaxed.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Approximate Solutions with a Fixed Parametrization}\label{subsec:parameterized_solution}%
 
 In this report we adopt an approach similar to \cite{Oishi2013}. We construct an approximate primal optimizer function $\hat{x}(\ppar)$ and dual optimizer function $\hat{y}(\ppar)$ within \textit{a priori} chosen sets of basis functions $b_{x,i}(\ppar)$ and $b_{y,i}(\ppar)$ on $\Ppar$:
 \begin{subequations}\label{eq:approx_sol}
@@ -210,7 +230,7 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
 \noindent\textbf{To include somewhere:} Reasons for choosing a B-spline parameterization
 \begin{itemize}
 \item Great approximating power. Whereas polynomials form a basis for analytical functions, in most cases neither the optimizer function nor the optimal value function of the considered parametric programs is analytical. \commentGP{From the viewpoint of approximating the true solution, a simplicial subdivision of the parameter domain would be more appropriate than a hyperrectangular one \ldots}
-\item Local support of the basis functions. This should allow for cheap local refinements both in the relaxation of the semi-infinite constraints as in the approximation $x(\ppar)$ or $y(\ppar)$.   
+\item Local support of the basis functions. This should allow for cheap local refinements both in the relaxation of the semi-infinite constraints as in the approximation $x(\ppar)$ or $y(\ppar)$.
 \item Transformation of semi-infinite constraints to a finite dimensional set of constraints. Generally good trade-off between conservatism and computational complexity (in contrast to sum-of-squares, particularly for matrix constraints), and 2 ways to reduce conservatism: knot insertion and degree augmentation. \commentGP{We should include some guidelines for choosing between these two and on where to insert knots.}
 \item It allows for various extensions:
     \begin{itemize}
@@ -228,6 +248,8 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
     \item Extension to general parameter domains: star-shaped with a Bspline parameterized boundary.
 \end{itemize}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Discussion / Notes / Thoughts}
 \begin{itemize}
