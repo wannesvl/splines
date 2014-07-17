@@ -49,7 +49,7 @@ classdef Polynomial < Function
                 lB = length(B);
                 T = zeros(lA + lB - 1, lA * lB);
                 for i = 1:lA
-                    T(i:lB-1+i, lB*(i-1)+1:lB*i) = eye(lB)
+                    T(i:lB-1+i, lB*(i-1)+1:lB*i) = eye(lB);
                 end
             end
             if isa(self, class(other)) 

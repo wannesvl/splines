@@ -20,7 +20,7 @@ classdef PolynomialBasis < UnivariateBasis
             elseif isa(self, 'numeric')
                 degree = other.degree;
             end
-            s = self.cl(degree);
+            s = PolynomialBasis(degree);
         end
 
         function s = mtimes(self, other)
