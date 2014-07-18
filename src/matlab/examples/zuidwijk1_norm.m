@@ -14,7 +14,7 @@ clc
 l = Polynomial([0, 1]);     % the parameter
 L = 3;                      % range of l = [0, L]
 d = 2;                      % degree
-n = 11;                     % number of knots
+n = 21;                     % number of knots
 B = BSplineBasis([0 * ones(1, d) , linspace(0, L, n) , L * ones(1, d)], d);
 colors = colormap(lines(3));
 
@@ -60,6 +60,11 @@ B_knots_ave = B_knots_ave(B.degree + 1 : B.degree + B.length);
 figure(2), hold all
 plot(L_, gap1.f(L_), B_knots_ave, gap1.coeffs.coeffs2tensor, ':x', 'Color', colors(1,:))
 xlabel('\theta'), ylabel('duality gap')
+
+C1 = [x1(2)-2; x1(1)+l*x1(2)-2; -x1'];
+Y1 = [y1'; -1+y1(2); -2+y1(1)+l*y1(2)];
+s = -C1'*Y1;
+plot(L_, s.f(L_), 'k')
 
 
 
