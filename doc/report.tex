@@ -89,16 +89,16 @@ Let us consider a parametric cone program in inequality form:
             && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_K 0 \;,%
 \end{aligned}
 \end{gather}
-where the optimization variable $x$ lives is a finite dimensional vector space $\X$, and $\ppar\in\R^t$ groups the parameters affecting the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into another vector space $\Y$:
+where the optimization variable $x$ lives is a finite-dimensional Hilbert space $\X$. The vector $\ppar\in\R^t$ groups the parameters that affect the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into a finite Hilbert space $\Y$:
 \begin{align*}
 \calF(\ppar) ~:~ \X~ &\rightarrow~ \Y \\
                   x~ &\mapsto~ \calF(\ppar)x ~.
 \end{align*}
-The proper cone $K\subset\Y$ is considered to be a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Pfeas$:
+The Hilbert space $\Y$ corresponds to the Cartesian product of Euclidean spaces and/or vector spaces of symmetric matrices, and the proper cone $K\subset\Y$ is a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Pfeas$:
 \[ \Pfeas = \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
 \]
-The optimal value function $p^\star:\Pfeas\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Pfeas\rightarrow 2^{\X}$. More generally, we will consider $\epsilon$-suboptimal set mappings $X_\epsilon^\star:\Pfeas\rightarrow 2^{\X}$ which give the $\epsilon$-suboptimal set of $\Pi(\ppar)$ as a function of $\ppar$:
-\[ X^\star_\epsilon(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_K 0 ~,~ \langle h(\ppar), x \rangle \leq p^\star(\ppar)+\epsilon\} \,.%
+The optimal value function $p^\star:\Pfeas\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Pfeas\rightarrow 2^{\X}$:
+\[ X^\star(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_K 0 ~,~ \langle h(\ppar), x \rangle = p^\star(\ppar)\} \,.%
 \]
 An optimizer function $x^*:\Pfeas\rightarrow\R^n$ associates to each parameter $\ppar\in\Pfeas$ an optimizer $x^*(\ppar)\in X^*(\ppar)$.
 
@@ -110,12 +110,12 @@ Relying of the fact that the considered cones $K$ are self-dual, the dual cone p
                &&                    &&& y \succeq_K 0  \;,
 \end{aligned}
 \end{gather}
-where $\calF(\ppar)^*: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is feasible is denoted by $\Dfeas$. The dual optimal value function is denoted by $d^\star$, the corresponding optimal set mapping $Y^\star$ and its $\epsilon$-suboptimal set mappings $Y^\star_\epsilon$.
+where $\calF(\ppar)^*: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is feasible is denoted by $\Dfeas$. The dual optimal value function is denoted by $d^\star$, and the corresponding optimal set mapping $Y^\star$.
 
 
 \subsubsection*{Assumptions}
 
-Below, we present an approach for computing approximate solutions of the considered parametric cone programs for $\ppar$ is a given set $\Ppar$. initially, we will rely on the following assumptions:
+Below, we present an approach for computing approximate solutions of the considered parametric cone programs for $\ppar$ is a given set $\Ppar$. Initially, we rely on the following assumptions:
 \begin{enumerate}[\bf\text{A}1.]
 \item\label{ass_pdep} The problem data depend continuously and piecewise-polynomially on $\ppar$. That is, the mappings $h:\R^t\rightarrow\X$ and $g:\R^t\rightarrow\Y$ are continuous and piecewise polynomial, as well as the mappings
     \begin{align*}
@@ -124,12 +124,12 @@ Below, we present an approach for computing approximate solutions of the conside
     \end{align*}
     for all $x\in\X$.
 \item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$.
-\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are feasible and strong duality holds.
+\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible. \commentGP{strict feasibility not yet explained}
 \end{enumerate}
-The last assumption guarantees that for all $\ppar\in\Ppar$
+The last assumption guarantees that for all $\ppar\in\Ppar$ strong duality holds:
 \[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
 \]
-and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty). \commentGP{Is this ok, or do we need strict feasibility (for the nonlinear constraints...)}
+and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty).
 
 In a second step, Assumption~\ref{ass_feas} will be relaxed.
 
@@ -140,12 +140,10 @@ In a second step, Assumption~\ref{ass_feas} will be relaxed.
 
 \subsubsection*{Exact solutions through infinite optimization}%
 
-Let $\Xm$ denote the vector space of continuous mappings $\Ppar \rightarrow \X$ equipped with the following inner product and norm
-\begin{align*}
-\langle u,v \rangle &= \int_{\Ppar} \langle u(\ppar), v(\ppar) \rangle d\ppar\,,\\%
-\| u \|             &= \langle u,u \rangle \,,
-\end{align*}
-and let $\Ym$, the vector space of continuous mappings $\Ppar \rightarrow \Y$ be defined similarly. Then the problem of finding a continuous primal optimizer function on $\Ppar$ translates into the following infinite-dimensional program \commentGP{When does a continuous optimizer function exist?}
+Let $\Xm$ denote the vector space of continuous mappings $\Ppar \rightarrow \X$ equipped with the following inner product
+\[ \langle u,v \rangle = \int_{\Ppar} \langle u(\ppar), v(\ppar) \rangle \, d\ppar\,,%
+\]
+and let $\Ym$ be defined similarly. \commentGP{Can we work with these inner product spaces or should we consider their completions?} Then the problem of finding a continuous primal optimizer function on $\Ppar$ \commentGP{When does a continuous optimizer function exist?} translates into the following infinite-dimensional program
 \begin{gather}\label{eq:inf_primal}
 \begin{aligned}
 \Pi: && \minimize_{x\in\Xm} &&& \langle h, x \rangle\\
@@ -160,57 +158,57 @@ The search for a continuous dual optimizer function on $\Ppar$ amounts to
         &&                     &&& y(\ppar) \succeq_K 0                  \;, && \forall \ppar \in\Ppar\;.%
 \end{aligned}
 \end{gather}
-Note that (\ref{eq:inf_primal}) and (\ref{eq:inf_dual}) are each others dual. \commentGP{Already 99.9\% sure, but learn more about infinite dimensional duality theory.}
+\commentGP{Are (\ref{eq:inf_primal}) and (\ref{eq:inf_dual}) each others primal and do the corresponding optimality conditions are equivalent to the optimal mappings $x^\star$ and $y^\star$ being optimizer functions for $\Pi(\ppar)$ and $\Delta(\ppar)$?}
 
 
 \subsubsection*{Approximate solutions through semi-infinite optimization}%
 
-To overcome the infinite dimensionality of the optimization problems above, the set of considered mappings is restricted to linear combinations of preset basis functions $b_\alpha\in\Ym$:
+To overcome the infinite dimensionality of the optimization problems above, the set of considered mappings is restricted to linear combinations of preset basis functions $b:\Ppar\rightarrow\R$, labeled by the (multi-)index $\alpha$. That is, we propose approximate optimizer functions of the following form:
 \begin{subequations}\label{eq:xy_approx}
 \begin{gather}
-\hat{x}(C^x) = \sum_\alpha C^x_\alpha b^x_\alpha, \label{eq:x_approx} \\%
-\hat{y}(C^y) = \sum_\alpha C^y_\alpha b^y_\alpha, \label{eq:y_approx}%
+\hat{x}(C^x) = \sum_\alpha C^x_\alpha \, b^x_\alpha \,, \label{eq:x_approx} \\%
+\hat{y}(C^y) = \sum_\alpha C^y_\alpha \, b^y_\alpha \,. \label{eq:y_approx}%
 \end{gather}
 \end{subequations}
 
-Let $\bar{b}_\alpha^\cdot$ be defined as
-\[ \bar{b}_\alpha^\cdot = \int_{\Ppar} b_\alpha^\cdot(\ppar) d\ppar  \,,
-\]
-then substituting parametrization (\ref{eq:x_approx}) into (\ref{eq:inf_primal}) yields the following semi-infinite optimization problem:
+Substituting parametrization (\ref{eq:x_approx}) into (\ref{eq:inf_primal}) yields the following semi-infinite optimization problem:
 \begin{gather}\label{eq:semi-inf_primal}
 \begin{aligned}
-\hat{\Pi}: && \minimize_{C^x_\alpha\in\X} &&& \sum_\alpha \bar{b}^x_\alpha \, \langle h, C^x_\alpha \rangle\\%
-           && \subj                       &&& \sum_\alpha b^x_\alpha(\ppar) \calF(\ppar) C^x_\alpha + g(\ppar)\preceq_K 0 \;, && \forall \ppar\in\Ppar\;.%
+\hat{\Pi}: && \minimize_{C^x_\alpha\in\X} &&& \sum_\alpha \langle h, C^x_\alpha b^x_\alpha \rangle  \\%
+           && \subj                       &&& \sum_\alpha \calF(\ppar) C^x_\alpha\,b^x_\alpha(\ppar) + g(\ppar)\preceq_K 0 \;, && \forall \ppar\in\Ppar\;.%
 \end{aligned}
 \end{gather}
 Similarly for the dual:
 \begin{gather}\label{eq:semi-inf_dual}
 \begin{aligned}
-\hat{\Delta}: && \maximize_{C^y_\alpha\in\Y} &&& \sum_{\alpha} \bar{b}^y_\alpha \, \langle g , C^y_\alpha \rangle\\%
-              && \subj                       &&& \sum_\alpha b^y_\alpha(\ppar) \calF(\ppar)^* C^y_\alpha + h(\ppar)= 0 \;, && \forall \ppar \in\Ppar\\%
-              &&                             &&& \sum_\alpha b^y_\alpha(\ppar) C^y_\alpha \succeq_K 0                  \;, && \forall \ppar \in\Ppar\;.%
+\hat{\Delta}: && \maximize_{C^y_\alpha\in\Y} &&& \sum_{\alpha} \langle g , C^y_\alpha b^y_\alpha \rangle \\%
+              && \subj                       &&& \sum_\alpha \calF(\ppar)^* C^y_\alpha\,b^y_\alpha(\ppar) + h(\ppar)= 0 \;, && \forall \ppar \in\Ppar\\%
+              &&                             &&& \sum_\alpha C^y_\alpha \, b^y_\alpha(\ppar) \succeq_K 0                  \;, && \forall \ppar \in\Ppar\;.%
 \end{aligned}
 \end{gather}
 
-Let ${C^x}^\star$ denote an optimal point of $\hat{\Pi}$ then the corresponding approximate optimizer function $\hat{x}({C^x}^\star)$ minimizes the averaged primal suboptimality over $\Ppar$:
-\[ \int_{\Ppar}\hat{p}(C^x,\ppar)-p^\star(\ppar)d\ppar = \int_{\Ppar}\hat{p}(C^x,\ppar)d\ppar-\int_{\Ppar}p^\star(\ppar)d\ppar%
+Let us denote the optimal value functions corresponding to the approximations (\ref{eq:xy_approx}) by $\hat{p}(C^x)$ and $\hat{d}(C^x)$:
+\begin{align*}
+\hat{p}(C^x) &= \sum_\alpha \langle h, C^x_\alpha b^x_\alpha \rangle \,,\\%
+\hat{d}(C^y) &= \sum_\alpha \langle g, C^y_\alpha b^y_\alpha \rangle \,  \,.%
+\end{align*}
+\commentGP{Notation is getting inconsistent? According to the notation adopted in the problem formulation, something like $\hat{p}(\ppar)C^x$ makes more sense?} Then for every feasible point $C^x$ of $\hat{\Pi}$ and every feasible point $C^y$ of $\hat{\Delta}$, the following holds:
+\[ \hat{d}(C^y,\ppar) \leq d^\star(\ppar) \leq p^\star(\ppar) \leq \hat{p}(C^x,\ppar)\,,\qquad\forall\ppar\in\Ppar\,,%
 \]
-where
-\[ \hat{p}(C^x) = \sum_\alpha \bar{b}^x_\alpha \, \langle h, C^x_\alpha \rangle%
+and the gap between primal and dual objective equals the complementary slackness violation:
+\[ \hat{p}(C^x,\ppar) - \hat{d}(C^y,\ppar) = \left\langle \calF(\ppar) \hat{x}(C^x,\ppar) + g(\ppar) \,,\, \hat{y}(C^y,\ppar) \right\rangle \,.%
 \]
-Similarly, optimal points ${C^y}^\star$ of $\hat{\Delta}$ minimize the averaged dual suboptimality over $\Ppar$. Also note that
-\[ \hat{d}({C^y}^\star,\ppar) \leq d^\star(\ppar) \leq p^\star(\ppar) \leq \hat{p}({C^x}^\star,\ppar)\,,\qquad\forall\ppar\in\Ppar\,,%
+By solving $\hat{\Pi}$ and $\hat{\Delta}$ the coefficients $C^x$ and $C^y$ are computed that minimize the average gap over $\Ppar$:
+\[ \inf_{C^x,C^y} \int_{\Ppar} \hat{p}(C^x,\ppar) - \hat{d}(C^y,\ppar) d\ppar = %
+   \inf_{C^x} \int_{\Ppar} \hat{p}(C^x,\ppar) d\ppar - \sup_{C^y} \int_{\Ppar} \hat{d}(C^y,\ppar) d\ppar\,.%
 \]
-and within the chosen parametrization, the average gap $\hat{p}({C^x}^\star,\ppar)-\hat{d}({C^y}^\star,\ppar)$ over $\Ppar$ is minimal.
-
-Overall: primal feasible and dual solution of the infinite dimensional problem. The only infinite dimensional KKT condition that is not satisfied is the complementary slackness. The duality gap is indeed the complementary slackness residual.
+\commentGP{Notation: should we use $C^x_{\text{feas}}$ and $C^y_{\text{feas}}$ to emphasize that we are looking at feasible points?}
 
 
 
 \subsubsection*{Approximate B-spline parameterized solutions through finite optimization}%
 
-To convert the problem to a tractable optimization a piecewise polynomial
-parameterization is adopted for the optimizer functions. B-splines are commonly used as a basis for piecewise polynomial functions. Given a nondecreasing knot sequence
+To convert the problem to a tractable optimization problem a piecewise polynomial parameterization is adopted for the optimizer functions. B-splines are commonly used as a basis for piecewise polynomial functions. Given a nondecreasing knot sequence
 \[
 \xi = (\xi_1, \ldots, \xi_l)
 \]
@@ -271,7 +269,52 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
         \[ g(C_{x,i})\leq 0\,,~\forall i=1,\ldots,m \qquad \Rightarrow \qquad g(x(\ppar))\leq0\,,~\forall \ppar\in\Ppar\,.%
         \]
 \item different norms of duality gap
-\end{itemize}  
+\end{itemize}
+
+
+\subsubsection*{Simplification in case of joint convexity in $x$ or $y$ and $\ppar$}%
+
+In case the problem $\Pi(\ppar)$ is jointly convex in $x$ and $\ppar$, that is:
+\[ h(\ppar) = h\,,\qquad \calF(\ppar) = \calF
+\]
+it suffices to solve only $\hat{\Pi}$. From its Lagrange multipliers, a feasible point of $\hat{\Delta}$ can be constructed. Vice versa, in case $\Delta(\ppar)$ is jointly convex in $y$ and $\ppar$, it suffices to solve only $\hat{\Delta}$ and from its Lagrange multipliers, a feasible point of $\hat{\Pi}$ can be constructed.
+
+Let us illustrate the former. For a given basis function $b$, we define $\bar{b}$ as
+\[ \bar{b} = \int_{\Ppar} b(\ppar) d\ppar  \,,
+\]
+Then we can write $\hat{\Pi}$ amounts to
+\begin{gather*}
+\begin{aligned}
+\hat{\Pi}: && \minimize_{C^x_\alpha\in\X} &&& \sum_\alpha \langle \bar{b}^x_\alpha h, C^x_\alpha \rangle    \\%
+           && \subj                       &&& \calF C^x_\alpha + C^g_\alpha \preceq_K 0 \;, && \forall \alpha\in ???\;,%
+\end{aligned}
+\end{gather*}
+and the corresponding dual equals
+\begin{gather*}
+\begin{aligned}
+ && \maximize_{\nu_\alpha\in\Y} &&& \sum_\alpha \langle C^g_\alpha, \nu_\alpha \rangle    \\%
+ && \subj                       &&& \calF^* \nu_\alpha +  \bar{b}^x_\alpha h = 0 \;, && \forall \alpha\in ???\\%
+ &&                             &&& \nu_\alpha \succeq_K 0 \;, && \forall \alpha\in ???\;.%
+\end{aligned}
+\end{gather*}
+Changing the optimization variables to
+\[ C^y_\alpha = \nu_\alpha / \bar{b}^x_\alpha \,,
+\]
+we obtain
+\begin{gather*}
+\begin{aligned}
+ && \maximize_{\C^y_\alpha\in\Y} &&& \sum_\alpha \langle C^g_\alpha \bar{b}^x_\alpha , C^y_\alpha \rangle    \\%
+ && \subj                        &&& \calF^* C^y_\alpha + h = 0 \;, && \forall \alpha\in ???\\%
+ &&                              &&& C^y_\alpha \succeq_K 0 \;, && \forall \alpha\in ???\;.%
+\end{aligned}
+\end{gather*}
+While this problem has the same constraints as $\hat{\Delta}$, it differs in objective functions since in general
+\[ \int_\Ppar g(\ppar)b^x_\alpha(\ppar)d\ppar \neq C^g_\alpha \bar{b}^x_\alpha%
+\]
+\commentGP{In case $h(\ppar)$ also depends on $\ppar$ it seems you only need a different scaling to go from $\nu_\alpha$ to $C^y_\alpha$, defined by
+\[ \int_\Ppar h(\ppar)b_\alpha(\ppar) d\ppar ./ C^h_\alpha
+\]
+But is this so? And is this scaling positive and the same for all entries in $h$?}
 
 
 %In this report we adopt an approach similar to \cite{Oishi2013}. We construct an approximate primal optimizer function $\hat{x}(\ppar)$ and dual optimizer function $\hat{y}(\ppar)$ within \textit{a priori} chosen sets of basis functions $b_{x,i}(\ppar)$ and $b_{y,i}(\ppar)$ on $\Ppar$:
