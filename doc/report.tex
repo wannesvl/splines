@@ -12,6 +12,7 @@
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
+\DeclareMathOperator{\tr}{tr}
 \newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
 \newcommand{\commentGH}[1]{\noindent \textcolor{blue}{\emph{$<\,$GH: #1$\,>$}}}%
 \newcommand{\commentWVL}[1]{\noindent \textcolor{blue}{\emph{$<\,$WVL: #1$\,>$}}}%
@@ -292,7 +293,7 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
 \noindent\textbf{First suggestion for notation:} The primal constraint function can be written as
 \[ \calF(\ppar) \hat{x}(\cx,\ppar) + g(\ppar) = \sum_{\alpha\in\Alpha^\Pi} (\calF_\alpha\cx + \cg_\alpha)b^\Pi_\alpha(\ppar) %
 \]
-To emphasize the linear dependency of $\hat{\Pi}$'s objective to $\cx$ we define $\bar{h}_\alpha^x\in\X$ as 
+To emphasize the linear dependency of $\hat{\Pi}$'s objective to $\cx$ we define $\bar{h}_\alpha^x\in\X$ as
 \[ \bar{h}_\alpha^x = \int_{\Ppar} h(\ppar)b^x_\alpha(\ppar)d\ppar\,.
 \]
 This way, we obtain
@@ -301,7 +302,9 @@ This way, we obtain
                              && \subj                      &&& \calF_\alpha\cx + \cg_\alpha \preceq_K 0 \;, && \forall \alpha\in\Alpha^\Pi\;.%
 \end{aligned}\]
 
-
+Another suggestion: let $b_\Pi$ denote a common basis for all the terms in the
+primal problem and $b_\Delta$ in the dual and similar for the index $\Alpha$
+and use affine mappings $\cal{H}, \cal{F}, \cal{G}$ of the coefficients $c^x$.
 
 
 \noindent\textbf{To include somewhere:}
@@ -359,6 +362,8 @@ While this problem has the same constraints as $\hat{\Delta}_{\text{B-spline}}$ 
 
 \subsubsection{Local refinements}
 Local support of the basis functions allow for cheap local refinements both in the relaxation of the semi-infinite constraints as in the approximation $x(\ppar)$ or $y(\ppar)$.
+\commentWVL{Perhaps we should look at literature concerning subdivision schemes
+for B-spline approximation}
 
 
 \subsubsection{Minimizing norm of duality gap}
@@ -519,59 +524,109 @@ To reduce conservatism, a first possibility is to increase the polynomial degree
 	\end{tabular}
 \end{table}
 
-\subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
-Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
-in~\cite{Borrelli_et_al_2003}:
-\begin{gather*}
+
+\subsection{(Convex) inner and outer approximations of nonconvex sets}
+We consider the problem of approximating from the inside the feasible set $
+\mathbf{P} \subset \R^n$ of a matrix inequality $P(\ppar) \succeq 0$. Two examples
+from ... concerning the approximation of the stability region of linear
+systems are considered.
+
+An inner approximation is easily determined by solving the parametric phase I feasibility
+problem
+\[
 \begin{aligned}
-\minimize_{x\in\R^2} &&& -2 x_1 - x_2\\
-             \subj   &&& x_1 + 3 x_2 \leq 9 - 2\ppar_1 +\ppar_2 \\%
-                     &&& 2 x_1 + x_2 \leq 8 + \ppar_1 - 2\ppar_2 \\%
-                     &&& x_1 \leq 4 + \ppar_1 + \ppar_2 \\%
-                     &&& x_1, x_2 \geq 0 \;,
+\minimize_{t} &&& t \\
+\subj              &&& P(\theta) + tI \succeq 0 \; .%
 \end{aligned}
-\end{gather*}
-on $\Ppar \in [-10, 10] \times [-10, 10]$.
+\]
+The inner approximation to $\mathbf{P}$ is
+\[
+\mathbf{\hat{P}} = \{\ppar \in \R^n \, : t^\opt{\star}(\ppar) \geq 0 \}.
+\]
+From the solution of the dual problem
+\[
+\begin{aligned}
+\minimize_{Z} &&& \tr(ZP) \\
+\subj              &&& Z \succeq 0 \\
+                   &&& \tr(Z) = 1 \; ,%
+\end{aligned}
+\]
+an outer approximation
+\[
+\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \tr(Z^\opt{\star}(\ppar) P(\ppar)) \leq 0 \}
+\]
+is found.
+Furthermore, the inner (outer) approximations can be imposed to be convex
+by constraining the Hessian of the objective functions to be positive (negative)
+semidefinite. 
 
-It can be shown that for this problem $\Pfeas$ is a triangular set.
-Hence, the optimization variables cannot be parameterized by a tensor spline
-in $\theta_1$ and $\theta_2$ as this would render the problem infeasible.
-Instead, a parameterization is chosen that maps a rectangular domain to a
-polyhedral set.
+The first example considers the nonconvex polynomial matrix inequality
+\[
+\mathbf{P} = \{\ppar \in \R^2 \, : \, P(\ppar) = \begin{pmatrix} 1 - 16\ppar_1
+\ppar_2 & \ppar_1 \\ \ppar_1 & 1 - \ppar_1^2 - \ppar_2^2 \end{pmatrix} \succeq
+0 \}.
+\]
 
-Consider a spline parameterization $(p_{\ppar_1}(\alpha),
-p_{\ppar_2}(\alpha))$ of the boundary of $\Pfeas$ in terms of a
-scalar parameter $\alpha \in [0, 1]$ \commentWVL{What about higher dimensions?
-Is it straightforward to parameterize such polyhedral sets?}. To `fill' the
-polydral set an additional variable $\beta \in [0, 1]$ is introduced. By
-defining $\ppar_1(\alpha,\beta) = p_{\ppar_1}(\alpha) \beta$ and
-$\ppar_2(\alpha,\beta) = p_{\ppar_2}(\alpha) \beta$, any $(\alpha, \beta)$ now
-maps to a feasible $\ppar_1, \ppar_2$. Similarly, $x$ can also be
-parameterized as a tensor spline in $\alpha$ and $\beta$.
 
-Figure~\ref{fig:mplp_objective} shows the approximated objective function for
-a tensor spline of degree 1. The accordance with the true objective function
-is good, except near the switch in critical regions, as shown in
-figure~\ref{fig:mplp_error}.
 
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{figures/mplp_poly_objective.png}
-\caption{The approximated objective function for a degree 1 tensor product
-spline with 21 equidistantly spaced knots in $\alpha$ and 51 in $\beta$.}
-\label{fig:mplp_objective}
-\end{figure}
+% \subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
+% Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
+% in~\cite{Borrelli_et_al_2003}:
+% \begin{gather*}
+% \begin{aligned}
+% \minimize_{x\in\R^2} &&& -2 x_1 - x_2\\
+%              \subj   &&& x_1 + 3 x_2 \leq 9 - 2\ppar_1 +\ppar_2 \\%
+%                      &&& 2 x_1 + x_2 \leq 8 + \ppar_1 - 2\ppar_2 \\%
+%                      &&& x_1 \leq 4 + \ppar_1 + \ppar_2 \\%
+%                      &&& x_1, x_2 \geq 0 \;,
+% \end{aligned}
+% \end{gather*}
+% on $\Ppar \in [-10, 10] \times [-10, 10]$.
 
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{figures/mplp_poly_error.png}
-\caption{The error between the true value of the objective function and our
-approximation.}
-\label{fig:mplp_error}
-\end{figure}
+% It can be shown that for this problem $\Pfeas$ is a triangular set.
+% Hence, the optimization variables cannot be parameterized by a tensor spline
+% in $\theta_1$ and $\theta_2$ as this would render the problem infeasible.
+% Instead, a parameterization is chosen that maps a rectangular domain to a
+% polyhedral set.
+
+% Consider a spline parameterization $(p_{\ppar_1}(\alpha),
+% p_{\ppar_2}(\alpha))$ of the boundary of $\Pfeas$ in terms of a
+% scalar parameter $\alpha \in [0, 1]$ \commentWVL{What about higher dimensions?
+% Is it straightforward to parameterize such polyhedral sets?}. To `fill' the
+% polydral set an additional variable $\beta \in [0, 1]$ is introduced. By
+% defining $\ppar_1(\alpha,\beta) = p_{\ppar_1}(\alpha) \beta$ and
+% $\ppar_2(\alpha,\beta) = p_{\ppar_2}(\alpha) \beta$, any $(\alpha, \beta)$ now
+% maps to a feasible $\ppar_1, \ppar_2$. Similarly, $x$ can also be
+% parameterized as a tensor spline in $\alpha$ and $\beta$.
+
+% Figure~\ref{fig:mplp_objective} shows the approximated objective function for
+% a tensor spline of degree 1. The accordance with the true objective function
+% is good, except near the switch in critical regions, as shown in
+% figure~\ref{fig:mplp_error}.
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.8\textwidth]{figures/mplp_poly_objective.png}
+% \caption{The approximated objective function for a degree 1 tensor product
+% spline with 21 equidistantly spaced knots in $\alpha$ and 51 in $\beta$.}
+% \label{fig:mplp_objective}
+% \end{figure}
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.8\textwidth]{figures/mplp_poly_error.png}
+% \caption{The error between the true value of the objective function and our
+% approximation.}
+% \label{fig:mplp_error}
+% \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+\section{B-spline arithmetic}
+Define sum and product of basis functions and ways to determine the linear
+mappings from one basis to another...
 
 \bibliographystyle{plain}
 \bibliography{references/pprog}
