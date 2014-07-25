@@ -12,7 +12,7 @@
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
-\DeclareMathOperator{\tr}{tr}
+
 \newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
 \newcommand{\commentGH}[1]{\noindent \textcolor{blue}{\emph{$<\,$GH: #1$\,>$}}}%
 \newcommand{\commentWVL}[1]{\noindent \textcolor{blue}{\emph{$<\,$WVL: #1$\,>$}}}%
@@ -40,7 +40,7 @@
 % General operators
 \newcommand{\Tr}{\mathrm{Tr}}       % trace
 % Selected superscripts
-\renewcommand{\t}{{\mbox{\tiny \sf T}}}     % matrix transpose
+\renewcommand{\t}{\intercal}        % matrix transpose  
 \newcommand{\opt}{\star}                    % optimal points and values
 \newcommand{\adj}{\ast}                     % adjoint operator
 % Selected subscripts
@@ -365,10 +365,11 @@ and use affine mappings $\cal{H}, \cal{F}, \cal{G}$ of the coefficients $c^x$.
 \subsubsection{Allowing infeasible parameter values}%
 
 \subsubsection{Simplification in case of joint convexity in $x$ or $y$ and $\ppar$}%
-
 In case the problem $\Pi(\ppar)$ is jointly convex in $x$ and $\ppar$, that is:
 \[ h(\ppar) = h\,,\qquad \calF(\ppar) = \calF\,,
 \]
+\commentWVL{This does not define joint convexity? $g(\ppar)$ can be polynomial
+for example?}
 one may choose to solve only $\hat{\Pi}_\text{B-spline}$. From its Lagrange multipliers, a feasible point of $\hat{\Delta}_\text{B-spline}$ can be constructed with $b^y=b^x$. Vice versa, in case $\Delta(\ppar)$ is jointly convex in $y$ and $\ppar$, it suffices to solve only $\hat{\Delta}_\text{B-spline}$ and from its Lagrange multipliers, a feasible point of $\hat{\Pi}_\text{B-spline}$ can be constructed. \commentGP{Now I assume $b^g\subset b^x$; this should be generalized.}
 
 Let us illustrate the former. For a given basis function $b$, we define $\bar{b}$ as
@@ -574,32 +575,32 @@ To reduce conservatism, a first possibility is to increase the polynomial degree
 \subsection{(Convex) inner and outer approximations of nonconvex sets}
 We consider the problem of approximating from the inside the feasible set $
 \mathbf{P} \subset \R^n$ of a matrix inequality $P(\ppar) \succeq 0$. Two examples
-from ... concerning the approximation of the stability region of linear
+from~\cite{Henrion_Lasserre_2012} concerning the approximation of the stability region of linear
 systems are considered.
 
 An inner approximation is easily determined by solving the parametric phase I feasibility
 problem
 \[
 \begin{aligned}
-\minimize_{t} &&& t \\
+\minimize_{t\in\R} &&& t \\
 \subj              &&& P(\theta) + tI \succeq 0 \; .%
 \end{aligned}
 \]
 The inner approximation to $\mathbf{P}$ is
 \[
-\mathbf{\hat{P}} = \{\ppar \in \R^n \, : t^\opt{\star}(\ppar) \geq 0 \}.
+\mathbf{\hat{P}} = \{\ppar \in \R^n \, : t^\opt(\ppar) \geq 0 \}.
 \]
 From the solution of the dual problem
 \[
 \begin{aligned}
-\minimize_{Z} &&& \tr(ZP) \\
+\minimize_{Z\in \S^m} &&& \Tr(ZP) \\
 \subj              &&& Z \succeq 0 \\
-                   &&& \tr(Z) = 1 \; ,%
+                   &&& \Tr(Z) = 1 \; ,%
 \end{aligned}
 \]
 an outer approximation
 \[
-\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \tr(Z^\opt{\star}(\ppar) P(\ppar)) \leq 0 \}
+\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \Tr(Z^\opt(\ppar) P(\ppar)) \leq 0 \}
 \]
 is found.
 Furthermore, the inner (outer) approximations can be imposed to be convex
@@ -613,7 +614,69 @@ The first example considers the nonconvex polynomial matrix inequality
 0 \}.
 \]
 
+Figure~\ref{fig:PMI1_Henrion2012} shows the nonconvex (left) and convex
+(right) inner and outer approximations of the set $\mathbf{P}$, indicated in
+dark gray. A degree 3 B-spline basis with 13 internal knots was chosen both
+for the primal and the dual.
 
+\begin{figure}
+\centering
+\includegraphics{figures/PMI1_Henrion2012_tikz.pdf}
+\caption{Nonconvex (left) and convex (right) inner (solid) and outer (dashed)
+approximations of the set $\mathbf{P}$}\label{fig:PMI1_Henrion2012}
+\end{figure}
+
+A second example considers the stability region of a degree 3 discrete-time
+polynomial $z^3 + \ppar_1 z^2  + \ppar_2 z + \ppar_3$. The polynomial matrix
+defining $\mathbf{P}$ is given by
+\[
+P(x) = \begin{pmatrix}
+1 - \ppar_3^2 & \ppar_1 - \ppar_2 \ppar_3 & \ppar_2 - \ppar_1 \ppar_3 \\
+\ppar_1 - \ppar_2 \ppar_3 & 1 + \ppar_1^2 - \ppar_2^2 - \ppar_3^2 & \ppar_1 -
+\ppar_2 \ppar_3 \\
+\ppar_2 - \ppar_1 \ppar_3 & \ppar_1 - \ppar_2 \ppar_3 & 1 - \ppar_3^2
+\end{pmatrix}.
+\]
+
+\subsection{Approximate explicit model predictive control}
+For linear systems, the classical MPC problem admits following parametric
+formulation~\cite{Bemporad_et_al_2002}:
+\[
+\begin{aligned}
+\minimize_{u \in \R^n} &&& \frac{1}{2} u^\t H u + \ppar^\t  \\
+\subj              &&& Gu \leq W + E\ppar \; ,  \\
+\end{aligned}
+\]
+where the parameters $\ppar$ denote the current state of the system and $u$
+denotes the vector system inputs along the entire control horizon.
+
+We consider Example 7.1 from~\cite{Bemporad_et_al_2002}. At first, we only
+consider the constraint $-2 \leq u \leq 2$ without any state constraints such
+that the optimization problem is feasible for all $\ppar$. Figure~ compares
+the state and input trajectories of our approximate solution, parameterized by
+a B-spline of degree 2 with 8 knots uniformly distributed over $[-1.5,
+1.5]\times[-1.5, 1.5]$ \commentWVL{Perhaps we should speak of `mesh' instead
+of `knots'?}, with those of the exact solution. Note that while there is
+little loss in performance for the approximate solution, the evaluation of the
+controller boils down to a simple function evaluation.
+
+In case of state constraints, we follow the two step approach for infeasible
+parameter values as discussed in Section~\ref{subsec:extensions}: by solving
+the phase I problem we minimize the infeasibilities and subsequently we can
+solve the optimization problem over $\Ppar$ by adding the minimal
+infeasibility to the constraints. Note that even when the value of $\ppar$ is
+infeasible for the original problem (e.g. due to disturbances), the
+approximate solution still yields a control value.
+Figure~\ref{fig:MPC_Bemporad2002} shows the state trajectory from an initial
+condition $[-1, -0.8]$. The shaded area illustrates the feasible region for
+the approximate parametric program.
+
+\begin{figure}
+\centering
+\includegraphics{figures/mpc_bemporad2002_if_tikz.pdf}
+\caption{State trajectory for the approximate MPC starting from the infeasible
+initial state $[-1, -0.8]$}\label{fig:MPC_Bemporad2002}
+\end{figure}
 
 % \subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
 % Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
@@ -670,9 +733,12 @@ The first example considers the nonconvex polynomial matrix inequality
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
-\section{B-spline arithmetic}
-Define sum and product of basis functions and ways to determine the linear
-mappings from one basis to another...
+\section{Sums and products of B-splines}
+Sums and products of splines with bases $b_{k,\kappa}$ and $b_{l,\lambda}$ with
+can be expressed in a new basis $b_{m, \mu}$.
+
+For a sum of two splines, we find
+\[\mu_i = \]
 
 \bibliographystyle{plain}
 \bibliography{references/pprog}
