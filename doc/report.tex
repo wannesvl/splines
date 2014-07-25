@@ -31,26 +31,33 @@
 
 % NOTATION
 % General sets
-\newcommand{\N}{\mathbb{N}}        % integer numbers
-\newcommand{\R}{\mathbb{R}}        % real numbers
-\newcommand{\C}{\mathbb{C}}        % complex numbers
-\renewcommand{\S}{\mathbb{S}}      % symmetric matrices
-\renewcommand{\H}{\mathbb{H}}      % Hermitian matrices
+\newcommand{\N}{\mathbb{N}}         % integer numbers
+\newcommand{\R}{\mathbb{R}}         % real numbers
+\newcommand{\C}{\mathbb{C}}         % complex numbers
+\renewcommand{\S}{\mathbb{S}}       % symmetric matrices
+\renewcommand{\H}{\mathbb{H}}       % Hermitian matrices
+% General operators
+\newcommand{\Tr}{\mathrm{Tr}}       % trace
 % Selected superscripts
-\renewcommand{\t}{{\mbox{\tiny \sf T}}}    % matrix transpose
-\newcommand{\opt}{\star}                   % optimal points and values
-\newcommand{\adj}{\ast}                    % adjoint operator
+\renewcommand{\t}{{\mbox{\tiny \sf T}}}     % matrix transpose
+\newcommand{\opt}{\star}                    % optimal points and values
+\newcommand{\adj}{\ast}                     % adjoint operator
+% Selected subscripts
+\newcommand{\feas}{\mathrm{f}}              % feasible
+\newcommand{\strfeas}{\mathrm{sf}}          % strictly feasible
 % Parametric program
 \newcommand{\ppar}{\theta}                          % parameter in the pprog
-\newcommand{\Ppar}{\Theta}                          % capitalized parameter ??? should we make this bold ???
+\newcommand{\Ppar}{{\bm{\theta}}}                   % capitalized parameter ??? should we make this bold ???
 \newcommand{\X}{\mathbf{X}}                         % domain of primal variable x
 \newcommand{\Y}{\mathbf{Y}}                         % domain of dual variable y
 \newcommand{\calF}{\mathcal{F}}                     % linear mapping defining the constraints
-\newcommand{\Pfeas}{\Ppar_{\text{feas}}^\Pi}        % set of parameters for which the primal is feasible
-\newcommand{\Dfeas}{\Ppar_{\text{feas}}^\Delta}     % set of parameters for which the dual is feasible
+\newcommand{\Pfeas}{\Ppar^\Pi_\feas}             % set of parameters for which the primal is feasible
+\newcommand{\Pstrfeas}{\Ppar^\Pi_\strfeas}         % set of parameters for which the primal is feasible
+\newcommand{\Dfeas}{\Ppar^\Delta_\feas}          % set of parameters for which the dual is feasible
+\newcommand{\Dstrfeas}{\Ppar^\Delta_\strfeas}      % set of parameters for which the dual is feasible
 % Infinite dimensional reformulation
-\newcommand{\Xm}{\bm{\mathcal{X}}_{\Theta}}         % set of continuous functions \Ppar -> \X
-\newcommand{\Ym}{\bm{\mathcal{Y}}_{\Theta}}         % set of continuous functions \Ppar -> \Y
+\newcommand{\Xm}{\bm{\mathcal{X}}_{\Ppar}}          % set of continuous functions \Ppar -> \X
+\newcommand{\Ym}{\bm{\mathcal{Y}}_{\Ppar}}          % set of continuous functions \Ppar -> \Y
 % Approximation
 \newcommand{\cx}{c^x}               % coefficients of \hat{x}
 \newcommand{\cy}{c^y}               % coefficients of \hat{y}
@@ -108,18 +115,20 @@ Let us consider a parametric cone program in inequality form:
             && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_K 0 \;,%
 \end{aligned}
 \end{gather}
-where the optimization variable $x$ lives is a finite-dimensional Hilbert space $\X$. The vector $\ppar\in\R^t$ groups the parameters that affect the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into a finite Hilbert space $\Y$:
+where the optimization variable $x$ lives in a finite-dimensional Hilbert space $\X$. The vector $\ppar\in\R^t$ groups the parameters that affect the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into a finite Hilbert space $\Y$:
 \begin{align*}
 \calF(\ppar) ~:~ \X~ &\rightarrow~ \Y \\
                   x~ &\mapsto~ \calF(\ppar)x ~.
 \end{align*}
-The Hilbert space $\Y$ corresponds to the Cartesian product of Euclidean spaces and/or vector spaces of symmetric matrices, and the proper cone $K\subset\Y$ is a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Pfeas$:
-\[ \Pfeas = \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
+The Hilbert space $\Y$ corresponds to the Cartesian product of Euclidean spaces and/or vector spaces of symmetric matrices, and the proper cone $K\subset\Y$ is a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible, respectively strictly feasible, is denoted by $\Pfeas$, respectively $\Pstrfeas$:
+\begin{align*}
+\Pfeas    &= \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\preceq_K 0 \}\,,\\%
+\Pstrfeas &= \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\prec_K 0 \}\,.%
+\end{align*}
+The optimal value function $p^\opt:\Pfeas\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $\bm{x}^\opt:\Pfeas\rightarrow 2^{\X}$:
+\[ \bm{x}^\opt(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_K 0 ~,~ \langle h(\ppar), x \rangle = p^\opt(\ppar)\} \,.%
 \]
-The optimal value function $p^\opt:\Pfeas\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\opt:\Pfeas\rightarrow 2^{\X}$:
-\[ X^\opt(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_K 0 ~,~ \langle h(\ppar), x \rangle = p^\opt(\ppar)\} \,.%
-\]
-An optimizer function $x^\opt:\Pfeas\rightarrow\R^n$ associates to each parameter $\ppar\in\Pfeas$ an optimizer $x^\opt(\ppar)\in X^\opt(\ppar)$.
+An optimizer function $x^\opt:\Pfeas\rightarrow\R^n$ associates to each parameter $\ppar\in\Pfeas$ an optimizer $x^\opt(\ppar)\in \bm{x}^\opt(\ppar)$.
 
 Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
 \begin{gather}\label{eq:parametric_dual}
@@ -129,33 +138,72 @@ Relying of the fact that the considered cones $K$ are self-dual, the dual cone p
                &&                    &&& y \succeq_K 0  \;,
 \end{aligned}
 \end{gather}
-where $\calF(\ppar)^\adj: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is feasible is denoted by $\Dfeas$. The dual optimal value function is denoted by $d^\opt$, and the corresponding optimal set mapping by $Y^\opt$.
+where $\calF(\ppar)^\adj: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is (strictly) feasible is denoted by ($\Dstrfeas$) $\Dfeas$. The dual optimal value function is denoted by $d^\opt$, and the corresponding optimal set mapping by $\bm{y}^\opt$.
 
 
 \subsubsection{Assumptions}
 
 Below, we present an approach for computing approximate solutions of the considered parametric cone programs for $\ppar$ is a given set $\Ppar$. Initially, we rely on the following assumptions:
-\begin{enumerate}[\bf\text{A}1.]
-\item\label{ass_pdep} The problem data depend continuously and piecewise-polynomially on $\ppar$. That is, the mappings $h:\R^t\rightarrow\X$ and $g:\R^t\rightarrow\Y$ are continuous and piecewise polynomial, as well as the mappings
-    \begin{align*}
-    f_x(\ppar) ~:~ \R^t~  &\rightarrow~\Y\\
-                   \ppar~ &\mapsto~\calF(\ppar)x
-    \end{align*}
-    for all $x\in\X$.
+\begin{enumerate}[\it\text{A}1.]
+\item\label{ass_pdep} The problem data depend polynomially on $\ppar$. That is, $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$ can be written as
+    \[ \calF(\ppar) = \sum_{\alpha\in\Alpha^\calF} \calF_\alpha \, \ppar^\alpha \,,\qquad%
+       g(\ppar)     = \sum_{\alpha\in\Alpha^g}         g_\alpha \, \ppar^\alpha \,,\qquad%
+       h(\ppar)     = \sum_{\alpha\in\Alpha^h}         h_\alpha \, \ppar^\alpha \,,%
+    \]
+    where $\alpha\in\N^t$ and $\ppar^\alpha$ denotes the monomial $\ppar_1^{\alpha_1} \cdots \ppar_t^{\alpha_t}$.
 \item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$.
-\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible. \commentGP{strict feasibility not yet explained}
+\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible. That is: $\Ppar\subset\Pstrfeas$ and $\Ppar\subset\Dstrfeas$.
 \end{enumerate}
-The last assumption guarantees that for all $\ppar\in\Ppar$ strong duality holds:
-\[ -\infty < p^\opt(\ppar) = d^\opt(\ppar) < \infty \,,%
+The last assumption guarantees that for all $\ppar\in\Ppar$ both $p^\opt(\ppar)$ and $d^\opt(\ppar)$ are finite and strong duality holds:
+\[ -\infty < p^\opt(\ppar) = d^\opt(\ppar) < \infty \,.%
 \]
-and that both $p^\opt(\ppar)$ and $d^\opt(\ppar)$ are attained (i.e. both $X^\opt(\ppar)$ and $Y^\opt(\ppar)$ are non-empty).
+In addition, this assumption guarantees that both $p^\opt(\ppar)$ and $d^\opt(\ppar)$ are attained: both $\bm{x}^\opt(\ppar)$ and $\bm{y}^\opt(\ppar)$ are non-empty for all $\ppar\in\Ppar$.
 
-In a second step, Assumption~\ref{ass_feas} will be relaxed.
+In Section~\ref{subsec:extensions}, Assumptions~{\it\text{A}\ref{ass_pdep}.} and {\it\text{A}\ref{ass_feas}.} will be relaxed.
+
+
+\subsubsection{Example}
+
+To clarify notation let us consider the following parametric semidefinite program (SDP):
+\[ \begin{aligned}
+\Pi(\ppar): && \minimize_{x\in\R^n} &&& h(\ppar)^\t x \\
+            && \subj                &&& x_1F^1(\ppar) + \cdots + x_nF^n(\ppar) + G(\ppar) \preceq 0 \;,%
+\end{aligned} \]
+Hence $\X = \R^n$, $\Y=\S^m$, the Hilbert space of real symmetric $m\times m$ matrices with $\langle U,V\rangle=\Tr(UV)$, and $K$ is the corresponding cone of positive semidefinite matrices. We temporarily adopt common SDP notation by indicating vectors with lower case symbols and matrices with upper cases, and by omitting the positive semidefinite cone in the generalized inequality. This problem is of the form (\ref{eq:parametric_primal}) with linear mapping $\calF(\ppar)$ given by
+\begin{align*}
+\calF(\ppar) ~:~ \R^n~ &\rightarrow~ \S^m \\
+                  x~ &\mapsto~ \calF(\ppar)x = x_1F^1(\ppar) + \cdots + x_nF^n(\ppar) ~.%
+\end{align*}
+The corresponding adjoint mapping is
+\begin{align*}
+\calF(\ppar)^\adj ~:~ \S^m~ &\rightarrow~ \R^n\\
+                      Y~ &\mapsto~ \calF(\ppar)^\adj Y = \big(\Tr(F^1(\ppar)Y), \ldots, \Tr(F^n(\ppar)Y)\big) ~,%
+\end{align*}
+such that the dual problem (\ref{eq:parametric_dual}) amounts to
+\[ \begin{aligned}
+\Delta(\ppar): && \maximize_{Y\in\S^m} &&& \Tr(G(\ppar)Y) \\
+               && \subj                &&& \Tr(F^i(\ppar)Y) + h_i = 0\,,\quad i=1,\ldots n \\%
+               &&                      &&& Y \succeq 0 \;.
+\end{aligned} \]
+
+Assumption~{\it\text{A}\ref{ass_pdep}.} requires $F^1(\ppar)$, \ldots, $F^n(\ppar)$, $G(\ppar)$ and $h(\ppar)$ to be polynomial functions. To derive the polynomial coefficients of $\calF(\ppar)$, let $\Alpha^\calF$ group the multi-indices of all monomials in $F^1(\ppar)$, \ldots, $F^n(\ppar)$, such that we can write all these matrices as 
+\[  F^i(\ppar) = \sum_{\alpha\in\Alpha^\calF} F^i_\alpha \,, \ppar^\alpha\,,\qquad i=1,\ldots,n\,.%
+\]
+Then, $\calF(\ppar)$ can be written as in {\it\text{A}\ref{ass_pdep}.} with
+\begin{align*}
+\calF_\alpha ~:~ \R^n~ &\rightarrow~ \S^m \\
+                    x~ &\mapsto~ \calF_\alpha x = x_1F^1_\alpha + \cdots + x_nF^n_\alpha ~.%
+\end{align*}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{B-spline Parameterized Approximate Solution}\label{subsec:parameterized_solution}%
+
+In this section we present an approach for computing piecewise polynomial approximate primal and dual optimizer functions for $\ppar\in\Ppar$. These approximate optimizer functions, indicated by $\hat{x}$ and $\hat{y}$, are such that they (i) yield a feasible point $\hat{x}(\ppar)$ / $\hat{y}(\ppar)$ of $\Pi(\ppar)$ / $\Delta(\ppar)$ for all $\ppar\in\Ppar$; and (ii) minimize the average suboptimality of $\hat{x}(\ppar)$ / $\hat{y}(\ppar)$ over $\Ppar$. The derivation of these approximate optimizer functions starts from the observation that the search for a true optimizer function can be cast as an infinite-dimensional conic program. To obtain a tractable formulation, the set of possible functions is reduced to linear combinations of basis tensor splines, and the semi-infinite constraints are relaxed to finite sets of constraints by exploiting the positivity of the basis splines.
+
+
+
 
 \subsubsection{Exact solutions through infinite optimization}%
 
@@ -189,7 +237,7 @@ To overcome the infinite dimensionality of the optimization problems above, the 
 \hat{y}(\cy) = \sum_{\alpha\in\Alpha^y} \cy_\alpha \, b^y_\alpha \,, \label{eq:y_approx}%
 \end{gather}
 \end{subequations}
-where $\cx\in\X^{n_x}$ and $\cy\in\Y^{n_x}$, with $n_x=|\Alpha_x|$ and $n_y=|\Alpha_y|$. The images of $\hat{x}(\cx)$ and $\hat{y}(\cy)$ for a particular $\theta$ are indicated by $\hat{x}(\cx,\ppar)$ and $\hat{y}(\cy,\ppar)$, respectively.
+where $\cx\in\X^{n_x}$ and $\cy\in\Y^{n_x}$, with $n_x=|\Alpha^x|$ and $n_y=|\Alpha^y|$. The images of $\hat{x}(\cx)$ and $\hat{y}(\cy)$ for a particular $\theta$ are indicated by $\hat{x}(\cx,\ppar)$ and $\hat{y}(\cy,\ppar)$, respectively.
 %\[ \hat{x}(\cx,\ppar) = \sum_{\alpha\in\Alpha^x} \cx_\alpha \, b^x_\alpha(\ppar) \,, \qquad%
 %   \hat{y}(\cy,\ppar) = \sum_{\alpha\in\Alpha^y} \cy_\alpha \, b^y_\alpha(\ppar) \,. %
 %\]
@@ -232,18 +280,16 @@ Let us denote the optimal value functions corresponding to the approximations (\
 %\hat{p}(\cx,\ppar) &= \sum_{\alpha\in\Alpha^x} \langle h(\ppar), \cx_\alpha b^x_\alpha(\ppar) \rangle \,,\\%
 %\hat{d}(\cy,\ppar) &= \sum_{\alpha\in\Alpha^y} \langle g(\ppar), \cy_\alpha b^y_\alpha(\ppar) \rangle \,  \,.%
 %\end{align*}
-Then for every feasible point $\cx$ of $\hat{\Pi}$ and every feasible point $\cy$ of $\hat{\Delta}$, the following holds:
-\[ \hat{d}(\cy,\ppar) \leq d^\opt(\ppar) \leq p^\opt(\ppar) \leq \hat{p}(\cx,\ppar)\,,\qquad\forall\ppar\in\Ppar\,,%
+Then for every feasible point $\cx_\feas$ of $\hat{\Pi}$ and every feasible point $\cy_\feas$ of $\hat{\Delta}$, the following holds:
+\[ \hat{d}(\cy_\feas,\ppar) \leq d^\opt(\ppar) \leq p^\opt(\ppar) \leq \hat{p}(\cx_\feas,\ppar)\,,\qquad\forall\ppar\in\Ppar\,,%
 \]
 and the gap between primal and dual objective equals the complementary slackness violation:
-\[ \hat{p}(\cx,\ppar) - \hat{d}(\cy,\ppar) = \left\langle \calF(\ppar) \hat{x}(\cx,\ppar) + g(\ppar) \,,\, \hat{y}(\cy,\ppar) \right\rangle \,.%
+\[ \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) = \left\langle \calF(\ppar) \hat{x}(\cx_\feas,\ppar) + g(\ppar) \,,\, \hat{y}(\cy_\feas,\ppar) \right\rangle \,.%
 \]
-By solving $\hat{\Pi}$ and $\hat{\Delta}$ the coefficients $\cx$ and $\cy$ are computed that minimize the average gap over $\Ppar$:
-\[ \inf_{\cx,\cy} \int_{\Ppar} \hat{p}(\cx,\ppar) - \hat{d}(\cy,\ppar) d\ppar = %
-   \inf_{\cx} \int_{\Ppar} \hat{p}(\cx,\ppar) d\ppar - \sup_{\cy} \int_{\Ppar} \hat{d}(\cy,\ppar) d\ppar\,.%
+By solving $\hat{\Pi}$ and $\hat{\Delta}$ the coefficients $\cx_\feas$ and $\cy_\feas$ are computed that minimize the average gap over $\Ppar$:
+\[ \inf_{\cx_\feas,\cy_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) d\ppar = %
+   \inf_{\cx_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) d\ppar - \sup_{\cy_\feas} \int_{\Ppar} \hat{d}(\cy_\feas,\ppar) d\ppar\,.%
 \]
-\commentGP{Notation: should we use $\cx_{\text{feas}}$ and $\cy_{\text{feas}}$ to emphasize that we are looking at feasible points?}
-
 
 
 \subsubsection{B-spline parameterized approximate solutions through finite optimization}%
@@ -292,7 +338,7 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
 \noindent\textbf{First suggestion for notation:} The primal constraint function can be written as
 \[ \calF(\ppar) \hat{x}(\cx,\ppar) + g(\ppar) = \sum_{\alpha\in\Alpha^\Pi} (\calF_\alpha\cx + \cg_\alpha)b^\Pi_\alpha(\ppar) %
 \]
-To emphasize the linear dependency of $\hat{\Pi}$'s objective to $\cx$ we define $\bar{h}_\alpha^x\in\X$ as 
+To emphasize the linear dependency of $\hat{\Pi}$'s objective to $\cx$ we define $\bar{h}_\alpha^x\in\X$ as
 \[ \bar{h}_\alpha^x = \int_{\Ppar} h(\ppar)b^x_\alpha(\ppar)d\ppar\,.
 \]
 This way, we obtain
@@ -311,7 +357,7 @@ This way, we obtain
 \end{itemize}
 
 
-\subsection{Extensions}
+\subsection{Extensions}\label{subsec:extensions}
 
 \subsubsection{Allowing infeasible parameter values}%
 
