@@ -19,10 +19,10 @@ N_c = 1;  % Constraint horizon
 % H = 2 * (A_pow_B(1)' * P * A_pow_B(1) + A_pow_B(0)' * Q * A_pow_B(0)) + R * eye(2);
 
 % Hard coded, but should follow from P, Q, R
-% H = [1.5064, 0.4838; 0.4838, 1.5258];
-% F = [9.6652, 5.2115; 7.0732, -7.0879];
-H = [1.2152, 0.7848; 0.7848, 1.2152];
-F = [11.6581, 10.5542; 11.6925 10.5824];
+H = [1.5064, 0.4838; 0.4838, 1.5258];
+F = [9.6652, 5.2115; 7.0732, -7.0879];
+% H = [1.2152, 0.7848; 0.7848, 1.2152];
+% F = [11.6581, 10.5542; 11.6925 10.5824];
 
 % BSpline parameterization
 degree = 2;
@@ -75,10 +75,13 @@ t = BSpline.sdpvar({b, b}, [1, 1]);
 p = BSpline.sdpvar({b, b}, [1, 1]);
 obj = p;
 LMI = [t, u'; u, inv(H)];  % Schur complement: makes it computationally cheaper for Yalmip
-con = [u(1:N_c+1) <= 2, u(1:N_c+1) >= -2, LMI >= 0, A * x + B * u(1) + p >= -0.5, A^2 * x + B * u(2) + A * B * u(1) + p >= -0.5, p >= 0];
+con = [u(1:N_c+1) <= 2, u(1:N_c+1) >= -2, LMI >= 0, A * x + B * u(1) + p >= -0.5, A^2 * x + B * u(2) + A * B * u(1) + p >= -0.5];
 options = sdpsettings('verbose', 1, 'solver', 'sdpt3');
 sol = solvesdp(con, obj.integral, options);
-p = double(p);
+p2 = double(p);
+p_c = p2.coeffs.coeffs2tensor;
+p_c(p_c <= 0) = 0;
+p = BSpline({b, b}, p_c);
 
 % Use solution of phase 1 to handle infeasibilities
 u = BSpline.sdpvar({b, b}, [N_u, 1]);
@@ -101,6 +104,9 @@ figure
 plot(xk(1, :), xk(2, :))
 xlabel('x_1')
 ylabel('x_2')
+hold on
+contour(-1:0.01:1, -1:0.01:1, p2.f({-1:0.01:1, -1:0.01:1})', [0, 0])
+
 
 t = 0.1 * (0:size(xk, 2)-1);
 figure
