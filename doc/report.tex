@@ -49,6 +49,8 @@
 % Parametric program
 \newcommand{\ppar}{\theta}                          % parameter in the pprog
 \newcommand{\Ppar}{{\bm{\theta}}}                   % set of parameters
+\newcommand{\pPar}{\Theta}                          % matrix parameters
+\newcommand{\PPar}{{\bm{\Theta}}}                   % set of matrix parameters
 \newcommand{\X}{\mathbf{X}}                         % domain of primal variable x
 \newcommand{\Y}{\mathbf{Y}}                         % domain of dual variable y
 \newcommand{\calF}{\mathcal{F}}                     % linear mapping defining the constraints
@@ -628,30 +630,33 @@ An inner approximation is easily determined by solving the parametric phase I fe
 problem
 \[
 \begin{aligned}
-\minimize_{t\in\R} &&& t \\
-\subj              &&& P(\theta) + tI \succeq 0 \; .%
+\minimize_{x\in\R} &&& x \\
+\subj              &&& P(\theta) + xI \succeq 0 \; .%
 \end{aligned}
 \]
 The inner approximation to $\mathbf{P}$ is
 \[
-\mathbf{\hat{P}} = \{\ppar \in \R^n \, : t^\opt(\ppar) \geq 0 \}.
+\mathbf{\hat{P}} = \{\ppar \in \R^n \, : x^\opt(\ppar) \geq 0 \}.
 \]
 From the solution of the dual problem
 \[
 \begin{aligned}
-\minimize_{Z\in \S^m} &&& \Tr(ZP) \\
-\subj              &&& Z \succeq 0 \\
-                   &&& \Tr(Z) = 1 \; ,%
+\minimize_{Y\in \S^m} &&& \Tr(YP) \\
+\subj              &&& Y \succeq 0 \\
+                   &&& \Tr(Y) = 1 \; ,%
 \end{aligned}
 \]
 an outer approximation
 \[
-\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \Tr(Z^\opt(\ppar) P(\ppar)) \leq 0 \}
+\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \Tr(Y^\opt(\ppar) P(\ppar)) \leq 0 \}
 \]
-is found.
-Furthermore, the inner (outer) approximations can be imposed to be convex
-by constraining the Hessian of the objective functions to be positive (negative)
+is found. Convexity of the inner (outer) approximations can be imposed by
+constraining the Hessian of the objective functions to be positive (negative)
 semidefinite.
+
+Moreover, since there are no crossterms between $\ppar$ and the optimization
+variables in the primal, we can derive a dual feasible point from its Lagrange
+multipliers as described in Section~\ref{subsec:extensions}.
 
 The first example considers the nonconvex polynomial matrix inequality
 \[
@@ -689,15 +694,15 @@ For linear systems, the classical MPC problem admits following parametric
 formulation~\cite{Bemporad_et_al_2002}:
 \[
 \begin{aligned}
-\minimize_{u \in \R^n} &&& \frac{1}{2} u^\t H u + \ppar^\t  \\
-\subj              &&& Gu \leq W + E\ppar \; ,
+\minimize_{x \in \R^n} &&& \frac{1}{2} x^\t H x + \ppar^\t F x \\
+\subj              &&& Gx \leq W + E\ppar \; ,
 \end{aligned}
 \]
-where the parameters $\ppar$ denote the current state of the system and $u$
+where the parameters $\ppar$ denote the current state of the system and $x$
 denotes the vector system inputs along the entire control horizon.
 
 We consider Example 7.1 from~\cite{Bemporad_et_al_2002}. At first, we only
-consider the constraint $-2 \leq u \leq 2$ without any state constraints such
+consider the constraint $-2 \leq x \leq 2$ without any state constraints such
 that the optimization problem is feasible for all $\ppar$. Figure~ compares
 the state and input trajectories of our approximate solution, parameterized by
 a B-spline of degree 2 with 8 knots uniformly distributed over $[-1.5,
@@ -741,14 +746,34 @@ can be cast as following parametric program
 \minimize_{\gamma \in \R^+ \atop X \in \S^n} &&& \gamma  \\
 \subj              &&&
 \begin{pmatrix}
-A_\ppar^\t X + X A_\ppar  &  XB_1  &  C_\ppar^\t \\
+A_\pPar^\t X + X A_\pPar  &  XB_1  &  C_\pPar^\t \\
 B_1^\t X                  & -\gamma I & D_{11}^\t \\
-C_\ppar                   & D_{11}    & -\gamma I
+C_\pPar                   & D_{11}    & -\gamma I
 \end{pmatrix} \preceq 0 \; ,
 \end{aligned}
 \]
-where $A_\ppar = A + B \ppar C$ and $C_\ppar = C_1 + D_{12} \ppar C$ and $\ppar$
-indicates the .
+where $A_\pPar = A + B \pPar C$ and $C_\pPar = C_1 + D_{12} \pPar C$ and $\pPar$
+is the controller.
+
+Assuming the parametric problem is feasible for all $\pPar \in \PPar \subset
+\R ^{n_u \times n_y}$,\footnote {In case of infeasible parameter values, one
+has to resort to finding the phase I problem for the constraint $A_\pPar^\t X
++ X A_\pPar \preceq 0, X \succeq 0$ as described in
+Section~\ref{subsec:extensions}} the solution of the approximate parametric
+optimization problem yields $\gamma (\pPar)$. Then, a simple box constrained
+minimization of $\gamma(\theta)$ over $\PPar$ yields the optimal controller.
+Note that the minimal value of the control polytope formed by the
+coefficients of $\gamma$ and the mesh of Greville abscissae provides an
+initial guess for the optimal controller.
+
+The method is tested on data from the COMPl$_\text{e}$ib library
+\commentWVL{ reference} and benchmarked with solutions from HIFOO
+\commentWVL{reference}. As the problem size grows exponentially with the number of
+parameters, the numerical examples are limited to a maximum 4 parameters. Table
+... shows the value of $\gamma$ attained with HIFOO and the proposed method.
+The results are very similar for both methods.
+
+
 
 % \subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
 % Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
