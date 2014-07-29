@@ -40,7 +40,7 @@
 % General operators
 \newcommand{\Tr}{\mathrm{Tr}}       % trace
 % Selected superscripts
-\renewcommand{\t}{\intercal}        % matrix transpose  
+\renewcommand{\t}{\intercal}        % matrix transpose
 \newcommand{\opt}{\star}                    % optimal points and values
 \newcommand{\adj}{\ast}                     % adjoint operator
 % Selected subscripts
@@ -398,18 +398,18 @@ $\calMFadj:\Y^\ny \rightarrow \X^\nDelta$
 
 \subsection{Extensions}\label{subsec:extensions}
 
-Straight forward extension: $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$ allowed to be tensor splines instead of polynomials.
+Straight forward extension: $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$ allowed to be tensor splines instead of polynomials. Note: for primal form of $h$ doesn't matter, for the dual form of $g$.
 
 
 \subsubsection{Allowing infeasible parameter values}%
 
-\subsubsection{Simplification in case of joint convexity in $x$ or $y$ and $\ppar$}%
-In case the problem $\Pi(\ppar)$ is jointly convex in $x$ and $\ppar$, that is:
+\subsubsection{Simplification in case only $h$ or $g$ depend $\ppar$}%
+In case the problem $\Pi(\ppar)$ involves no cross-terms in $x$ and $\ppar$, that is:
 \[ h(\ppar) = h\,,\qquad \calF(\ppar) = \calF\,,
 \]
 \commentWVL{This does not define joint convexity? $g(\ppar)$ can be polynomial
 for example?}
-one may choose to solve only $\hat{\Pi}_\text{B-spline}$. From its Lagrange multipliers, a feasible point of $\hat{\Delta}_\text{B-spline}$ can be constructed with $b^y=b^x$. Vice versa, in case $\Delta(\ppar)$ is jointly convex in $y$ and $\ppar$, it suffices to solve only $\hat{\Delta}_\text{B-spline}$ and from its Lagrange multipliers, a feasible point of $\hat{\Pi}_\text{B-spline}$ can be constructed. \commentGP{Now I assume $b^g\subset b^x$; this should be generalized.}
+one may choose to solve only $\hat{\Pi}_\text{B-spline}$. From its Lagrange multipliers, a feasible point of $\hat{\Delta}_\text{B-spline}$ can be constructed with $b^y=b^x$. Vice versa, in case $\Delta(\ppar)$ involves no cross-terms in $y$ and $\ppar$, it suffices to solve only $\hat{\Delta}_\text{B-spline}$ and from its Lagrange multipliers, a feasible point of $\hat{\Pi}_\text{B-spline}$ can be constructed. \commentGP{Now I assume $b^g\subset b^x$; this should be generalized. Can this be generalized? It only works when the two cones $K$ are the same and $\calMFadj=(\calMF)^\adj$.}
 
 Let us illustrate the former. For a given basis function $b$, we define $\bar{b}$ as
 \[ \bar{b} = \int_{\Ppar} b(\ppar) d\ppar  \,,
