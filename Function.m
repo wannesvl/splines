@@ -366,6 +366,6 @@ classdef Function
                 coeffs = sdpvar(dim(1) * ones(1, prod(lengths)), dim(2) * ones(1, prod(lengths)), p);
             end
             s = cl(basis, reshape(coeffs, lengths));
-        end
+        end     
     end
 end
