@@ -76,6 +76,8 @@
 \newcommand{\meang}{\bar{g}}        % averaged g
 \newcommand{\meanga}{\meang_\alpha} % \alpha'th entry of averaged g
 % B-spline approximation
+\newcommand{\pparL}{\underline{\ppar}}
+\newcommand{\pparU}{\overline{\ppar}}
 \newcommand{\bPi}{b^\Pi}                % basis functions of constraints in \Pi
 \newcommand{\bPia}{b^\Pi_\alpha}        % \alpha'th basis functions of constraints in \Pi
 \newcommand{\nPi}{{n_\Pi}}              % number of basis functions of constraints in \Pi
@@ -325,12 +327,15 @@ In addition, both parameterizations (\ref{eq:pdep}) and (\ref{eq:xy_approx}) are
 
 \subsubsection{B-spline parameterized approximate solutions through finite optimization}%
 
-To convert the problem to a tractable optimization problem a particular piecewise polynomial parametrization is adopted for the optimizer functions by using tensor product B-splines as basis functions. Let us first consider univariate B-splines. Given a nondecreasing knot sequence
+To convert the problems above to tractable optimization problems the optimizer functions are parameterized as tensor product polynomial splines. Tensor product B-splines are chosen as basis functions for this parametrization, and relying on the properties of this basis, tractable relaxations of the semi-infinite constraints in (\ref{eq:semi-inf_primal_bis}) and (\ref{eq:semi-inf_primal_bis}) are derived.
+
+Let us first consider univariate polynomial splines. A polynomial spline in $x\in\Ppar=[\pparL,\pparU]\subset\R$ is defined as follows:
+
+B-splines are commonly adopted as basis functions for the space of polynomial splines with given degree, break points and smoothness  conditions \commentGP{continuity condition or smoothness condition}. To construct the B-splines, the break points and continuity conditions are translated into a nondecreasing knot sequence as follows:
 \[
     \xi = (\xi_1, \ldots, \xi_l)
 \]
-the $i$-th normalized B-spline function of degree $d$, defined on $[\xi_i,
-\xi_{i+d+1})$, is computed using the Cox-de Boor recursive formula
+and the $i$-th normalized B-spline function of degree $k$, defined on $[\xi_i, \xi_{i+k+1})$, is computed using the Cox-de Boor recursive formula
 \commentWVL{add reference}:
 \[
     b_{i,k,\xi}(x) = \frac{x-\xi_i}{\xi_{i+k} - \xi_i}
@@ -346,14 +351,15 @@ starting with
         0, \text{if } x \notin [\xi_i , \xi_{i+1} ) .
     \end{cases}
 \]
-\commentGP{correct division by 0} B-splines are commonly chosen as basis for piecewise polynomial functions as they have various useful properties \commentGP{ref}. In this report we will use the facts that they are nonnegative, sum up to one (partition of unity), and have local support. \commentGP{more explanation?}
+\commentGP{correct division by 0} B-splines are commonly chosen as basis for piecewise polynomial functions as they yield a stable evaluation of the functions and their derivatives, and have various useful properties \commentGP{ref}: They are nonnegative, sum up to one (form a partition of unity), and have local (minimal) support. \commentGP{more explanation?}
 
-Tensor product B-splines constitute a particular multivariate  generalization of univariate B-splines using the tensor product construct. These basis functions, labeled with the multi-index $\alpha=(\alpha_1, \ldots, \alpha_t)$, are composed of the product of basis functions:
+
+Tensor product polynomial splines constitute a particular multivariate  generalization of univariate polynomial splines using the tensor product construct. The space of y correspond to the span of tensor product B-splines, labeled with the multi-index $\alpha=(\alpha_1, \ldots, \alpha_t)$, which are composed of the product of B-splines:
 \[ b_\alpha(\ppar) = \prod_{j=1}^t b_{\alpha_j, k_j, \lambda_j,}(\ppar_j) \,,%
 \]
-with $\lambda_j$ and $k_j$ denoting the knot sequence and degree of the basis associated with coordinate $\ppar_j$. Note that the properties of the coordinate B-splines transfer to the tensor product B-splines: they are also nonnegative, sum up to one (partition of unity), and have local support.
+with $\lambda_j$ and $k_j$ denoting the knot sequence and degree of the basis associated with coordinate $\ppar_j$. The properties of the coordinate B-splines transfer to the tensor product B-splines: they are also linearly independent, nonnegative, sum up to one (partition of unity), and have local (minimal) support. Multivariate polynomial -> restriction on 
 
-When a tensor product B-spline basis \commentGP{or just tensor product B-splines?} is adopted for $\bx$ and $\by$, the semi-infinite constraints in (\ref{eq:semi-inf_primal_bis}) and (\ref{eq:semi-inf_dual_bis}) can also be decomposed in terms of tensor product B-splines. All terms in the constraints are of the form $\ppar^\beta b_\alpha$, i.e., a tensor product spline multiplied with a monomial. All these terms can be expressed in terms of a tensor product B-spline basis \commentGP{few more details on this basis}. Let $\bPi$ be the basis in which all terms in the constraint of (\ref{eq:semi-inf_primal_bis}), including the restriction of $g$ to $\Ppar$ \commentGP{or how do you say this?}, can be expressed. Let $\cg\in\Y^\nPi$ denote the coefficients of $g$ in this basis, and let $\calMF:\X^\nx \rightarrow \Y^\nPi$ denote the linear mapping that returns the coefficients of $\calF(\ppar)\hat{x}(\cx,\ppar)$ in the basis $\bPi$. Hence,
+Let us substitute a tensor product B-spline basis for $\bx$ in $\hat{\Pi}$. Then every term $\ppar^\beta b_\alpha$ in the semi-infinite constraint (???) is a tensor product spline multiplied with a monomial. Hence, each term is a tensor product spline itself, with the same break points and continuity conditions as $\bx$, but with a higher degree. Let $\bPi$ be the tensor product B-spline basis that can represent/encompass all terms $\ppar^\beta b_\alpha$ as well as the restriction of $g$ to $\Ppar$. Let $\cg\in\Y^\nPi$ denote the coefficients of $g$ in this basis, and let $\calMF:\X^\nx \rightarrow \Y^\nPi$ denote the linear mapping that returns the coefficients of $\calF(\ppar)\hat{x}(\cx,\ppar)$ in the basis $\bPi$. Hence,
 \[ \calF(\ppar)\hat{x}(\cx,\ppar) + g(\ppar) = \sum_{\alpha\in\Alpha_\Pi} \big( (\calMF \, \cx)_\alpha + \cga \big) \bPia \,. %
 \]
 Relying on the positivity of the basis functions, the semi-infinite program (\ref{eq:semi-inf_primal_bis}) is relaxed to
