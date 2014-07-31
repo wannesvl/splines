@@ -24,6 +24,8 @@
 *.pyc
 *.asv
 *.synctex
+*.bak
+*.sav
 tradeoff_klamroth2008.mat
 pars_ellipsoid_Np100.mat
 pars_ellipsoid_Np1000.mat
