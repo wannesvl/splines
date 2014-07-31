@@ -18,19 +18,41 @@ K = K.to_bspline({[-1.1, 1.1], [-1.1, 1.1]});
 % Solve phase-1 problem
 % =====================
 options = sdpsettings('verbose', 1, 'solver', 'sdpt3', 'savesolverinput', 1);
-sol = solvesdp([K + t * eye(2) >= 0], t.integral, options);
+con = [K + t * eye(2) >= 0];
+sol = solvesdp(con, t.integral, options);
 t1 = double(t);
+
+% Construct dual solution from lagrange multipliers
+b_ = Bth.integral' * Bth.integral;
+Y = {};
+for i=1:length(Bth)^2
+    Y{i} = dual(con(i)) / b_(i);
+end
+Y = reshape(Y, length(Bth), length(Bth));
+Y = BSpline({Bth, Bth}, Y);
+t1_ = trace(Y * K);
 
 % Solve phase-1 problem with convexity constraint
 % ===============================================
-sol = solvesdp([K + t * eye(2) >= 0, t.hessian >= 0], t.integral, options);
+con = [K + t * eye(2) >= 0, t.hessian >= 0];
+sol = solvesdp(con, t.integral, options);
 t2 = double(t);
+
+% Construct dual solution from lagrange multipliers
+Y = {};
+for i=1:length(Bth)^2
+    Y{i} = dual(con(i)) / b_(i);
+end
+Y = reshape(Y, length(Bth), length(Bth));
+Y = BSpline({Bth, Bth}, Y);
+t2_ = trace(Y * K);
 
 % Solve phase-1 dual
 % ==================
 Z = BSpline.sdpvar({Bth, Bth}, [2, 2], 'symmetric');
 obj = trace(Z * K);
-sol = solvesdp([Z >= 0, trace(Z) == 1], obj.integral, options);
+con = [Z >= 0, trace(Z) == 1];
+sol = solvesdp(con, obj.integral, options);
 t3 = -double(obj);
 
 % Solve phase-1 dual convex
@@ -45,34 +67,23 @@ th2 = linspace(-1.1, 1.1, 501);
 [T1, T2] = meshgrid(th1, th2);
 F = 1 - 2*T1.^2 - T2.^2 - 16 * (T1 .* T2 - T1.^3 .* T2 - T1 .* T2 .^3);
 F(F > 0 & 1 - T1.^2 - T2.^2 < 0) = -20;
-figure
-surf(T1, T2, t1.f({th1, th2})')
-camlight left; light; lighting phong; shading interp; alpha(0.5);
-hold on
-contour(T1, T2, t1.f({th1, th2})', [0, 0], 'r')
-surf(T1, T2, t2.f({th1, th2})')
-camlight left; light; lighting phong; shading interp; alpha(0.5);
-hold on
-contour(T1, T2, t2.f({th1, th2})', [0, 0], 'r')
-surf(T1, T2, t3.f({th1, th2})')
-camlight left; light; lighting phong; shading interp; alpha(0.5);
-hold on
-contour(T1, T2, t3.f({th1, th2})', [0, 0], 'r')
 
 figure
 subplot(121)
 contour(T1, T2, t1.f({th1, th2})', [0, 0])
 hold all
 contour(T1, T2, t3.f({th1, th2})', [0, 0])
+contour(T1, T2, t1_.f({th1, th2})', [0, 0], 'k')
 contour(T1, T2, F, [0, 0], 'r')
 axis equal
 subplot(122)
 hold all
 contour(T1, T2, t2.f({th1, th2})', [0, 0])
 contour(T1, T2, t4.f({th1, th2})', [0, 0])
+contour(T1, T2, t2_.f({th1, th2})', [0, 0], 'k')
 contour(T1, T2, F, [0, 0], 'r')
 axis equal
-
+bla
 % ===========================================================================
 % Example 2
 % ===========================================================================
