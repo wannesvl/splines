@@ -1,10 +1,10 @@
 close all; clear all; clc;
-% options = sdpsettings('verbose', 1, 'solver', 'sdpt3');
+options = sdpsettings('verbose', 1, 'solver', 'gurobi');
 % Polynomial optimization Example Lasserre2001
 
 % bases
-degree = 8;
-n = 2;
+degree = 2;
+n = 10;
 B1 = BSplineBasis([0 * ones(1, degree), linspace(0, 3, n), 3 * ones(1, degree)], degree);
 B2 = BSplineBasis([0 * ones(1, degree), linspace(0, 4, n), 4 * ones(1, degree)], degree);
 
@@ -20,7 +20,7 @@ th = parameter(2, 1);
 p = -th(1) - th(2);
 h1 = 2 * th(1) * th(1) * th(1) * th(1) - 8 * th(1) * th(1) * th(1) + 8 * th(1) * th(1) + 2 - th(2);
 h2 = 4 * th(1) * th(1) * th(1) * th(1) - 32 * th(1) * th(1) * th(1) + 88 * th(1) * th(1) - 96 * th(1) + 36 - th(2);
-sol = solvesdp([p - t - q - h1 * r(1) - h2 * r(2) == 0, q >= 0, r >= 0], -t);
+sol = solvesdp([p - t - h1 * r(1) - h2 * r(2) >= 0, r >= 0], -t);
 
 
 x = fsolve(@(x) 2 * x.^4 - 8 * x.^3 + 8 * x.^2 + 2 -(4 * x.^4 - 32 * x.^3 + 88 * x.^2 - 96 * x + 36), 2.3, optimoptions('fsolve', 'TolX', 1e-10, 'TolFun', 1e-10));
@@ -47,3 +47,4 @@ hold on
 contourf(T1, T2, Z);
 xlabel('x_1')
 ylabel('x_2')
+axis([0 3 0 4])
