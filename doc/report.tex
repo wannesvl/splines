@@ -357,7 +357,7 @@ Then for every feasible point $\cx_\feas$ of $\hat{\Pi}$ and every feasible poin
 %and the gap between primal and dual objective equals the complementary slackness violation:
 %\[ \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) = \left\langle \calF(\ppar) \hat{x}(\cx_\feas,\ppar) + g(\ppar) \,,\, \hat{y}(\cy_\feas,\ppar) \right\rangle \,.%
 %\]
-%\commentGP{Readily follows from the optimality conditions of $\Pi(\ppar)$ and $\Delta(\ppar)$.} 
+%\commentGP{Readily follows from the optimality conditions of $\Pi(\ppar)$ and $\Delta(\ppar)$.}
 and by solving $\hat{\Pi}$ and $\hat{\Delta}$ the coefficients $\cx_\feas$ and $\cy_\feas$ are computed that minimize the average gap over $\Ppar$:
 \[ \inf_{\cx_\feas,\cy_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) d\ppar = %
    \inf_{\cx_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) d\ppar - \sup_{\cy_\feas} \int_{\Ppar} \hat{d}(\cy_\feas,\ppar) d\ppar\,.%
@@ -443,9 +443,9 @@ A similar procedure is adopted for the dual problem $\hat{\Delta}$. Substituting
 and $\calMFadj:\Y^\ny \rightarrow \X^\nDelta$ denotes the linear mapping that returns the coefficients of $\calF^\adj\hat{y}(\cy)$ in the basis $\bDelta$: for every $\cy\in\Y^\ny$
 \[ \calF^\adj \hat{y}(\cy) = \sum_{\alpha\in\Alpha_\Delta} (\calMFadj \, \cy)_\alpha \, \bDeltaa\,. %
 \]
-This way, equality constraint (\ref{eq:semi-inf_dual_bis_b}) is equivalent to 
+This way, equality constraint (\ref{eq:semi-inf_dual_bis_b}) is equivalent to
 \[ \calMFadj\,\cy + \ch = 0 \,.
-\] 
+\]
 Relaxing the semi-infinite cone constraint (\ref{eq:semi-inf_dual_bis_c}) using the positivity of the tensor product B-splines, we obtain
 \[\begin{aligned}
 \hat{\Delta}_{\text{B-spline}}: && \maximize_{\cy\in\Y^\ny} &&& \langle \meang, \cy \rangle \\%
@@ -476,8 +476,8 @@ Let us now consider an approximate primal optimizer function of the form (\ref{e
 \calF \hat{x}(\cx) = \bx_1 \, \calF_0\cx_1 + \bx_2 \, \calF_0\cx_2 + \bx_3 \, \calF_0\cx_3 + \ppar\bx_1 \, \calF_1\cx_1 + \ppar\bx_2 \, \calF_1\cx_2 + \ppar\bx_3 \, \calF_1\cx_3 \,,%
 \end{equation}
 As clarified in Section~\ref{subsec:parametric_program}, the coefficients $\calF_\beta \cxa \in \Y$, with $\beta\in\{0,1\}$ and $\alpha\in\{1,2,3\}$, are given by
-\[ \calF_\beta \cxa = \cxa^1 F_\beta^1 + \cdots + \cxa^n F_\beta^n \,. 
-\] 
+\[ \calF_\beta \cxa = \cxa^1 F_\beta^1 + \cdots + \cxa^n F_\beta^n \,.
+\]
 Both the basis functions $\bx$ multiplied by $\ppar$ as well as the basis functions themselves are polynomial splines of order 3, with knots $\xi = (0, 0.5, 1)$ and continuity condition $\nu = 1$. The corresponding B-spline basis $\bPi$ is shown in Figure~\ref{fig:exSDP}(b). To write $\calF \hat{x}(\cx)$ in terms of $\bPi$ we use the following relations
 \[ \begin{bmatrix} \bx_1 \\ \bx_2 \\ \bx_3 \\ \ppar\bx_1 \\ \ppar\bx_2 \\ \ppar\bx_3 \end{bmatrix} = %
    \begin{bmatrix} 1 & 0.5  & 0   & 0    & 0 \\
@@ -489,7 +489,7 @@ Both the basis functions $\bx$ multiplied by $\ppar$ as well as the basis functi
    \begin{bmatrix} \bPi_1 \\ \bPi_2 \\ \bPi_3 \\  \bPi_4 \\ \bPi_5 \end{bmatrix} \,,%
 \]
 to rewrite (\ref{eq:exSDP1}) as
-\[\begin{aligned} 
+\[\begin{aligned}
     \calF \hat{x}(\cx) &= (\calF_0\cx_1)\,\bPi_1 + (0.5\calF_0\cx_1 + 0.5\calF_0\cx_2 + 0.25 \calF_1\cx_1)\, \bPi_2 %
                        + (\calF_0\cx_2+0.5\calF_1\cx_2)\,\bPi_3 + \\%
                        &\qquad + (0.5\calF_0\cx_2+\calF_0\cx_3+\calF_1\cx_2+0.25\calF_1\cx_3)\,\bPi_4 %
@@ -497,21 +497,21 @@ to rewrite (\ref{eq:exSDP1}) as
 \end{aligned}\]
 The function $\calMF$ maps every $\cx$ into the five coefficients above. We use the fact that
 \[ 1 = \sum_{\alpha=1}^5 \bPia
-\] 
+\]
 to get the coefficients of $G|_\Ppar$ in $\bPi$:
 \[ \cG = (G \,,\, G \,,\, G \,,\, G \,,\, G) \,.%
 \]
-Finally we use 
+Finally we use
 \[ \int_\Ppar \bx_1(\ppar)d\ppar = 0.25\,,\quad \int_\Ppar \bx_2(\ppar)d\ppar = 0.5 \,,\quad \int_\Ppar \bx_3(\ppar)d\ppar = 0.25 \,,%
 \]
 such that we obtain
 \[\begin{aligned}
-\hat{\Pi}_{\text{B-spline}}: && \minimize_{\cx_1,\cx_2,\cx_3\in\R^n} &&&  0.25\,h^\t\cx_1 + 0.5\,h^\t\cx_2 + 0.25\,h^\t\cx_3  \\%  
+\hat{\Pi}_{\text{B-spline}}: && \minimize_{\cx_1,\cx_2,\cx_3\in\R^n} &&&  0.25\,h^\t\cx_1 + 0.5\,h^\t\cx_2 + 0.25\,h^\t\cx_3  \\%
                              && \subj                               &&& \calF_0\cx_1 + G \preceq 0 \\%
                              &&                                     &&& 0.5\calF_0\cx_1 + 0.5\calF_0\cx_2 + 0.25 \calF_1\cx_1 + G \preceq 0 \\%
                              &&                                     &&& \calF_0\cx_2+0.5\calF_1\cx_2 + G \preceq 0 \\%
-                             &&                                     &&& 0.5\calF_0\cx_2+\calF_0\cx_3+\calF_1\cx_2+0.25\calF_1\cx_3 + G \preceq 0 \\%                             
-                             &&                                     &&& \calF_0\cx_3 +\calF_1\cx_3 + G \preceq 0 %                                                                        
+                             &&                                     &&& 0.5\calF_0\cx_2+\calF_0\cx_3+\calF_1\cx_2+0.25\calF_1\cx_3 + G \preceq 0 \\%
+                             &&                                     &&& \calF_0\cx_3 +\calF_1\cx_3 + G \preceq 0 %
 \end{aligned}\]
 Similar manipulations for the dual yield
 \[\begin{aligned}
@@ -525,7 +525,7 @@ Similar manipulations for the dual yield
 \end{aligned}\]
 where we recall from Section~\ref{subsec:parametric_program}
 \[ \calF^\adj_\beta \cYa = \big(\Tr(F_\beta^1\cYa) \,,\, \ldots \,,\, \Tr(F_\beta^1\cYa) \big)\,.%
-\] 
+\]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -558,12 +558,12 @@ Note that $\Ppar\subseteq\Ppar^\Phi_\feas$ and $\Ppar\subseteq\Ppar^\Psi_\feas$ 
 \langle g(\ppar), \hat{y}(\ppar) \rangle > 0 &~~\Rightarrow~~ \ppar\notin\Pfeas\,.%
 \end{aligned}\]
 
-In the second step, we solve the relaxed problem 
+In the second step, we solve the relaxed problem
 \[ \begin{aligned}
 \Pi_{\hat{t}_+}(\ppar): && \minimize_{x\in\X} &&& \langle h(\ppar), x \rangle\\%
                         && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_\K \hat{t}_+(\ppar) \mathbf{1} \;,%
 \end{aligned} \]
-where $\hat{t}_+$ is constructed from $\hat{t}$ by replacing its negative coefficients by zero such that 
+where $\hat{t}_+$ is constructed from $\hat{t}$ by replacing its negative coefficients by zero such that
 \[ \hat{t}_+(\ppar) \gtrapprox \max\{0, \hat{t}(\ppar)\}\,,\quad\forall\ppar\in\Ppar\,.%
 \]
 Note that $\hat{t}_+(\ppar)$ would be the result of our approach applied to $\Phi(\ppar)$ supplemented with the constraint $t\geq0$. The dual problem of $\Pi_{\hat{t}_+}(\ppar)$ is given by
@@ -935,7 +935,7 @@ is the controller.
 Assuming the parametric problem is feasible for all $\pPar \in \PPar \subset
 \R ^{n_u \times n_y}$,\footnote {In case of infeasible parameter values, one
 has to resort to finding the phase I problem for the constraint $A_\pPar^\t X
-+ X A_\pPar \preceq I, X \succeq I$ as described in
++ X A_\pPar \preceq -I, X \succeq I$ as described in
 Section~\ref{subsec:extensions}} the solution of the approximate parametric
 optimization problem yields $\gamma (\pPar)$. Then, a simple box constrained
 minimization of $\gamma(\theta)$ over $\PPar$ yields the optimal controller.
