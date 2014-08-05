@@ -598,7 +598,7 @@ Below, we elaborate the construction of a feasible point for $\hat{\Delta}_{\tex
 Let us start with the following assumptions, of which the the last two will be refined later on
 \begin{enumerate}[(i)]
 \item the mapping $\calF(\ppar)$ is parameter-independent: $\calF(\ppar)=\calF$; \commentGP{notation $\calF$ is also used for the function mapping!?!}
-\item the vector $h(\ppar)$ is parameter independent: $h(\ppar)=h$; 
+\item the vector $h(\ppar)$ is parameter independent: $h(\ppar)=h$;
 \item $g(\ppar)$ is included in $\text{span}\{\bxa\}_{\alpha\in\Alpha_x}$.
 \end{enumerate}
 By the combination of (i) and (iii), we can set $\bPi=\bx$ and the problem $\hat{\Pi}_\text{B-spline}$ can be formulated as
@@ -633,12 +633,12 @@ transforms (\ref{eq:Bprog_primal_dualized}) into the following equivalent progra
 \end{gather*}
 While this problem has the same constraints as $\hat{\Delta}_{\text{B-spline}}$, it differs in objective functions since in general $\meang\neq\cg$.
 
-From the elaboration above we note that assumption (ii) can be relaxed to the requirement that there exist scalars $\rho_\alpha>0$ for which (\ref{eq:ass_h}) holds. Except for constant $h$, this for instance allows for $h(\ppar)$ of the form $h(\ppar)=h s(\ppar)$, with $s$ a scalar tensor product spline with positive B-spline coefficients. 
+From the elaboration above we note that assumption (ii) can be relaxed to the requirement that there exist scalars $\rho_\alpha>0$ for which (\ref{eq:ass_h}) holds. Except for constant $h$, this for instance allows for $h(\ppar)$ of the form $h(\ppar)=h s(\ppar)$, with $s$ a scalar tensor product spline with positive B-spline coefficients.
 
 Let us now remove assumption (iii). To represent $\hat{x}(\cx)$ in the basis $\bPi$, we introduce the transformation matrix $T\in\R^{\nx\times\nPi}$ that captures the coefficients in $\bPi$ of every basis $\bxa$:
 \[ \bx = T \bPi\,.
 \]
-This way, we can formulate 
+This way, we can formulate
 $\hat{\Pi}_\text{B-spline}$ can be formulated as
 \begin{gather*}
 \begin{aligned}
@@ -670,7 +670,7 @@ for B-spline approximation}
 %-----------------------------------------------------------------------------
 \subsubsection{Minimizing the approximations' duality gap}
 
-As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$ (\ref{eq:semi-inf_primal}) and $\hat{\Delta}$ (\ref{eq:semi-inf_dual}) is equivalent to minimizing the average of the duality gap $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$. As an alternative, the root mean square value of the gap can be minimized, or its peak value. In contrast to the former, the latter two couple the computations of $\cx$ and $\cy$. For instance, minimizing the peak value of $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$ amounts to 
+As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$ (\ref{eq:semi-inf_primal}) and $\hat{\Delta}$ (\ref{eq:semi-inf_dual}) is equivalent to minimizing the average of the duality gap $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$. As an alternative, the root mean square value of the gap can be minimized, or its peak value. In contrast to the former, the latter two couple the computations of $\cx$ and $\cy$. For instance, minimizing the peak value of $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$ amounts to
 \[ \begin{aligned}
 \minimize &&& t \\%
 \subj     &&& \langle h(\ppar) , \hat{x}(\cx,\ppar) \rangle - \langle g(\ppar) , \hat{y}(\cy,\ppar) \rangle \leq t\,,\quad\forall\ppar\in\Ppar\\ %
@@ -692,11 +692,11 @@ which is convex in the coefficients $\cx$. \commentGP{How about the dual?}
 In addition, nonparametric convex constraints $g(x)\leq0$ with $g(x)$ a convex function are allowed in $\Pi(\ppar)$. In converting the semi-infinite program $\hat{\Pi}$ with tensor product B-spline basis $\bx$ to a tractable problem we rely on the nonnegativity and the partition of unity property of the B-splines. By these properties, the parametrization (\ref{eq:x_approx}) means that for every $\ppar\in\Ppar$, $\hat{x}(\cx,\ppar)$ is a convex combination of the coefficients $\cxa$, $\alpha\in\Alpha_x$. As a result:
 \[ g\left(\sum_{\alpha\in\Alpha_x} \cxa \bxa(\ppar)\right) ~\leq~ \sum{\alpha\in\Alpha_x} g(\cxa) \bxa(\ppar)\,, \quad \forall \ppar\in\Ppar\,. %
 \]
-Hence, 
+Hence,
 \[ g(\cxa)\leq 0\,,~\forall \alpha\in\Alpha_x \qquad \Rightarrow \qquad g(\hat{x}(\cx,\ppar))\leq0\,,\quad\forall \ppar\in\Ppar\,.%
 \]
 
-\commentGP{Which constraint functions $g(x,\ppar)$ are allowed?}
+\commentGP{Which constraint functions $g(x,\ppar)$ are allowed? E.g. polynomial in $x$ and $\ppar$, and convex in $x$? General jointly convex in $x$ and $\ppar$?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
