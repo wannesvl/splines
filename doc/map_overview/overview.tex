@@ -1,0 +1,259 @@
+
+\documentclass{standalone}
+
+\usepackage{tikz}
+\usepackage{verbatim, bm}
+\usepackage[active,tightpage]{preview}
+
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc,backgrounds}
+
+
+\begin{document}
+\begin{preview}
+\begin{tikzpicture}[>=latex]
+
+
+\tikzstyle{state} = [draw, very thick, fill=white, rectangle, minimum height=3em, minimum width=7em, node distance=8em]
+\tikzstyle{stateEdgePortion} = [black,very thick];
+\tikzstyle{stateEdge} = [stateEdgePortion,->];
+\tikzstyle{edgeLabel} = [pos=0.5, text centered, font={\sffamily\small}];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[state, anchor = south](Bprog){
+\begin{tabular}{c}
+\textsc{\Large B-spline programming}\\[12pt]
+\parbox{12cm}{
+
+\textbf{What?}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item optimization problems with tensor-product spline variables \\ ??? overall problem formulation
+\item semi-infinite constraints are relaxed to constraints on the B-spline coefficients
+\item[$\bm{\hookrightarrow}$] tractable \emph{convex} program (convex B-spline programs)
+    \begin{itemize}\vspace*{-6pt}
+    \item B-spline conic programs
+    \item ???
+    \end{itemize}
+\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} tractable \emph{non-convex} program (non-convex B-spline programs)
+    \begin{itemize}\vspace*{-6pt}
+    \item B-spline polynomial programs
+    \item ???
+    \end{itemize}
+\end{itemize}
+
+\textbf{Software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item Yalmip based Matlab toolbox
+\item Python
+\end{itemize}
+
+\textbf{Open issues: methodology}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item dual interpretation of the relaxation
+\item extension to simplicial splines 
+\end{itemize}
+
+\textbf{Open issues: software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item numerical stability and efficiency, particularly for multi-variate tensor product splines
+\item exploiting symmetry and structure
+\end{itemize}
+
+}\end{tabular}};
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[state, below of = Bprog, anchor = north, node distance = 8cm, xshift = -15cm] (Flat){%
+\begin{tabular}{c}
+\textsc{\Large Optimal control of flat systems}\\[12pt]
+\parbox{12cm}{
+\textbf{What?}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item linear and (polynomially ???) nonlinear differentially flat systems
+\item flat out parameterized as spline; state and input constraints amount to semi-infinite spline constraints
+\item ??? path following / path planning
+\item[$\bm{\hookrightarrow}$] \emph{convex} B-spline program
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{non-convex} B-spline program
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\end{itemize}
+
+\textbf{Software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item Python
+\end{itemize}
+
+\textbf{Open issues: methodology}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item ??? torque constraints for robots
+\item ??? constraining trajectories to spline-bounded set
+\end{itemize}
+
+\textbf{Open issues: software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item real-time implementation
+\end{itemize}
+
+} \end{tabular} };
+
+
+\draw ($(Bprog.south)$)
+      edge[stateEdge]
+      ($(Flat.north)$);
+   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[state, below of = Bprog, anchor = north, node distance = 8cm] (Par){%
+\begin{tabular}{c}
+\textsc{\Large Parametric programming}\\[12pt]
+\parbox{12cm}{
+\textbf{What?}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item polynomial spline parameterized approximate optimizer functions
+\item feasibility for all parameter values amount to semi-infinite spline constraints
+\item ??? 
+\item[$\bm{\hookrightarrow}$] \emph{convex} B-spline program
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{non-convex} B-spline program
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\end{itemize}
+
+\textbf{Software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item Matlab
+\end{itemize}
+
+\textbf{Open issues: methodology}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item non-hyperrectangular parameter domains
+\item ??? 
+\end{itemize}
+
+\textbf{Open issues: software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item ???
+\end{itemize}
+
+} \end{tabular} };
+
+
+\draw ($(Bprog.south)$)
+      edge[stateEdge]
+      ($(Par.north)$); 
+      
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = -7cm] (TOP2P){%
+\begin{tabular}{c}
+\textsc{Time-optimal}\\ \textsc{point-to-point motion}
+\end{tabular} };
+
+\draw ($(Par.south)$)
+      edge[stateEdge]
+      ($(TOP2P.north)$); 
+
+\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = -2cm] (EMPC){%
+\textsc{Explicit MPC}
+};
+
+\draw ($(Par.south)$)
+      edge[stateEdge]
+      ($(EMPC.north)$); 
+
+\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 2cm] (LPV){%
+\textsc{LPV control}
+};
+
+\draw ($(Par.south)$)
+      edge[stateEdge]
+      ($(LPV.north)$); 
+
+\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 7cm] (noncvx1){%
+\textsc{Nonconvex optimization}
+};
+
+\draw ($(Par.south)$)
+      edge[stateEdge]
+      ($(noncvx1.north)$); 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[state, below of = Bprog, anchor = north, node distance = 8cm, xshift = 15cm] (Pos){%
+\begin{tabular}{c}
+\textsc{\Large B-spline positivity on spline bounded set}\\[12pt]
+\parbox{12cm}{
+\textbf{What?}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item tractable certificates for the positivity of a spline a ??? set 
+\item[$\bm{\hookrightarrow}$] \emph{sum-of-square} type relaxations 
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{Polya} type relaxations
+    \begin{itemize}\vspace*{-6pt}
+    \item ???
+    \end{itemize}
+\end{itemize}
+
+\textbf{Software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item ???
+\end{itemize}
+
+\textbf{Open issues: methodology}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item Polya type relaxations
+\end{itemize}
+
+\textbf{Open issues: software}
+\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\item ???
+\end{itemize}
+} \end{tabular} };
+
+\draw ($(Bprog.south)$)
+      edge[stateEdge]
+      ($(Pos.north)$);  
+      
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+
+\node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = -2cm] (noncvx2){%
+\textsc{Nonconvex optimization}
+};
+
+\draw ($(Pos.south)$)
+      edge[stateEdge]
+      ($(noncvx2.north)$); 
+      
+\node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = 4cm] (rob){%
+\begin{tabular}{c}
+\textsc{Robust control / }\\ \textsc{robust optimization}
+\end{tabular} };
+
+\draw ($(Pos.south)$)
+      edge[stateEdge]
+      ($(rob.north)$); 
+         
+
+\end{tikzpicture}
+\end{preview}
+\end{document}
