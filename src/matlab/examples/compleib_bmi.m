@@ -24,23 +24,24 @@ gamma = BSpline.sdpvar(bases, [1, 1]);
 
 % Define controller coefficients as linear functions
 % Unfortunately this is not so straightforward... :-s
-if nu * ny > 1
-    K_coeffs = cell(2 * ones(1, nu * ny));
-    [K_coeffs{:}] = deal(zeros(nu, ny));
-    P = num2cell(eye(nu * ny) + 1);
-    count = 1;
-    for i=1:nu
-        for j=1:ny
-            temp = zeros(nu, ny);
-            temp(i, j) = 1;
-            K_coeffs{P{:, count}} = temp;
-            count = count + 1;
-        end
-    end
-else
-    K_coeffs = [0, 1];
-end
-K = Polynomial(K_coeffs);
+K = parameter(nu, ny);
+% if nu * ny > 1
+%     K_coeffs = cell(2 * ones(1, nu * ny));
+%     [K_coeffs{:}] = deal(zeros(nu, ny));
+%     P = num2cell(eye(nu * ny) + 1);
+%     count = 1;
+%     for i=1:nu
+%         for j=1:ny
+%             temp = zeros(nu, ny);
+%             temp(i, j) = 1;
+%             K_coeffs{P{:, count}} = temp;
+%             count = count + 1;
+%         end
+%     end
+% else
+%     K_coeffs = [0, 1];
+% end
+% K = Polynomial(K_coeffs);
 K = K.to_bspline(K_range);
 
 % Define parametric optimization problem

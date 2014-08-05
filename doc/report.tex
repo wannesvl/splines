@@ -459,6 +459,32 @@ Relaxing the semi-infinite cone constraint (\ref{eq:semi-inf_dual_bis_c}) using 
 \end{aligned}
 \end{gather}
 
+Due to the distance between the control polytope, formed by the mesh of
+Greville abscissae and the spline coefficients, and the spline, such a
+relaxation will inevitably introduce conservatism~\cite{deboor}. This distance
+is essentially determined by two factors, the knots and the degree, leading to
+two strategies reduce conservatism, knot insertion and degree elevation.
+
+Knot insertion adds new knots into the existing knot sequence without changing
+the shape of the spline. The more refined the knot sequence, the closer the
+control polytope lies to the spline, as illustrated in Figure... .
+\commentWVL{Introduce yet another linear mapping?} Knot insertion acts locally
+on the constraints and can target specific regions where the conservatism is
+high (see Section~\ref{}).
+
+Degree elevation on the other hand is a global approach. This strategy
+expresses the spline in a basis of higher degree, similar to P\'olya's
+relaxation for polynomials. Figure ... illustrates the control polytope  Whereas inserting a single
+knot increases the dimension of the basis by one, degree elevation requires the
+same continuity conditions and increases the dimension by $l+1$, which is
+equivalent to one midpoint refinement of the knot sequence.
+
+Generally, knot insertion performs better than degree elevation. It can be
+shown that the distance between the control polytope and the spline is
+proportional to~\cite{deBoor_2001} \commentWVL{Formula?}
+
+\noindent \textbf{To add:} 2 ways to reduce conservatism / refine the relaxation: knot insertion and degree augmentation.
+
 As positivity of the tensor product B-spline coefficients is only a sufficient condition for the conic inequality constraints in $\hat{\Pi}$ and $\hat{\Delta}$ to hold for all $\ppar\in\Ppar$, the feasible sets of $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ are inner approximations of the feasible sets of $\hat{\Pi}$ and $\hat{\Delta}$, respectively. The conservatism reduces if the tensor product splines involved are represented in a B-spline basis of higher dimension, and the coefficients in the higher dimensional basis are constrained to be positive. There are two ways to increase the dimension of a tensor product B-spline basis: by increasing the order or by inserting additional knots. With both mechanisms the conservatism asymptotically vanishes as the difference between the spline and its control polygon disappears. \commentGP{More explanation needed? Or add a discussion on the rate at which the conservatism decreases?}\\
 
 \commentGP{As a general note: The way in which the methodology is explained and the optimization problems are formulated in this report shouldn't match the corresponding numerical implementations. For instance, to enforce a spline to equal zero, numerically it may not be the best idea to compute the spline's coefficients in a B-spline basis and then enforce the coefficients to equal zero. One can also enforce the spline evaluations for various points to equal zero. In addition, it is generally a good attitude to eliminate equality constraints in the parametric programs.}
@@ -680,6 +706,7 @@ As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$
 \end{aligned}\]
 with optimization variables $\cx\in\X^\nx$, $\cy\in\Y^\ny$ and $t\in\R$.
 
+\subsubsection{General parametric convex programming}
 
 %-----------------------------------------------------------------------------
 \subsubsection{Allowing general parametric convex functions}
