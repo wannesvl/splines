@@ -4,7 +4,7 @@ options = sdpsettings('verbose', 1, 'solver', 'gurobi');
 
 % bases
 degree = 2;
-n = 10;
+n = 5;
 B1 = BSplineBasis([0 * ones(1, degree), linspace(0, 3, n), 3 * ones(1, degree)], degree);
 B2 = BSplineBasis([0 * ones(1, degree), linspace(0, 4, n), 4 * ones(1, degree)], degree);
 
