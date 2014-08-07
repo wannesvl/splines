@@ -579,14 +579,14 @@ Recall from Section~\ref{subsec:parametric_program} that the vectors $\calF^\adj
 \subsection{Extensions}\label{subsec:extensions}
 
 %-----------------------------------------------------------------------------
-\subsubsection{Allowing tensor product spline parameter dependencies}
+\subsubsection{Allowing data with spline parameter dependencies}
 
-The polynomial parameter dependencies required in  Assumption~{\it\text{A}\ref{ass:pdep}.} can readily be extended to tensor product polynomial spline dependencies for $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$. The relaxation of the semi-infinite programs $\hat{\Pi}$ and $\hat{\Delta}$ to tractable cone programs $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ using the positivity of B-splines remains valid, only the dimension of the bases $\bPi$ and $\bDelta$ increases.
+The polynomial parameter dependencies required in  Assumption~{\it\text{A}\ref{ass:pdep}.} can readily be extended to tensor product polynomial spline dependencies for $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$. The relaxation of the semi-infinite programs $\hat{\Pi}$ and $\hat{\Delta}$ to tractable cone programs $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ using the positivity of B-splines remains valid, only the dimensions of the bases $\bPi$ and $\bDelta$ increase.
 
 %-----------------------------------------------------------------------------
 \subsubsection{Allowing infeasible parameter values}%
 
-To relax Assumption~{\it\text{A}\ref{ass:feas}.} we propose a two-step procedure. Let us consider the case where $\Ppar\nsubseteq\Pfeas$ but $\Ppar\subseteq\Dfeas$ still holds. In the first step, we solve the following parametric phase I problem for $\Pi(\ppar)$:
+To relax Assumption~{\it\text{A}\ref{ass:feas}.} a two step procedure is proposed. Let us consider the case where $\Ppar\subseteq\Dfeas$ but $\Ppar\nsubseteq\Pfeas$. In the first step, we solve the following parametric phase I problem for $\Pi(\ppar)$:
 \[ \begin{aligned}
 \Phi(\ppar): && \minimize_{x\in\X, t\in\R} &&& t \\%
              && \subj                      &&& \calF(\ppar)x + g(\ppar)\preceq_\K  \mathbf{1} t \;,%
@@ -629,74 +629,58 @@ A similar two-step procedure is adopted in case $\Ppar\subseteq\Pfeas$ but $\Ppa
 %-----------------------------------------------------------------------------
 \subsubsection{Computing a feasible point for $\hat{\Delta}_{\text{B-spline}}$ from $\hat{\Pi}_{\text{B-spline}}$ or vice versa}%
 
-In general, both $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ need to be solved in order to assess the quality of the resulting approximate optimizer functions by means of the inequalities in (\ref{eq:gap_approx}). However, in particular cases a feasible point for $\hat{\Delta}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$. This feasible point may not be optimal for $\hat{\Delta}_{\text{B-spline}}$, but it can still be used to assess the quality of the approximate primal optimizer function $\hat{x}(\cx)$. In other cases, a feasible point for $\hat{\Pi}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ that can be used to assess the quality of the approximate dual optimizer function $\hat{y}(\cy)$.
+In general, both $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ need to be solved in order to assess the quality of the resulting approximate optimizer functions by means of the inequalities in (\ref{eq:gap_approx}). However, in particular cases a feasible point for $\hat{\Delta}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$ that can be used to assess the quality of the approximate primal optimizer function $\hat{x}(\cx)$. In other cases, a feasible point for $\hat{\Pi}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ to assess the quality of the approximate dual optimizer function $\hat{y}(\cy)$.
 
-Below, we elaborate the construction of a feasible point for $\hat{\Delta}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$. This construction requires the mapping $\calF(\ppar)$ to be parameter-independent, and a particular parameter dependency for $h(\ppar)$. The construction of a feasible point for $\hat{\Pi}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ proceeds along the same lines. The mapping $\calF(\ppar)$ must still be parameter-independent, but the conditions on $h(\ppar)$ should then be enforced on $g(\ppar)$.
-
-
-Let us start with the following assumptions, of which the the last two will be refined later on
-\begin{enumerate}[(i)]
-\item the mapping $\calF(\ppar)$ is parameter-independent: $\calF(\ppar)=\calF$; \commentGP{notation $\calF$ is also used for the function mapping!?!}
-\item the vector $h(\ppar)$ is parameter independent: $h(\ppar)=h$; 
-\item $g(\ppar)$ is included in $\text{span}\{\bxa\}_{\alpha\in\Alpha_x}$.
-\end{enumerate}
-By the combination of (i) and (iii), we can set $\bPi=\bx$ and the problem $\hat{\Pi}_\text{B-spline}$ can be formulated as
-\begin{gather*}
-\begin{aligned}
-\hat{\Pi}_\text{B-spline}: && \minimize_{\cx\in\X^\nx} &&& \langle \meanh, \cx \rangle    \\%
-                           && \subj                      &&& \calF \cx_\alpha + \cg_\alpha \preceq_\K 0 \;, \quad \forall \alpha\in \Alpha_x\;.%
-\end{aligned}
-\end{gather*}
-The Lagrange dual of this conic program is given by
-\begin{gather}\label{eq:Bprog_primal_dualized}
-\begin{aligned}
- && \maximize_{z\in\Y^\nx} &&& \angle \cg, z \rangle    \\%
- && \subj                    &&& \calF^* z_\alpha +  \meanha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
- &&                          &&& z \succeq_{\K^\nx} 0 \;.%
-\end{aligned}
-\end{gather}
-Now we call upon assumption (ii), which implies that for all $\alpha\in\Alpha_x$
-\begin{equation}\label{eq:ass_h}
-\meanha = h \, \underbrace{\int_\Ppar \bxa(\ppar)d\ppar}_{\rho_\alpha} = \cha \rho_\alpha \,.%
-\end{equation}
-In the last equality, we used the partition of unity property of B-splines to get the coefficients $\cha=h$ of $h$ in the basis $\bDelta=\by=\bx$. By the positivity of the B-splines, the constants $\rho_\alpha$ are all positive, such that changing the dual optimization variables $z$ to $\cy$:
-\[ \cya = z_\alpha / \rho_\alpha \,,
+Below, we elaborate the construction of a feasible point for $\hat{\Delta}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$. This construction requires $\calF(\ppar)$ and $h(\ppar)$ to be parameter-independent:
+\[  \calF(\ppar) = \calF\,,\qquad h(\ppar) = h\,.
 \]
-transforms (\ref{eq:Bprog_primal_dualized}) into the following equivalent program:
-\begin{gather*}
-\begin{aligned}
- && \maximize_{\cy\in\Y^\nx} &&& \langle \cg , \cy \rangle    \\%
- && \subj                    &&& \calF^* \cy_\alpha + \ch = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
- &&                          &&& \cy \succeq_{\K^\nx} 0 \;.
-\end{aligned}
-\end{gather*}
-While this problem has the same constraints as $\hat{\Delta}_{\text{B-spline}}$, it differs in objective functions since in general $\meang\neq\cg$.
+\commentGP{notation conflict: $\calF$ is also used for the function mapping!?!} The construction of a feasible point for $\hat{\Pi}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ proceeds along the same lines, but then $g(\ppar)$ is required to be parameter independent instead of $h(\ppar)$.
 
-From the elaboration above we note that assumption (ii) can be relaxed to the requirement that there exist scalars $\rho_\alpha>0$ for which (\ref{eq:ass_h}) holds. Except for constant $h$, this for instance allows for $h(\ppar)$ of the form $h(\ppar)=h s(\ppar)$, with $s$ a scalar tensor product spline with positive B-spline coefficients. 
-
-Let us now remove assumption (iii). To represent $\hat{x}(\cx)$ in the basis $\bPi$, we introduce the transformation matrix $T\in\R^{\nx\times\nPi}$ that captures the coefficients in $\bPi$ of every basis $\bxa$:
+Let $\bPi$ be a tensor product B-spline basis that encompasses both $\hat{x}(\cx)$ and $g$. To represent $\hat{x}(\cx)$ in the basis $\bPi$, we introduce the transformation matrix $T\in\R^{\nx\times\nPi}$ that captures the coefficients in $\bPi$ of every basis $\bxa$:
 \[ \bx = T \bPi\,.
 \]
-This way, we can formulate 
-$\hat{\Pi}_\text{B-spline}$ can be formulated as
+As elaborated in Section~???, all entries in $T$ are nonnegative. According to this basis transformation, the coefficients of $\hat{x}(\cx) = \sum_{\alpha\in\Alpha_x}\cxa\bxa$ in the basis $\bPi$ are given by
+\[  \sum_{\alpha\in\Alpha_x}\! T_{\alpha,\beta}\,\cx_\alpha\;, \quad \beta\in\Alpha_\Pi\,.%
+\]
+Combining this decomposition of $\hat{x}(\cx)$ with the parameter independency of $\calF$, the problem $\hat{\Pi}_\text{B-spline}$ can be formulated as
 \begin{gather*}
 \begin{aligned}
 \hat{\Pi}_\text{B-spline}: && \minimize_{\cx\in\X^\nx} &&& \langle \meanh, \cx \rangle    \\%
-                           && \subj                    &&& \calF \sum_{\alpha\in\Alpha_x} T_{\alpha,\beta}\cx_\alpha + \cg_\beta \preceq_\K 0 \;, \quad \forall \beta\in\Alpha_\Pi\;.%
+                           && \subj                    &&& \calF \sum_{\alpha\in\Alpha_x}\! T_{\alpha,\beta}\,\cx_\alpha + \cg_\beta \preceq_\K 0 \;, \quad \forall \beta\in\Alpha_\Pi\;.%
 \end{aligned}
 \end{gather*}
-The Lagrange dual of this conic program is given by
-\begin{gather}
+Because of our assumption of $h$ being parameter independent,
+\begin{equation}\label{eq:ass_h}
+\meanha = h \, \underbrace{\int_\Ppar \bxa(\ppar)d\ppar}_{\rho_\alpha} \,.%
+\end{equation}
+The Lagrange dual of $\hat{\Pi}_\text{B-spline}$ is given by
+\begin{gather}\label{eq:Bprog_primal2_dualized}
 \begin{aligned}
  && \maximize_{z\in\Y^\nPi} &&& \langle \cg, z \rangle    \\%
- && \subj                   &&& \calF^\adj \sum_{\beta\in\Alpha_\Pi} T_{\alpha,\beta}z_\beta +  \meanha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
- &&                         &&& z \succeq_{\K^\nPi} 0 \;.%
+ && \subj                   &&& \calF^\adj \sum_{\beta\in\Alpha_\Pi}\!T_{\alpha,\beta}\,z_\beta +  \meanha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
+ &&                         &&& z \succeq_{\K^\nPi} 0 \;,%
 \end{aligned}
 \end{gather}
-Note that $\cy$, constructed from $z$ as follows:
-\[ \cya = \sum_{\beta\in\Alpha_\Pi} T_{\alpha,\beta}z_\beta\,,\quad\alpha\in\Alpha_x\,,%
+while the program $\hat{\Delta}_\text{B-spline}$ with $\by=\bx$ equals
+\begin{gather}\label{eq:Bprog_dual2}
+\begin{aligned}
+\hat{\Delta}_\text{B-spline}: && \maximize_{\cy\in\Y^\nx} &&& \langle \meang, \cy \rangle    \\%
+                              && \subj                    &&& \calF^* \cya +  \cha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
+                              &&                          &&& \cy \succeq_{\K^\nx} 0 \;.%
+\end{aligned}
+\end{gather}
+Here $\cha$ denote the coefficients of $h$ in the basis $\bx$. Because of the partition of unity property of B-splines, we obtain for a parameter independent $h$
+\[ \cha = h\,,\quad\forall\alpha\in\Alpha_x\,.
 \]
-is feasible for $\hat{\Delta}_\text{B-spline}$ with $\by=\bx$. \commentGP{\bf provided that all entries in $T$ are nonnegative !!!}
+From a solution $z$ of (\ref{eq:Bprog_primal2_dualized}), i.e. from the Lagrange multipliers of $\hat{\Pi}_\text{B-spline}$, a feasible point $\cy$ of $\hat{\Delta}_\text{B-spline}$ (\ref{eq:Bprog_dual2}) is constructed as follows:
+\[ \cya = \frac{1}{\rho_\alpha} \, \sum_{\beta\in\Alpha_\Pi}\! T_{\alpha,\beta}\,z_\beta\,,\quad\alpha\in\Alpha_x\,.%
+\]
+This point $\cy$ clearly satisfies the equality constraint in (\ref{eq:Bprog_dual2}). In addition, $\cy \succeq_{\K^\nx} 0$ because $z \succeq_{\K^\nPi} 0$, all entries $T_{\alpha,\beta}$ are nonnegative, and the scalars $\rho_\alpha$, as defined in (\ref{eq:ass_h}) are positive. Although $\cy$ is generally not optimal for (\ref{eq:Bprog_dual2}), its suboptimality is often limited, particularly when $T=I$ (i.e. $\bPi=\bx$).
+
+As a final remark we note that the parameter independency assumption on $h$ can be relaxed to the requirements that $h$ is included in $\text{span}\{\bx\}$, and there exist positive scalars $\rho_\alpha$ such that
+\[ \meanha = \rho_\alpha \, \cha \,.
+\]
+This last requirement, for instance, allows for $h(\ppar)$ of the form $h(\ppar)=hs(\ppar)$, with $s$ a scalar spline with positive B-spline coefficients.
 
 
 %-----------------------------------------------------------------------------
@@ -709,7 +693,7 @@ for B-spline approximation}
 %-----------------------------------------------------------------------------
 \subsubsection{Minimizing the approximations' duality gap}
 
-As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$ (\ref{eq:semi-inf_primal}) and $\hat{\Delta}$ (\ref{eq:semi-inf_dual}) is equivalent to minimizing the average of the duality gap $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$. As an alternative, the root mean square value of the gap can be minimized, or its peak value. In contrast to the former, the latter two couple the computations of $\cx$ and $\cy$. For instance, minimizing the peak value of $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$ amounts to 
+As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$ (\ref{eq:semi-inf_primal}) and $\hat{\Delta}$ (\ref{eq:semi-inf_dual}) is equivalent to minimizing the average of the duality gap $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$. As an alternative, the root mean square value of the gap can be minimized, or its peak value. In contrast to the former, the latter two couple the computations of $\cx$ and $\cy$. For instance, minimizing the peak value of $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$ amounts to
 \[ \begin{aligned}
 \minimize &&& t \\%
 \subj     &&& \langle h(\ppar) , \hat{x}(\cx,\ppar) \rangle - \langle g(\ppar) , \hat{y}(\cy,\ppar) \rangle \leq t\,,\quad\forall\ppar\in\Ppar\\ %
@@ -732,11 +716,11 @@ which is convex in the coefficients $\cx$. \commentGP{How about the dual?}
 In addition, nonparametric convex constraints $g(x)\leq0$ with $g(x)$ a convex function are allowed in $\Pi(\ppar)$. In converting the semi-infinite program $\hat{\Pi}$ with tensor product B-spline basis $\bx$ to a tractable problem we rely on the nonnegativity and the partition of unity property of the B-splines. By these properties, the parametrization (\ref{eq:x_approx}) means that for every $\ppar\in\Ppar$, $\hat{x}(\cx,\ppar)$ is a convex combination of the coefficients $\cxa$, $\alpha\in\Alpha_x$. As a result:
 \[ g\left(\sum_{\alpha\in\Alpha_x} \cxa \bxa(\ppar)\right) ~\leq~ \sum{\alpha\in\Alpha_x} g(\cxa) \bxa(\ppar)\,, \quad \forall \ppar\in\Ppar\,. %
 \]
-Hence, 
+Hence,
 \[ g(\cxa)\leq 0\,,~\forall \alpha\in\Alpha_x \qquad \Rightarrow \qquad g(\hat{x}(\cx,\ppar))\leq0\,,\quad\forall \ppar\in\Ppar\,.%
 \]
 
-\commentGP{Which constraint functions $g(x,\ppar)$ are allowed?}
+\commentGP{Which constraint functions $g(x,\ppar)$ are allowed? E.g. polynomial in $x$ and $\ppar$, and convex in $x$? General jointly convex in $x$ and $\ppar$?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
