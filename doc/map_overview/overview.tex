@@ -26,40 +26,30 @@
 
 \node[state, anchor = south](Bprog){
 \begin{tabular}{c}
-\textsc{\Large B-spline programming}\\[12pt]
+\textsc{\Large Spline optimization}\\[12pt]
 \parbox{12cm}{
 
 \textbf{What?}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item optimization problems with tensor-product spline variables \\ ??? overall problem formulation
-\item semi-infinite constraints are relaxed to constraints on the B-spline coefficients
-\item[$\bm{\hookrightarrow}$] tractable \emph{convex} program (convex B-spline programs)
-    \begin{itemize}\vspace*{-6pt}
-    \item B-spline conic programs
-    \item ???
-    \end{itemize}
-\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} tractable \emph{non-convex} program (non-convex B-spline programs)
-    \begin{itemize}\vspace*{-6pt}
-    \item B-spline polynomial programs
-    \item ???
-    \end{itemize}
+\item optimization problems with tensor-product spline variables 
+\item semi-infinite constraints are relaxed to constraints on the spline coefficients
 \end{itemize}
 
 \textbf{Software}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
 \item Yalmip based Matlab toolbox
-\item Python
+\item Python toolbox
 \end{itemize}
 
 \textbf{Open issues: methodology}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
 \item dual interpretation of the relaxation
-\item extension to simplicial splines 
+\item extension to simplicial splines and non-hyperrectangular domains
 \end{itemize}
 
 \textbf{Open issues: software}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item numerical stability and efficiency, particularly for multi-variate tensor product splines
+\item numerical stability and efficiency, particularly for multi-variate splines
 \item exploiting symmetry and structure
 \end{itemize}
 
@@ -110,7 +100,7 @@
 \draw ($(Bprog.south)$)
       edge[stateEdge]
       ($(Flat.north)$);
-   
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,7 +113,7 @@
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
 \item polynomial spline parameterized approximate optimizer functions
 \item feasibility for all parameter values amount to semi-infinite spline constraints
-\item ??? 
+\item ???
 \item[$\bm{\hookrightarrow}$] \emph{convex} B-spline program
     \begin{itemize}\vspace*{-6pt}
     \item ???
@@ -142,7 +132,7 @@
 \textbf{Open issues: methodology}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
 \item non-hyperrectangular parameter domains
-\item ??? 
+\item ???
 \end{itemize}
 
 \textbf{Open issues: software}
@@ -155,8 +145,8 @@
 
 \draw ($(Bprog.south)$)
       edge[stateEdge]
-      ($(Par.north)$); 
-      
+      ($(Par.north)$);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -167,7 +157,7 @@
 
 \draw ($(Par.south)$)
       edge[stateEdge]
-      ($(TOP2P.north)$); 
+      ($(TOP2P.north)$);
 
 \node[state, below of = Par, anchor = north, node distance = 8cm, xshift = -2cm] (EMPC){%
 \textsc{Explicit MPC}
@@ -175,7 +165,7 @@
 
 \draw ($(Par.south)$)
       edge[stateEdge]
-      ($(EMPC.north)$); 
+      ($(EMPC.north)$);
 
 \node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 2cm] (LPV){%
 \textsc{LPV control}
@@ -183,7 +173,7 @@
 
 \draw ($(Par.south)$)
       edge[stateEdge]
-      ($(LPV.north)$); 
+      ($(LPV.north)$);
 
 \node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 7cm] (noncvx1){%
 \textsc{Nonconvex optimization}
@@ -191,7 +181,7 @@
 
 \draw ($(Par.south)$)
       edge[stateEdge]
-      ($(noncvx1.north)$); 
+      ($(noncvx1.north)$);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,8 +192,8 @@
 \parbox{12cm}{
 \textbf{What?}
 \begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item tractable certificates for the positivity of a spline a ??? set 
-\item[$\bm{\hookrightarrow}$] \emph{sum-of-square} type relaxations 
+\item tractable certificates for the positivity of a spline a ??? set
+\item[$\bm{\hookrightarrow}$] \emph{sum-of-square} type relaxations
     \begin{itemize}\vspace*{-6pt}
     \item ???
     \end{itemize}
@@ -231,10 +221,10 @@
 
 \draw ($(Bprog.south)$)
       edge[stateEdge]
-      ($(Pos.north)$);  
-      
+      ($(Pos.north)$);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = -2cm] (noncvx2){%
 \textsc{Nonconvex optimization}
@@ -242,8 +232,8 @@
 
 \draw ($(Pos.south)$)
       edge[stateEdge]
-      ($(noncvx2.north)$); 
-      
+      ($(noncvx2.north)$);
+
 \node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = 4cm] (rob){%
 \begin{tabular}{c}
 \textsc{Robust control / }\\ \textsc{robust optimization}
@@ -251,8 +241,8 @@
 
 \draw ($(Pos.south)$)
       edge[stateEdge]
-      ($(rob.north)$); 
-         
+      ($(rob.north)$);
+
 
 \end{tikzpicture}
 \end{preview}

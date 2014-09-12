@@ -473,7 +473,7 @@ the shape of the spline. The more refined the knot sequence, the closer the
 control polytope lies to the spline, as illustrated in Figure... .
 \commentWVL{Introduce yet another linear mapping?} Knot insertion acts locally
 on the constraints and can target specific regions where the conservatism is
-high (see Section~\ref{}).
+high (see Section~???).
 
 Degree elevation on the other hand is a global approach. This strategy
 expresses the spline in a basis of higher degree, similar to P\'olya's
@@ -713,14 +713,17 @@ The objective function in $\Pi(\ppar)$ can be generalized to a function $h(x,\pp
 \]
 which is convex in the coefficients $\cx$. \commentGP{How about the dual?}
 
-In addition, nonparametric convex constraints $g(x)\leq0$ with $g(x)$ a convex function are allowed in $\Pi(\ppar)$. In converting the semi-infinite program $\hat{\Pi}$ with tensor product B-spline basis $\bx$ to a tractable problem we rely on the nonnegativity and the partition of unity property of the B-splines. By these properties, the parametrization (\ref{eq:x_approx}) means that for every $\ppar\in\Ppar$, $\hat{x}(\cx,\ppar)$ is a convex combination of the coefficients $\cxa$, $\alpha\in\Alpha_x$. As a result:
+In addition, nonparametric convex constraints $g(x)\leq0$ with $g(x)$ a convex function are allowed in $\Pi(\ppar)$. In converting the semi-infinite program $\hat{\Pi}$ with tensor product B-spline basis $\bx$ to a tractable problem we rely on the nonnegativity and the partition of unity property of B-splines. By these properties, the parametrization (\ref{eq:x_approx}) means that for every $\ppar\in\Ppar$, $\hat{x}(\cx,\ppar)$ is a convex combination of the coefficients $\cxa$, $\alpha\in\Alpha_x$. As a result:
 \[ g\left(\sum_{\alpha\in\Alpha_x} \cxa \bxa(\ppar)\right) ~\leq~ \sum{\alpha\in\Alpha_x} g(\cxa) \bxa(\ppar)\,, \quad \forall \ppar\in\Ppar\,. %
 \]
 Hence,
 \[ g(\cxa)\leq 0\,,~\forall \alpha\in\Alpha_x \qquad \Rightarrow \qquad g(\hat{x}(\cx,\ppar))\leq0\,,\quad\forall \ppar\in\Ppar\,.%
 \]
 
-\commentGP{Which constraint functions $g(x,\ppar)$ are allowed? E.g. polynomial in $x$ and $\ppar$, and convex in $x$? General jointly convex in $x$ and $\ppar$?}
+\commentGP{Which constraint functions $g(x,\ppar)$ are allowed? E.g. polynomial in $x$ and $\ppar$, and convex in $x$? General jointly convex in $x$ and $\ppar$?} 
+
+\commentGP{We can also allow for parametric constraints $g(x,\ppar)\leq0$ where $g(x,\ppar)$ is a tensor product polynomial spline in $\ppar$, and convex in $x$ for every $\ppar\in\Ppar$. Or $g(x,\ppar)$ is a convex function of a spline in $\ppar$ that is affine in $x$; or $g(x,\ppar)$ is a convex and nondecreasing function of a spline in $\ppar$ that is convex in $x$; or $g(x,\ppar)$ is a convex and nonincreasing function of a spline in $\ppar$ that is concave in $x$.}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
