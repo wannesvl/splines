@@ -18,7 +18,7 @@ classdef PieceWiseBasis < UnivariateBasis
             basis@UnivariateBasis(degree);
             validateattributes(knots, {'numeric'}, {'nondecreasing'})
             basis.knots = knots(:);
-            basis.x_ = basis.greville;
+            basis.x_ = linspace(basis.knots(1), basis.knots(end), 10 * length(basis));
         end
 
         function l = length(self)
@@ -128,15 +128,23 @@ classdef PieceWiseBasis < UnivariateBasis
                          (1:length(self)));
         end
 
-        function b = insert_knots(self, knots)
+        function b = insert_knots(self, knots, uniq)
             % Insert knots in the basis
             %
             % Args:
             %    knots (vector, double): The desired knot insertion locations
+            %    unique
             %
             % Returns:
             %    PieceWiseBasis: The refined basis
-            knots = sort([self.knots; knots(:)]);
+            if nargin == 2
+                uniq = true;
+            end
+            if uniq
+                knots = sort([self.knots; setdiff(knots(:), self.knots)]);
+            else
+                knots = sort([self.knots; knots(:)]);
+            end
             b = self.cl(knots, self.degree);
         end
 

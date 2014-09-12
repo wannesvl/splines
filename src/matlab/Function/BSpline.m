@@ -65,6 +65,13 @@ classdef BSpline < Function
 
         function d = derivative(self, ord, coord)
             % Derivative on coord of self
+            if nargin == 2
+                if self.dims == 1
+                    coord = 1;
+                else
+                    error('A coordinate must be supplied')
+                end
+            end
             b = self.basis;
             bi = self.basis{coord};
             [dbi, P] = bi.derivative(ord);
@@ -108,7 +115,7 @@ classdef BSpline < Function
             d = self.cl(b, coeffs);
         end
 
-        function s = insert_knots(self, knots)
+        function s = insert_knots(self, knots, uniq)
             % Insert knots in each basis
             %
             % Args: 
@@ -118,7 +125,10 @@ classdef BSpline < Function
             % Returns:            
             %    BSpline: Bspline with updated coefficients for the refined
             %    knot sequences
-            b = cellfun(@(b, k) b.insert_knots(k), self.basis, knots, 'UniformOutput', false);
+            if nargin == 2
+                uniq = true;
+            end
+            b = cellfun(@(b, k) b.insert_knots(k, uniq), self.basis, knots, 'UniformOutput', false);
             T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
             s = self.cl(b, T * self.coeffs);
         end
