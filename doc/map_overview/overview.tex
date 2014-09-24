@@ -171,8 +171,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[app12, anchor=north] at($(mot.north)+(11,-2.5)$) (flat){};%
-\node[anchor=north] at (flat.north) {%
+\node[app12, anchor=north] at($(mot.north)+(11,-2.5)$) (flat){%};%
+%\node[anchor=north] at (flat.north) {%
 \begin{tabular}{c}
 \mbox{~}\\[-6pt]
 \mprobTitle{Optimal Control of Flat Systems}\\[12pt]
@@ -196,6 +196,10 @@
     \begin{itemize}\vspace*{-4pt} \itemsep 0pt
     \item convex combination of collision free outer paths
     \item tensor-product spline mapping of hyperrectangle to nonconvex feasible set
+    \end{itemize}
+\item extension to non-polynomial flat systems
+    \begin{itemize}\vspace*{-4pt} \itemsep 0pt
+    \item polynomial / spline inner approximation of feasible set
     \end{itemize}
 \end{itemize}
 
