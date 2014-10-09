@@ -3,8 +3,8 @@ close all; clear all; clc;
 % Motzkin polynomial
 f = @(x,y) x.^2 .* y.^2 .* (x.^2 + y.^2 - 1) + 1/27;
 figure
-[X,Y] = meshgrid([-1:0.02:1,-1:0.02:1]);
-contour(X,Y,f(X,Y))
+[X,Y] = meshgrid([-1:0.02:1],[-1:0.02:1]);
+contour(X,Y,f(X,Y),100)
 
 % Yalmip moment relaxations
 x = sdpvar(1, 1);
