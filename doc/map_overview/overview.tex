@@ -1,56 +1,120 @@
-
 \documentclass{standalone}
 
-\usepackage{tikz}
+\usepackage{fontspec}
+\setmainfont[BoldFont=DTLProkyonSTMedium,ItalicFont=DTLProkyonSTLightItalic, Numbers={Lining}]{DTLProkyonSTLight}
+\let\sfdefault\rmdefault
+
+\usepackage{tikz,enumerate}
 \usepackage{verbatim, bm}
 \usepackage[active,tightpage]{preview}
 
-\usetikzlibrary{arrows,automata}
+\usetikzlibrary{arrows,automata,decorations.markings}
 \usetikzlibrary{positioning}
-\usetikzlibrary{calc,backgrounds}
+\usetikzlibrary{calc,backgrounds,fadings}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{\textbf{-}}
+
+\definecolor{red}{rgb}{0.75,0,0}
+\newcommand{\techTitle}[1]{\textcolor{red}{\textbf{\Large #1}}}%
+\newcommand{\techSubtitle}[1]{\textcolor{red}{\textbf{ #1}}}%
+
+\definecolor{blue}{rgb}{0,0,0.5}
+\newcommand{\mpTitle}[1]{\textcolor{blue}{\textbf{\Large #1}}}%
+\newcommand{\mpSubtitle}[1]{\textcolor{blue}{\textbf{ #1}}}%
+
+\definecolor{green}{rgb}{0,0.5,0}
+\newcommand{\robTitle}[1]{\textcolor{green}{\textbf{\Large #1}}}%
+\newcommand{\robSubtitle}[1]{\textcolor{green}{\textbf{ #1}}}%
+
+\newcommand{\mprobTitle}[1]{\textcolor{blue!50!green}{\textbf{\Large #1}}}%
+\newcommand{\mprobSubtitle}[1]{\textcolor{blue!50!green}{\textbf{ #1}}}%
+
+\tikzset{
+    thick/.style=      {line width=1.2pt},
+    very thick/.style= {line width=1.6pt},
+    ultra thick/.style={line width=5pt}
+}
 
 
 \begin{document}
+
 \begin{preview}
 \begin{tikzpicture}[>=latex]
 
+\tikzstyle{tech} = [rectangle, rounded corners,
+                    fill = black!10,
+                    draw = red, thick,
+                    minimum height = 13cm, minimum width = 15cm]
 
-\tikzstyle{state} = [draw, very thick, fill=white, rectangle, minimum height=3em, minimum width=7em, node distance=8em]
-\tikzstyle{stateEdgePortion} = [black,very thick];
-\tikzstyle{stateEdge} = [stateEdgePortion,->];
-\tikzstyle{edgeLabel} = [pos=0.5, text centered, font={\sffamily\small}];
+\tikzstyle{app1} = [rectangle, rounded corners,
+                    fill = black!10,
+                    draw = blue, thick,
+                    minimum height = 10cm, minimum width = 10cm]
+
+\tikzstyle{app2} = [rectangle, rounded corners,
+                    fill = black!10,
+                    draw = green, thick,
+                    minimum height = 10cm, minimum width = 10cm]
+
+\tikzstyle{app12} = [rectangle, rounded corners,
+                     fill = black!10,
+                     draw = blue!50!green, thick,
+                     minimum height = 10cm, minimum width = 10cm]
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[state, anchor = south](Bprog){
+\node[draw=red, fill=red!20, rounded corners, very thick, anchor=north, minimum height=16cm, minimum width=35cm] at (0,2) (tech){};%
+\node at ($(tech.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{red}{ENABLING TECHNOLOGIES}}};%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[tech, anchor=north] at($(tech.north)+(9,-2)$) (Bprog){};%
+\node[anchor=north] at (Bprog.north) {
 \begin{tabular}{c}
-\textsc{\Large Spline optimization}\\[12pt]
-\parbox{12cm}{
+\mbox{~}\\[-6pt]
+\techTitle{Spline Optimization}\\[12pt]
+\parbox{14cm}{
 
-\textbf{What?}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item optimization problems with tensor-product spline variables 
-\item semi-infinite constraints are relaxed to constraints on the spline coefficients
+\techSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item optimization problems with tensor-product spline variables
+\item semi-infinite spline constraints are relaxed to constraints on the spline coefficients
 \end{itemize}
 
-\textbf{Software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\techSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item Yalmip based Matlab toolbox
+\color{gray}
 \item Python toolbox
+\color{black}
 \end{itemize}
 
-\textbf{Open issues: methodology}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\techSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item dual interpretation of the relaxation
-\item extension to simplicial splines and non-hyperrectangular domains
+\item positivity on non-hyperrectangular domains
+    \begin{itemize} \vspace*{-4pt} \itemsep 0pt
+    \item simplex splines (for polyhedral domains only)
+    \item tensor-product spline mapping of hyperrectangle to parameter domain \\(relation with simplex splines for polyhedral domains?)
+    \item relation with Polya's relaxation for convex polyhedrons
+    \end{itemize}
+\item dealing with complex variables (e.g. in unit disc or RHP)
+    \begin{itemize}\vspace*{-4pt} \itemsep 0pt
+    \item one variable instead of real and imaginary part
+    \item  trigonometric splines (when properly redefined)
+    \end{itemize}
 \end{itemize}
 
-\textbf{Open issues: software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\techSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item numerical stability and efficiency, particularly for multi-variate splines
-\item exploiting symmetry and structure
+\item exploiting symmetry and structure, eliminating redundant constraints \ldots
 \end{itemize}
 
 }\end{tabular}};
@@ -59,190 +123,282 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[state, below of = Bprog, anchor = north, node distance = 8cm, xshift = -15cm] (Flat){%
+\node[tech, anchor=north] at ($(tech.north)+(-9,-2)$) (CCprog){};%
+\node[anchor=north] at (CCprog.north) {
 \begin{tabular}{c}
-\textsc{\Large Optimal control of flat systems}\\[12pt]
-\parbox{12cm}{
-\textbf{What?}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item linear and (polynomially ???) nonlinear differentially flat systems
-\item flat out parameterized as spline; state and input constraints amount to semi-infinite spline constraints
-\item ??? path following / path planning
-\item[$\bm{\hookrightarrow}$] \emph{convex} B-spline program
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
+\mbox{~}\\[-6pt]
+\techTitle{Convex Concave Programming}\\[12pt]
+\parbox{14cm}{
+
+\techSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item nonlinear optimization problems with inequality constraints decomposable in a convex and a concave part
+\end{itemize}
+
+\techSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item SCP
+\item SCLB
+\end{itemize}
+
+\techSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item best way to alternate between outer and inner approximations
+\end{itemize}
+
+\techSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item BMI
+\end{itemize}
+
+}\end{tabular}};
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[draw=blue, fill=blue!20, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=33cm] at ($(tech.south)+(-11,-3)$) (mot){};%
+\node at ($(mot.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{blue}{OPTIMAL MOTION PLANNING}}};%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[draw=green, fill=green!20, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=44cm] at ($(tech.south)+(16.5,-4)$) (rob){};%
+\node at ($(rob.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{green}{ROBUST OPTIMIZATION}}};%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[app12, anchor=north] at($(mot.north)+(11,-2.5)$) (flat){%};%
+%\node[anchor=north] at (flat.north) {%
+\begin{tabular}{c}
+\mbox{~}\\[-6pt]
+\mprobTitle{Optimal Control of Flat Systems}\\[12pt]
+\parbox{9cm}{
+
+\mprobSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item linear \& (polynomially) nonlinear differentially flat systems
+\item flat output parameterized as spline; state and input constraints amount to semi-infinite spline constraints
+\item both path following and fee motion
+\end{itemize}
+
+\mprobSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item Python ??? switch to matlab toolbox
+\end{itemize}
+
+\mprobSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item anti-collision constraints
+    \begin{itemize}\vspace*{-4pt} \itemsep 0pt
+    \item convex combination of collision free outer paths
+    \item tensor-product spline mapping of hyperrectangle to nonconvex feasible set
     \end{itemize}
-\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{non-convex} B-spline program
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
+\item extension to non-polynomial flat systems
+    \begin{itemize}\vspace*{-4pt} \itemsep 0pt
+    \item polynomial / spline inner approximation of feasible set
     \end{itemize}
 \end{itemize}
 
-\textbf{Software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item Python
-\end{itemize}
-
-\textbf{Open issues: methodology}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item ??? torque constraints for robots
-\item ??? constraining trajectories to spline-bounded set
-\end{itemize}
-
-\textbf{Open issues: software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\mprobSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item real-time implementation
 \end{itemize}
 
 } \end{tabular} };
 
 
-\draw ($(Bprog.south)$)
-      edge[stateEdge]
-      ($(Flat.north)$);
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[state, below of = Bprog, anchor = north, node distance = 8cm] (Par){%
+\node[app2, anchor=north] at($(rob.north)+(-5.5,-2)$) (par){};%
+\node[anchor=north] at (par.north) {%
 \begin{tabular}{c}
-\textsc{\Large Parametric programming}\\[12pt]
-\parbox{12cm}{
-\textbf{What?}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\mbox{~}\\[-6pt]
+\robTitle{Parametric Programming}\\[12pt]
+\parbox{9cm}{
+
+\robSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item polynomial spline parameterized approximate optimizer functions
 \item feasibility for all parameter values amount to semi-infinite spline constraints
-\item ???
-\item[$\bm{\hookrightarrow}$] \emph{convex} B-spline program
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
-    \end{itemize}
-\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{non-convex} B-spline program
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
-    \end{itemize}
 \end{itemize}
 
-\textbf{Software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item Matlab
+\robSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item Matlab spline-opt toolbox
 \end{itemize}
 
-\textbf{Open issues: methodology}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item non-hyperrectangular parameter domains
+\robSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item ???
 \end{itemize}
 
-\textbf{Open issues: software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\robSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item ???
+\end{itemize}
+
+} \end{tabular} };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[app2, anchor=north] at($(par.south)+(0,-1.5)$) (parapp){};%
+\node[anchor=north] at (parapp.north) {%
+\begin{tabular}{c}
+\mbox{~}\\[-6pt]
+\robTitle{Applications}\\[12pt]
+\parbox{9cm}{
+
+\robSubtitle{Time-optimal point-to-point motion}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item practical evaluation
+\item application to combined structure control design
+\end{itemize}
+
+\robSubtitle{Explicit MPC}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item practical evaluation
+\item analysis/proof of convergence
+\end{itemize}
+
+\robSubtitle{Trade-off curves}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item application to (combined structure control) design
+\end{itemize}
+
+\robSubtitle{Nonconvex programs with few non-convexifying variables}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item ???
+\end{itemize}
+
+\robSubtitle{LPV control}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item better averaged performance with slightly worse worst-case performance?
+\end{itemize}
+
+} \end{tabular} };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[ultra thick, black!40, ->] ($(par.south)$) -- ($(parapp.north)$);%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[app2, anchor=north] at($(rob.north)+(5.5,-2)$) (nlp){};%
+\node[anchor=north] at (nlp.north) {%
+\begin{tabular}{c}
+\mbox{~}\\[-6pt]
+\robTitle{Nonconvex Programming}\\[12pt]
+\parbox{9cm}{
+
+\robSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item hierarchy of spline-based relaxations for global optimization of nonconvex programs
+\end{itemize}
+
+\robSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item Matlab spline-opt toolbox
+\end{itemize}
+
+\robSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item class of optimization problems
+\item asymptotic exactness
+\item determining exactness / indication of conservatism from dual
+\end{itemize}
+
+\robSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item ???
 \end{itemize}
 
 } \end{tabular} };
 
 
-\draw ($(Bprog.south)$)
-      edge[stateEdge]
-      ($(Par.north)$);
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = -7cm] (TOP2P){%
+\node[app2, anchor=north] at($(rob.north)+(16.5,-2)$) (sys){};%
+\node[anchor=north] at (sys.north) {%
 \begin{tabular}{c}
-\textsc{Time-optimal}\\ \textsc{point-to-point motion}
-\end{tabular} };
+\mbox{~}\\[-6pt]
+\robTitle{Linear Systems and Control}\\[12pt]
+\parbox{9cm}{
 
-\draw ($(Par.south)$)
-      edge[stateEdge]
-      ($(TOP2P.north)$);
-
-\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = -2cm] (EMPC){%
-\textsc{Explicit MPC}
-};
-
-\draw ($(Par.south)$)
-      edge[stateEdge]
-      ($(EMPC.north)$);
-
-\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 2cm] (LPV){%
-\textsc{LPV control}
-};
-
-\draw ($(Par.south)$)
-      edge[stateEdge]
-      ($(LPV.north)$);
-
-\node[state, below of = Par, anchor = north, node distance = 8cm, xshift = 7cm] (noncvx1){%
-\textsc{Nonconvex optimization}
-};
-
-\draw ($(Par.south)$)
-      edge[stateEdge]
-      ($(noncvx1.north)$);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\node[state, below of = Bprog, anchor = north, node distance = 8cm, xshift = 15cm] (Pos){%
-\begin{tabular}{c}
-\textsc{\Large B-spline positivity on spline bounded set}\\[12pt]
-\parbox{12cm}{
-\textbf{What?}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item tractable certificates for the positivity of a spline a ??? set
-\item[$\bm{\hookrightarrow}$] \emph{sum-of-square} type relaxations
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
-    \end{itemize}
-\item[$\bm{\hookrightarrow}$]\vspace*{-6pt} \emph{Polya} type relaxations
-    \begin{itemize}\vspace*{-6pt}
-    \item ???
-    \end{itemize}
+\robSubtitle{What?}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item analysis and control of linear systems: (uncertain) LTI, LPV, interconnected systems \ldots based on well-posedness
 \end{itemize}
 
-\textbf{Software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\robSubtitle{Software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item ???
 \end{itemize}
 
-\textbf{Open issues: methodology}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
-\item Polya type relaxations
+\robSubtitle{Open issues: methodology}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item full-full block multipliers
+    \begin{itemize}\vspace*{-4pt} \itemsep 0pt
+    \item reducing conservatism in synthesis
+    \item interpretation from the frequency dependent multiplier viewpoint
+    \end{itemize}
 \end{itemize}
 
-\textbf{Open issues: software}
-\begin{itemize}\vspace*{-6pt} \itemsep 0pt
+\robSubtitle{Open issues: software}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item ???
 \end{itemize}
+
 } \end{tabular} };
 
-\draw ($(Bprog.south)$)
-      edge[stateEdge]
-      ($(Pos.north)$);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\node[app2, anchor=north] at($(sys.south)+(0,-1.5)$) (sysapp){};%
+\node[anchor=north] at (sysapp.north) {%
+\begin{tabular}{c}
+\mbox{~}\\[-6pt]
+\robTitle{Applications}\\[12pt]
+\parbox{9cm}{
+
+\robSubtitle{Structured controller design}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item approximate convex approach
+\item solving BMIs
+\end{itemize}
+
+\robSubtitle{Design of metamaterials}
+\begin{itemize}\vspace*{-4pt} \itemsep 0pt
+\item improving numerical conditioning
+\item reducing computational load
+\end{itemize}
+
+} \end{tabular} };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = -2cm] (noncvx2){%
-\textsc{Nonconvex optimization}
-};
+\draw[ultra thick, black!40, ->] ($(sys.south)$) -- ($(sysapp.north)$);%
 
-\draw ($(Pos.south)$)
-      edge[stateEdge]
-      ($(noncvx2.north)$);
 
-\node[state, below of = Pos, anchor = north, node distance = 8cm, xshift = 4cm] (rob){%
-\begin{tabular}{c}
-\textsc{Robust control / }\\ \textsc{robust optimization}
-\end{tabular} };
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\draw ($(Pos.south)$)
-      edge[stateEdge]
-      ($(rob.north)$);
+\draw[ultra thick, black!40, ->] ($(Bprog.south)$) .. controls ($(Bprog.south)+(0,-2)$) and ($(rob.north)+(0,2)$) .. ($(rob.north)$)%
+node[black,midway] {\large\textbf{spline based relaxations}};%
 
+\draw[ultra thick, black!40, ->] ($(CCprog.south)$) .. controls ($(CCprog.south)+(0,-4)$) and ($(sys.north)+(0,4)$) .. ($(sys.north)$)%
+node[black,near start] {\large\textbf{solving structured control problems}};%
+
+\draw[ultra thick, black!40, ->] ($(CCprog.south)$) .. controls ($(CCprog.south)+(0,-2)$) and ($(mot.north)+(0,2)$) .. ($(mot.north)$)%
+node[black,midway] {\large\textbf{solving some motion planning problems}};%
+
+% add arrow rob -> mot (anti-collision)
 
 \end{tikzpicture}
 \end{preview}
