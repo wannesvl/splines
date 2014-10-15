@@ -41,9 +41,7 @@ C = B.increase_degree(d,2); % constant matrix (works!)
 C = [A, B]; % horizontal concatenation (works!)
 C = [A; B]; % vertical concatenation (works!)
 
-O22 = HPPDmatrix(zeros(2,2)); % combined (works!)
-I2 = HPPDmatrix(eye(2));
-C = [A, O22; I2, B];
+C = [A, zeros(2,2); eye(2), B]; % combined, with constant matrices (works!)
 
 % 9: get coefficients (works!)
 coeffs = A.getcoeffs;
@@ -63,6 +61,6 @@ A.trace;
 A.integral;
 
 % 14: change of variables to gamma domain
-A.change_variables(1/2,'3v','hat')
+A.change_variables(1/2,'3v','hat');
 
 
