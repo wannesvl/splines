@@ -1,316 +1,476 @@
-% This file was created with JabRef 2.8.1.
-% Encoding: Cp1252
 
-@INCOLLECTION{Alessio2009,
-  author = {Alessandro Alessio and Alberto Bemporad},
-  title = {A Survey on Explicit Model Predictive Control},
-  booktitle = {Nonlinear Model Predictive Control},
-  publisher = {Springer Berlin Heidelberg},
-  year = {2009},
-  editor = {Magni, Lalo and Raimondo, DavideMartino and Allg\"{o}wer, Frank},
-  volume = {384},
-  series = {Lecture Notes in Control and Information Sciences},
-  pages = {345-369},
-  doi = {10.1007/978-3-642-01094-1_29},
-  isbn = {978-3-642-01093-4},
-  keywords = {Model predictive control; explicit solutions; multiparametric programming;
-	piecewise affine controllers; hybrid systems; min-max control},
-  url = {http://dx.doi.org/10.1007/978-3-642-01094-1_29}
+% ------------
+% Spline books
+% ------------
+
+@book{deBoor_2001,
+    year = {2001},
+    title = {A Practical Guide to Splines},
+    author = {Carl de Boor},
+    series = {Applies Mathematical Sciences},
+    volume = {27},
+    publisher = {Springer-Verlag New York, Inc.}
 }
 
-@BOOK{Bank_et_al_1983,
-  title = {Non-Linear Parametric Optimization},
-  publisher = {Birkh\"{a}user Verlag},
-  year = {1983},
-  author = {B. Bank and J. Guddat and D. Klatte and B. Kummer and K. Tammer}
+@book{Schumaker_2007,
+    year = {2007},
+    title = {Spline Functions: Basic Theory},
+    author = {Larry L. Schumaker},
+    publisher = {Cambridge University Press}
 }
 
-@ARTICLE{Benporad_Filippi_2006,
-  author = {Bemporad, Alberto and Filippi, Carlo},
-  title = {An Algorithm for Approximate Multiparametric Convex Programming},
-  journal = {Computational Optimization and Applications},
-  year = {2006},
-  volume = {35},
-  pages = {87-108},
-  number = {1},
-  doi = {10.1007/s10589-006-6447-z},
-  issn = {0926-6003},
-  keywords = {multiparametric programming; convex programming; sensitivity analysis},
-  language = {English},
-  publisher = {Kluwer Academic Publishers},
-  url = {http://dx.doi.org/10.1007/s10589-006-6447-z}
-}
 
-@ARTICLE{Bemporad_et_al_2002,
-  author = {Alberto Bemporad and Manfred Morari and Vivek Dua and Efstratios
-	N. Pistikopoulos},
-  title = {The explicit linear quadratic regulator for constrained systems},
-  journal = {Automatica},
-  year = {2002},
-  volume = {38},
-  pages = {3 - 20},
-  number = {1},
-  doi = {http://dx.doi.org/10.1016/S0005-1098(01)00174-1},
-  issn = {0005-1098},
-  keywords = {Piecewise linear controllers},
-  url = {http://www.sciencedirect.com/science/article/pii/S0005109801001741}
-}
+% -------------------------------
+% Parametric programming: surveys
+% -------------------------------
 
-@ARTICLE{Borrelli_et_al_2003,
-  author = {Borrelli, F. and Bemporad, A. and Morari, M.},
-  title = {Geometric Algorithm for Multiparametric Linear Programming},
-  journal = {Journal of Optimization Theory and Applications},
-  year = {2003},
-  volume = {118},
-  pages = {515-540},
-  number = {3},
-  doi = {10.1023/B:JOTA.0000004869.66331.5c},
-  issn = {0022-3239},
-  keywords = {Multiparametric programming; sensitivity analysis; postoptimality
-	analysis; linear programming, optimal control},
-  language = {English},
-  publisher = {Kluwer Academic Publishers-Plenum Publishers},
-  url = {http://dx.doi.org/10.1023/B%3AJOTA.0000004869.66331.5c}
+@book{Gal_1979,
+    year = {1979},
+    title = {Postoptimal Analyses, Parametric Programming and Related Topics},
+    author = {Tomas Gal},
+    publisher = {McGraw-Hill Inc.}
 }
+% parametric linear programming with parametric objective, right-hand side or coefficient matrix
 
-@ARTICLE{Camino_2003,
-  author = {J. F. Camino and M. C. de Oliveira and R. E. Skelton},
-  title = {"{C}onvexifying" Linear Matrix Inequality Methods for Integrating
-	Structure and Control Design},
-  journal = {Journal of Structural Engineering},
-  year = {2003},
-  volume = {129},
-  pages = {978-988},
-  owner = {u0078690},
-  timestamp = {2014.05.21},
-  url = {http://www.researchgate.net/publication/228542320_Convexifying_Linear_Matrix_Inequality_Methods_for_Integrating_Structure_and_Control_Design}
+
+@book{Bank_et_al_1983,
+    year = {1983},
+    title = {Non-Linear Parametric Optimization},
+    author = {B. Bank and J. Guddat and D. Klatte and B. Kummer and K. Tammer},
+    publisher = {Birkh\"{a}user Verlag}
 }
+% Rather general nonlinear parametric programming
+% Focus on theoretical analysis of properties of the extreme value function and optimal set mapping
 
-@ARTICLE{Filippi_2004,
-  author = {Filippi, C.},
-  title = {An Algorithm for Approximate Multiparametric Linear Programming},
-  journal = {Journal of Optimization Theory and Applications},
-  year = {2004},
-  volume = {120},
-  pages = {73-95},
-  number = {1},
-  doi = {10.1023/B:JOTA.0000012733.44020.54},
-  issn = {0022-3239},
-  keywords = {Multiparametric programming; linear programming; approximation methods;
-	error bounds; complexity analysis; model predictive control},
-  language = {English},
-  publisher = {Kluwer Academic Publishers-Plenum Publishers},
-  url = {http://dx.doi.org/10.1023/B%3AJOTA.0000012733.44020.54}
+
+@incollection{Gal_1984,
+    year={1984},
+    isbn={978-3-642-00912-9},
+    booktitle={Sensitivity, Stability and Parametric Analysis},
+    volume={21},
+    series={Mathematical Programming Studies},
+    editor={Fiacco, AnthonyV.},
+    doi={10.1007/BFb0121210},
+    title={Linear parametric programming--A brief survey},
+    url={http://dx.doi.org/10.1007/BFb0121210},
+    publisher={Springer Berlin Heidelberg},
+    keywords={Linear Programming; Parametric Programming; Perturbation Analysis; Postoptimal Analysis},
+    author={Gal, T.},
+    pages={43-68}
 }
+% Very interesting survey!
+% Summarizes technical results on parametric linear programming,
+% but also refs to nonlinear parametric programming and to applications in operations research
 
-@ARTICLE{Freund_1985,
-  author = {Robert M. Freund},
-  title = {Postoptimal analysis of a linear program under simultaneous changes
-	in matrix coefficients},
-  journal = {Mathematical Programming Study},
-  year = {1985},
-  volume = {24},
-  pages = {1-13}
+
+@incollection{Gal_Greenberg_1997,
+    editor = {Tomas Gal and Harvey J. Greenberg},
+    title = {Advances in Sensitivity Analysis and Parametric Programming},
+    series = {International Series in Operations Research \& Management Science},
+    volume = {6},
+    year = {1997},
+    publisher = {Springer New York}
 }
+% "Recent" survey book
+% ? not available on line or at KU Leuven
 
-@INCOLLECTION{Gal_1984,
-  author = {Gal, T.},
-  title = {Linear parametric programming -- A brief survey},
-  booktitle = {Sensitivity, Stability and Parametric Analysis},
-  publisher = {Springer Berlin Heidelberg},
-  year = {1984},
-  editor = {Fiacco, Anthony V.},
-  volume = {21},
-  series = {Mathematical Programming Studies},
-  pages = {43-68},
-  doi = {10.1007/BFb0121210},
-  isbn = {978-3-642-00912-9},
-  keywords = {Linear Programming; Parametric Programming; Perturbation Analysis;
-	Postoptimal Analysis},
-  url = {http://dx.doi.org/10.1007/BFb0121210}
+
+
+% -----------------------------
+% Parametric linear programming
+% -----------------------------
+
+% Parameter-dependent right-hand side or linear objective
+
+@article{Saaty_Gass_1954,
+     title = {Parametric Objective Function (Part 1)},
+     author = {Saaty, Thomas and Gass, Saul},
+     journal = {Journal of the Operations Research Society of America},
+     volume = {2},
+     number = {3},
+     pages = {316-319},
+     url = {http://www.jstor.org/stable/166644},
+     ISSN = {00963984},
+     language = {English},
+     year = {1954},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1954 INFORMS},
 }
+% One of first parametric programming papers
+% parametric LP of which the objective is affected by one scalar parameter
 
-@BOOK{Gal_1979,
-  title = {Postoptimal Analyses, Parametric Programming and Related Topics},
-  publisher = {McGraw-Hill Inc.},
-  year = {1979},
-  author = {Gal, T.}
+
+@article{Gass_Saaty_1955,
+     title = {Parametric Objective Function (Part 2)- Generalization},
+     author = {Gass, S. I. and Saaty, Thomas L.},
+     journal = {Journal of the Operations Research Society of America},
+     volume = {3},
+     number = {4},
+     pages = {pp. 395-401},
+     url = {http://www.jstor.org/stable/166754},
+     ISSN = {00963984},
+     language = {English},
+     year = {1955},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1955 INFORMS},
 }
+% One of first parametric programming papers
+% parametric LP of which the objective is affected by one scalar parameter
 
-@ARTICLE{Gal_1977,
-  author = {Tomas Gal},
-  title = {A general method for determining the set of all efficient solutions
-	to a linear vectormaximum problem},
-  journal = {European Journal of Operational Research},
-  year = {1977},
-  volume = {1},
-  pages = {307 - 322},
-  number = {5},
-  doi = {http://dx.doi.org/10.1016/0377-2217(77)90063-7},
-  issn = {0377-2217},
-  url = {http://www.sciencedirect.com/science/article/pii/0377221777900637}
+
+@article{Gass_Saaty_1955b,
+    author = {Gass, Saul and Saaty, Thomas},
+    title = {The computational algorithm for the parametric objective function},
+    journal = {Naval Research Logistics Quarterly},
+    volume = {2},
+    number = {1-2},
+    publisher = {Wiley Subscription Services, Inc., A Wiley Company},
+    issn = {1931-9193},
+    url = {http://dx.doi.org/10.1002/nav.3800020106},
+    doi = {10.1002/nav.3800020106},
+    pages = {39--45},
+    year = {1955},
 }
+% Bi-objective LP -> scalarization -> parametric program with parameter the relative weight attached to the two functions:
+% minimize  (c_1+lambda*c_2)'*x
+% subj. to  A*x=b & x>=0
+% This paper presents details of an algorithm which finds these solutions systematically.
 
-@ARTICLE{Gal_Nedoma_1972,
-  author = {Gal, Tomas and Nedoma, Josef},
-  title = {Multiparametric Linear Programming},
-  journal = {Management Science},
-  year = {1972},
-  volume = {18},
-  pages = {pp. 406-422},
-  number = {7},
-  copyright = {Copyright © 1972 INFORMS},
-  issn = {00251909},
-  language = {English},
-  publisher = {INFORMS},
-  url = {http://www.jstor.org/stable/2629358}
+
+ @article{Gal_Nedoma_1972,
+     title = {Multiparametric Linear Programming},
+     author = {Gal, Tomas and Nedoma, Josef},
+     journal = {Management Science},
+     volume = {18},
+     number = {7},
+     pages = {pp. 406-422},
+     url = {http://www.jstor.org/stable/2629358},
+     ISSN = {00251909},
+     language = {English},
+     year = {1972},
+     publisher = {INFORMS},
+     copyright = {Copyright © 1972 INFORMS},
 }
+% Multiparametric linear programming problem for the right-hand sides
+% maximize  c'*x
+% subj. to  A*x=b_0+B*lambda & x>=0
+% First paper to get a full solution for the multi-parametric LP case
+% The paper presents an effective method for finding all critical regions. This method uses an algorithm that finds all nodes of a finite connected graph.
 
-@ARTICLE{Gass_Saaty_1955b,
-  author = {Gass, Saul and Saaty, Thomas},
-  title = {The computational algorithm for the parametric objective function},
-  journal = {Naval Research Logistics Quarterly},
-  year = {1955},
-  volume = {2},
-  pages = {39--45},
-  number = {1-2},
-  doi = {10.1002/nav.3800020106},
-  issn = {1931-9193},
-  publisher = {Wiley Subscription Services, Inc., A Wiley Company},
-  url = {http://dx.doi.org/10.1002/nav.3800020106}
+
+@article{Borrelli_et_al_2003,
+    year={2003},
+    issn={0022-3239},
+    journal={Journal of Optimization Theory and Applications},
+    volume={118},
+    number={3},
+    doi={10.1023/B:JOTA.0000004869.66331.5c},
+    title={Geometric Algorithm for Multiparametric Linear Programming},
+    url={http://dx.doi.org/10.1023/B%3AJOTA.0000004869.66331.5c},
+    publisher={Kluwer Academic Publishers-Plenum Publishers},
+    keywords={Multiparametric programming; sensitivity analysis; postoptimality analysis; linear programming, optimal control},
+    author={Borrelli, F. and Bemporad, A. and Morari, M.},
+    pages={515-540},
+    language={English}
 }
+% More efficient exploration of the parameter space compared to Gal_Nedoma_1972
+% multi-parametric LP with parametric right-hand sides
+% minimize  c'*x
+% subj. to  A*x <= b_0+B*lambda
 
-@ARTICLE{Gass_Saaty_1955,
-  author = {Gass, S. I. and Saaty, Thomas L.},
-  title = {Parametric Objective Function (Part 2)- Generalization},
-  journal = {Journal of the Operations Research Society of America},
-  year = {1955},
-  volume = {3},
-  pages = {pp. 395-401},
-  number = {4},
-  copyright = {Copyright © 1955 INFORMS},
-  issn = {00963984},
-  language = {English},
-  publisher = {INFORMS},
-  url = {http://www.jstor.org/stable/166754}
+
+% Filippi_2004
+
+
+% Parameter-dependent coefficient matrix
+
+@article{Freund_1985,
+    year={1985},
+    journal={Mathematical Programming Study},
+    volume={24},
+    number={},
+    title={Postoptimal analysis of a linear program under simultaneous changes in matrix coefficients},
+    author={Robert M. Freund},
+    pages={1-13},
 }
+% Parametric LP with parameter-dependent coefficient matrix
+% Only one scalar parameter
 
-@ARTICLE{Goldfarb_Scheinberg_1999,
-  author = {D. Goldfarb and K. Scheinberg},
-  title = {On parametric semidefinite programming},
-  journal = {Applied Numerical Mathematics},
-  year = {1999},
-  volume = {29},
-  pages = {361 - 377},
-  number = {3},
-  note = {Proceedings of the Stieltjes Workshop on High Performance Optimization
-	Techniques },
-  doi = {http://dx.doi.org/10.1016/S0168-9274(98)00102-0},
-  issn = {0168-9274},
-  keywords = {Parametric semidefinite programming},
-  url = {http://www.sciencedirect.com/science/article/pii/S0168927498001020}
-}
 
-@ARTICLE{Kvasnica2011,
-  author = {Michal Kvasnica and Johan L\"{o}fberg and Miroslav Fikar},
-  title = {Stabilizing polynomial approximation of explicit \{MPC\}},
-  journal = {Automatica},
-  year = {2011},
-  volume = {47},
-  pages = {2292 -- 2297},
-  number = {10},
-  doi = {http://dx.doi.org/10.1016/j.automatica.2011.08.023},
-  issn = {0005-1098},
-  keywords = {Asymptotic stability},
-  url = {http://www.sciencedirect.com/science/article/pii/S0005109811003943}
-}
-
-@INPROCEEDINGS{Oishi2013,
-  author = {Yasuaki Oishi},
-  title = {Simplified approaches to polynomial design of model predictive controllers},
-  booktitle = {Control Applications (CCA), 2013 IEEE International Conference on},
-  year = {2013},
-  pages = {960-965},
-  month = {Aug},
-  doi = {10.1109/CCA.2013.6662875},
-  issn = {1085-1992},
-  keywords = {control system synthesis;numerical analysis;optimal control;optimisation;polynomials;predictive
-	control;geometric computation;model predictive controllers;numerical
-	example;optimal model predictive controller;piecewise structure;polynomial
-	design;quality of approximation;regularly partitioned piecewise polynomial;robust
-	optimization problem;sum-of-squares method;Approximation methods;Computational
-	efficiency;Computational modeling;Linear programming;Optimization;Polynomials;Vectors;computational
-	cost;model predictive control;robust optimization problem;sum-of-squares
-	method}
-}
-
-@INCOLLECTION{Romanko_et_al_2012,
-  author = {Romanko, Oleksandr and Ghaffari-Hadigheh, Alireza and Terlaky, Tam\'{a}s},
-  title = {Multiobjective Optimization via Parametric Optimization: Models,
-	Algorithms, and Applications},
-  booktitle = {Modeling and Optimization: Theory and Applications},
-  publisher = {Springer New York},
-  year = {2012},
-  editor = {Terlaky, Tam\'{a}s and Curtis, Frank E.},
-  volume = {21},
-  series = {Springer Proceedings in Mathematics \& Statistics},
-  pages = {77-119},
-  doi = {10.1007/978-1-4614-3924-0_5},
-  isbn = {978-1-4614-3923-3},
-  language = {English},
-  url = {http://dx.doi.org/10.1007/978-1-4614-3924-0_5}
-}
-
-@ARTICLE{Saaty_Gass_1954,
-  author = {Saaty, Thomas and Gass, Saul},
-  title = {Parametric Objective Function (Part 1)},
-  journal = {Journal of the Operations Research Society of America},
-  year = {1954},
-  volume = {2},
-  pages = {316-319},
-  number = {3},
-  copyright = {Copyright © 1954 INFORMS},
-  issn = {00963984},
-  language = {English},
-  publisher = {INFORMS},
-  url = {http://www.jstor.org/stable/166644}
-}
-
-@ARTICLE{Tondel_et_al_2003,
-  author = {Petter T{\o}ndel and Tor Arne Johansen and Alberto Bemporad},
-  title = {An algorithm for multi-parametric quadratic programming and explicit
-	{MPC} solutions},
-  journal = {Automatica},
-  year = {2003},
-  volume = {39},
-  pages = {489 - 497},
-  number = {3},
-  doi = {http://dx.doi.org/10.1016/S0005-1098(02)00250-9},
-  issn = {0005-1098},
-  keywords = {Linear quadratic regulators},
-  url = {http://www.sciencedirect.com/science/article/pii/S0005109802002509}
-}
-
-@OTHER{zuidwijk2005,
+@report{zuidwijk2005,
   author = {Rob A. Zuidwijk},
   institution = {Erasmus Research Institute of Management (ERIM)},
-  keywords = {sensitivity analysis; linear programming; rational matrix function;
-	linear parametric programming},
+  keywords = {sensitivity analysis; linear programming; rational matrix function; linear parametric programming},
   month = {Oct},
   number = {ERS-2005-055-LIS},
-  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient
-	Matrix in Linear Programs},
+  title = {Linear Parametric Sensitivity Analysis of the Constraint Coefficient Matrix in Linear Programs},
   type = {report},
   url = {http://ideas.repec.org/p/dgr/eureri/30007631.html},
   year = {2005}
 }
+% Parametric LP with parameter-dependent coefficient matrix
+% Explicit description of the solution using rational realization theory
+% Only for one scalar parameter
 
-@INCOLLECTION{Gal_Greenberg_1997,
-  title = {Advances in Sensitivity Analysis and Parametric Programming},
-  publisher = {Springer New York},
-  year = {1997},
-  editor = {Tomas Gal and Harvey J. Greenberg},
-  volume = {6},
-  series = {International Series in Operations Research \& Management Science}
+
+
+% --------------------------------
+% Parametric quadratic programming
+% --------------------------------
+
+@article{Bemporad_et_al_2002,
+    title = {The explicit linear quadratic regulator for constrained systems},
+    journal = {Automatica},
+    volume = {38},
+    number = {1},
+    pages = {3 - 20},
+    year = {2002},
+    issn = {0005-1098},
+    doi = {http://dx.doi.org/10.1016/S0005-1098(01)00174-1},
+    url = {http://www.sciencedirect.com/science/article/pii/S0005109801001741},
+    author = {Alberto Bemporad and Manfred Morari and Vivek Dua and Efstratios N. Pistikopoulos},
+    keywords = {Piecewise linear controllers},
+    keywords = {Linear quadratic regulators},
+    keywords = {Constraints},
+    keywords = {Predictive control}
 }
 
+@article{Tondel_et_al_2003,
+    title = {An algorithm for multi-parametric quadratic programming and explicit {MPC} solutions},
+    journal = {Automatica},
+    volume = {39},
+    number = {3},
+    pages = {489 - 497},
+    year = {2003},
+    issn = {0005-1098},
+    doi = {http://dx.doi.org/10.1016/S0005-1098(02)00250-9},
+    url = {http://www.sciencedirect.com/science/article/pii/S0005109802002509},
+    author = {Petter T{\o}ndel and Tor Arne Johansen and Alberto Bemporad},
+    keywords = {Linear quadratic regulators},
+    keywords = {Piecewise linear controllers},
+    keywords = {Constraints},
+    keywords = {Predictive control }
+}
+
+% Kvasnica2011
+% Oishi2013
+
+
+% ---------------------------
+% Parametric cone programming
+% ---------------------------
+
+@article{Goldfarb_Scheinberg_1999,
+    title = {On parametric semidefinite programming},
+    journal = {Applied Numerical Mathematics},
+    volume = {29},
+    number = {3},
+    pages = {361 - 377},
+    year = {1999},
+    note = {Proceedings of the Stieltjes Workshop on High Performance Optimization Techniques },
+    issn = {0168-9274},
+    doi = {http://dx.doi.org/10.1016/S0168-9274(98)00102-0},
+    url = {http://www.sciencedirect.com/science/article/pii/S0168927498001020},
+    author = {D. Goldfarb and K. Scheinberg},
+    keywords = {Parametric semidefinite programming},
+    keywords = {Optimal partition},
+    keywords = {Sensitivity analysis}
+}
+% SDP with linear objective that bepends on one scalar parameter
+
+% Benporad_Filippi_2006
+
+
+% --------------------------------
+% Parametric nonlinear programming
+% --------------------------------
+
+% To be completed?
+% Bank_et_al_1983
+% References in Gal_1984
+
+
+% ---------------------
+% Approximate solutions
+% ---------------------
+
+@article{Filippi_2004,
+    year={2004},
+    issn={0022-3239},
+    journal={Journal of Optimization Theory and Applications},
+    volume={120},
+    number={1},
+    doi={10.1023/B:JOTA.0000012733.44020.54},
+    title={An Algorithm for Approximate Multiparametric Linear Programming},
+    url={http://dx.doi.org/10.1023/B%3AJOTA.0000012733.44020.54},
+    publisher={Kluwer Academic Publishers-Plenum Publishers},
+    keywords={Multiparametric programming; linear programming; approximation methods; error bounds; complexity analysis; model predictive control},
+    author={Filippi, C.},
+    pages={73-95},
+    language={English}
+}
+% Approximate multiparametric LP, with parameter dependent right-hand side
+% minimize  c'*x
+% subj. to  A*x <= b_0+B*lambda
+
+
+@article{Benporad_Filippi_2006,
+    year={2006},
+    issn={0926-6003},
+    journal={Computational Optimization and Applications},
+    volume={35},
+    number={1},
+    doi={10.1007/s10589-006-6447-z},
+    title={An Algorithm for Approximate Multiparametric Convex Programming},
+    url={http://dx.doi.org/10.1007/s10589-006-6447-z},
+    publisher={Kluwer Academic Publishers},
+    keywords={multiparametric programming; convex programming; sensitivity analysis},
+    author={Bemporad, Alberto and Filippi, Carlo},
+    pages={87-108},
+    language={English}
+}
+% Approximate multiparametric convex programming, functions jointly convex in (opt. vars, params.)
+% Hence, for cone programs: only parameter dependent constant terms
+
+
+@article{Kvasnica2011,
+    title = {Stabilizing polynomial approximation of explicit \{MPC\}},
+    journal = {Automatica},
+    volume = {47},
+    number = {10},
+    pages = {2292 -- 2297},
+    year = {2011},
+    issn = {0005-1098},
+    doi = {http://dx.doi.org/10.1016/j.automatica.2011.08.023},
+    url = {http://www.sciencedirect.com/science/article/pii/S0005109811003943},
+    author = {Michal Kvasnica and Johan L\"{o}fberg and Miroslav Fikar},
+    keywords = {Asymptotic stability},
+    keywords = {Predictive control},
+    keywords = {Function approximation}
+}
+
+
+@inproceedings{Oishi2013,
+	author={Yasuaki Oishi},
+	booktitle={Control Applications (CCA), 2013 IEEE International Conference on},
+	title={Simplified approaches to polynomial design of model predictive controllers},
+	year={2013},
+	month={Aug},
+	pages={960-965},
+	keywords={control system synthesis;numerical analysis;optimal control;optimisation;polynomials;predictive control;geometric computation;model predictive controllers;numerical example;optimal model predictive controller;piecewise structure;polynomial design;quality of approximation;regularly partitioned piecewise polynomial;robust optimization problem;sum-of-squares method;Approximation methods;Computational efficiency;Computational modeling;Linear programming;Optimization;Polynomials;Vectors;computational cost;model predictive control;robust optimization problem;sum-of-squares method},
+	doi={10.1109/CCA.2013.6662875},
+	ISSN={1085-1992}
+}
+% Explicit parameterization: polynomial
+% Semi-inf constraints handled through SOS
+
+
+
+% ----------------
+% Application: MPC
+% ----------------
+
+@incollection{Alessio2009,
+    year={2009},
+    isbn={978-3-642-01093-4},
+    booktitle={Nonlinear Model Predictive Control},
+    volume={384},
+    series={Lecture Notes in Control and Information Sciences},
+    editor={Magni, Lalo and Raimondo, DavideMartino and Allg\"{o}wer, Frank},
+    doi={10.1007/978-3-642-01094-1_29},
+    title={A Survey on Explicit Model Predictive Control},
+    url={http://dx.doi.org/10.1007/978-3-642-01094-1_29},
+    publisher={Springer Berlin Heidelberg},
+    keywords={Model predictive control; explicit solutions; multiparametric programming; piecewise affine controllers; hybrid systems; min-max control},
+    author={Alessandro Alessio and Alberto Bemporad},
+    pages={345-369}
+}
+
+% Bemporad_et_al_2002
+% Tondel_et_al_2003
+% Kvasnica2011
+% Oishi2013
+
+
+% ----------------------------------------
+% Application: multiobjective optimization
+% ----------------------------------------
+
+@article{Gal_1977,
+    title = {A general method for determining the set of all efficient solutions to a linear vectormaximum problem},
+    journal = {European Journal of Operational Research},
+    volume = {1},
+    number = {5},
+    pages = {307 - 322},
+    year = {1977},
+    issn = {0377-2217},
+    doi = {http://dx.doi.org/10.1016/0377-2217(77)90063-7},
+    url = {http://www.sciencedirect.com/science/article/pii/0377221777900637},
+    author = {Tomas Gal}
+}
+
+% Gal_1979, chapter 9
+
+@incollection{Romanko_et_al_2012,
+    year={2012},
+    isbn={978-1-4614-3923-3},
+    booktitle={Modeling and Optimization: Theory and Applications},
+    volume={21},
+    series={Springer Proceedings in Mathematics & Statistics},
+    editor={Terlaky, Tam\'{a}s and Curtis, Frank E.},
+    doi={10.1007/978-1-4614-3924-0_5},
+    title={Multiobjective Optimization via Parametric Optimization: Models, Algorithms, and Applications},
+    url={http://dx.doi.org/10.1007/978-1-4614-3924-0_5},
+    publisher={Springer New York},
+    author={Romanko, Oleksandr and Ghaffari-Hadigheh, Alireza and Terlaky, Tam\'{a}s},
+    pages={77-119},
+    language={English}
+}
+
+
+% ----------------------------------------------
+% Application: Combined structure control design
+% ----------------------------------------------
+
+@article{Camino_2003,
+  author = {J. F. Camino and M. C. de Oliveira and R. E. Skelton},
+  title = {"{C}onvexifying" linear matrix inequality methods for integrating structure and control design},
+  journal = {Journal of Structural Engineering},
+  year = {2003},
+  volume = {129},
+  pages = {978-988},
+  url = {http://www.researchgate.net/publication/228542320_Convexifying_Linear_Matrix_Inequality_Methods_for_Integrating_Structure_and_Control_Design}
+}
+
+
+% --------------------------
+% Application: feasible sets
+% --------------------------
+
+@article{Henrion_Lasserre_2012,
+  author={D. Henrion and J.B. Lasserre},
+  journal={IEEE Transactions onAutomatic Control},
+  title={Inner approximations for polynomial matrix inequalities and robust stability regions},
+  year={2012},
+  month={June},
+  volume={57},
+  number={6},
+  pages={1456-1467},
+  keywords={control system synthesis;convex programming;geometry;linear matrix inequalities;polynomial approximation;robust control;LMI;asymptotically vanishing conservatism;convex optimization framework;linear matrix inequality problems;nonconvex polynomial stability region geometry;optimization problems;parametrized PMI set;polynomial matrix inequalities inner approximation;polynomial superlevel set;robust fixed-order controller design problems;robust stability regions;Approximation methods;Linear matrix inequalities;Numerical stability;Optimization;Polynomials;Stability criteria;Symmetric matrices;Linear matrix inequality (LMI);moments;polynomial matrix inequality;positive polynomials;robust fixed-order controller design;robust optimization},
+  doi={10.1109/TAC.2011.2178717},
+  ISSN={0018-9286}
+}
+
+
+% --------
+% Software
+% --------
+
+@inproceedings { YALMIP,
+    author = { J. Löfberg },
+    title = { {YALMIP} : A Toolbox for Modeling and Optimization in {MATLAB} },
+    booktitle = { Proceedings of the CACSD Conference },
+    year = { 2004 },
+    url = { http://users.isy.liu.se/johanl/yalmip },
+    address = { Taipei, Taiwan },
+}

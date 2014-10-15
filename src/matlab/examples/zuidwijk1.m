@@ -1,65 +1,42 @@
-close all
-clear all
-clc
+close all; clear all; clc;
 
-d = 3;
-L = 4;
-n = 21;
+d = 3;  % degree
+L = 4;  % Range [0, L]
+n = 21;  % Number of knots
 Bl = BSplineBasis([0 * ones(1, d) linspace(0, L, n) L * ones(1, d)], d);
-l = BSpline(BSplineBasis([0, 0, L, L], 1), [0, L]');
+l = Polynomial([0, 1]);  % The parameter
 
-cvx_solver sedumi  % sdpt3 fails on dual for large n
-% Primal problem
-cvx_begin
-    variable c1(length(Bl))
-    variable c2(length(Bl))
+% 1. Solve primal
+% ===============
+x = BSpline.sdpvar(Bl, [1, 2]);
+obj = x(1) + 2 * x(2);
+con = [x(1) >= 0, x(2) >= 0, x(2) <= 2, x(1) + l * x(2) <= 2];
+options = sdpsettings('verbose',1);
+sol = solvesdp(con, -obj.integral, options);
 
-    x1 = BSpline(Bl, c1);
-    x2 = BSpline(Bl, c2);
-    obj = x1 + 2 * x2;
-    con = [-x1, -x2, x2 - 2, x1 + l * x2 - 2];
-    minimize (-obj.integral)
-    subject to
-        con.getcoeffs <= 0;
-cvx_end
-
-x = linspace(0, L, 101);
-x1 = BSpline(Bl, c1);
-x2 = BSpline(Bl, c2);
-obj = x1 + 2 * x2;
-plot(x, obj.f(x))
+L_ = linspace(0, L, 101);
+x = double(x);
+obj = x(1) + 2 * x(2);
+plot(L_, obj.f(L_))
 hold on
-plot(x(x<=1), 6 - 2 * x(x<=1), 'r')
-plot(x(x<=2 & x>=1), 4 ./ x(x<=2 & x>=1), 'r')
-plot(x(x>=2), 2 * ones(length(x(x >= 2))), 'r')
+plot(L_(L_<=1), 6 - 2 * L_(L_<=1), 'r')
+plot(L_(L_<=2 & L_>=1), 4 ./ L_(L_<=2 & L_>=1), 'r')
+plot(L_(L_>=2), 2 * ones(length(L_(L_ >= 2))), 'r')
 
-% Dual problem
-cvx_begin
-    variable c1(length(Bl))
-    variable c2(length(Bl))
-    variable c3(length(Bl))
-    variable c4(length(Bl))
+% 2. Solve Dual
+% =============
+% y = BSpline.sdpvar(Bl, [1, 4]);
+% obj = 2 * y(3) + 2 * y(4);
+% con = [y >= 0, y(4) - y(1) == 1, -y(2) + y(3) + l * y(4) == 2];
+y = BSpline.sdpvar(Bl, [1, 2]);
+obj = 2 * y(1) + 2 * y(2);
+con = [y >= 0, y(2) >= 1, y(1) + l * y(2) >= 2];
+options = sdpsettings('verbose',1);
+sol = solvesdp(con, obj.integral, options);
 
-    y1 = BSpline(Bl, c1);
-    y2 = BSpline(Bl, c2);
-    y3 = BSpline(Bl, c3);
-    y4 = BSpline(Bl, c4);
-    obj = 2 * y3 + 2 * y4;
-    con = [y4 - y1, -y2 + y3 + l * y4];
-    con_coeffs = con.getcoeffs;
-
-    minimize (obj.integral)
-    subject to
-        con_coeffs(:, 1) == 1;
-        con_coeffs(:, 2) == 2;
-        y1.getcoeffs >= 0;
-        y2.getcoeffs >= 0;
-        y3.getcoeffs >= 0;
-        y4.getcoeffs >= 0;
-cvx_end
-y3 = BSpline(Bl, c3);
-y4 = BSpline(Bl, c4);
-obj = 2 * y3 + 2 * y4;
-plot(x, obj.f(x), 'g')
+L_ = linspace(0, L, 101);
+y = double(y);
+obj = double(obj);
+plot(L_, obj.f(L_), 'g')
 xlabel('\theta')
 ylabel('x_1(\theta) + 2 x_2(\theta)')

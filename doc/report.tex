@@ -1,24 +1,20 @@
 
 \documentclass{article}
-\usepackage{fullpage}
 
+\usepackage{fullpage}
 \usepackage{cite,enumerate}
 \usepackage{color,graphics,graphicx}
 \usepackage[cmex10]{amsmath}
 \usepackage{amssymb,amsfonts,bm,amsthm}
 \usepackage{booktabs}
-\newcommand{\N}{\mathbb{N}}        % integer numbers
-\newcommand{\R}{\mathbb{R}}        % real numbers
-\newcommand{\C}{\mathbb{C}}        % complex numbers
-\renewcommand{\S}{\mathbb{S}}      % symmetric matrices
-\renewcommand{\H}{\mathbb{H}}      % Hermitian matrices
-\renewcommand{\t}{^{\mbox{\tiny \sf T}}}    % matrix transpose
-\newcommand{\ppar}{\theta}                  % parameter in the pprog
-\newcommand{\Ppar}{\Theta}                  % capitalized parameter
-\newcommand{\Htwo}{\mathcal{H}_2}
+
+\graphicspath{{figures/}}
+\setcounter{secnumdepth}{2}
 \DeclareMathOperator*{\minimize}{minimize}
 \DeclareMathOperator*{\maximize}{maximize}
 \DeclareMathOperator*{\subj}{subject\;to}
+\newtheorem{definition}{Definition}
+
 \newcommand{\commentGP}[1]{\noindent \textcolor{blue}{\emph{$<\,$GP: #1$\,>$}}}%
 \newcommand{\commentGH}[1]{\noindent \textcolor{blue}{\emph{$<\,$GH: #1$\,>$}}}%
 \newcommand{\commentWVL}[1]{\noindent \textcolor{blue}{\emph{$<\,$WVL: #1$\,>$}}}%
@@ -36,70 +32,93 @@
 \newlength\fwidth
 \setlength\fwidth{6cm}
 
+% NOTATION
+% General sets
+\newcommand{\N}{\mathbb{N}}         % integer numbers
+\newcommand{\R}{\mathbb{R}}         % real numbers
+\newcommand{\C}{\mathbb{C}}         % complex numbers
+\renewcommand{\S}{\mathbb{S}}       % symmetric matrices
+\renewcommand{\H}{\mathbb{H}}       % Hermitian matrices
+% General operators
+\newcommand{\Tr}{\mathrm{Tr}}       % trace
+% Selected superscripts
+\renewcommand{\t}{\intercal}        % matrix transpose
+\newcommand{\opt}{\star}                    % optimal points and values
+\newcommand{\adj}{\ast}                     % adjoint operator
+% Selected subscripts
+\newcommand{\feas}{\mathrm{f}}              % feasible
+\newcommand{\strfeas}{\mathrm{sf}}          % strictly feasible
+% Parametric program
+\newcommand{\ppar}{\theta}                          % parameter in the pprog
+\newcommand{\Ppar}{{\bm{\theta}}}                   % set of parameters
+\newcommand{\pPar}{\Theta}                          % matrix parameters
+\newcommand{\PPar}{{\bm{\Theta}}}                   % set of matrix parameters
+\newcommand{\X}{\mathbf{X}}                         % domain of primal variable x
+\newcommand{\Y}{\mathbf{Y}}                         % domain of dual variable y
+\newcommand{\K}{\mathbf{K}}                         % cone in \Y
+\newcommand{\calF}{\mathcal{F}}                     % linear mapping defining the constraints
+\newcommand{\Pfeas}{\Ppar^\Pi_\feas}                % set of parameters for which the primal is feasible
+\newcommand{\Pstrfeas}{\Ppar^\Pi_\strfeas}          % set of parameters for which the primal is feasible
+\newcommand{\Dfeas}{\Ppar^\Delta_\feas}             % set of parameters for which the dual is feasible
+\newcommand{\Dstrfeas}{\Ppar^\Delta_\strfeas}       % set of parameters for which the dual is feasible
+% Infinite dimensional reformulation
+\newcommand{\Xm}{{\bm{\mathcal{X}}_{\Ppar}}}        % set of continuous functions \Ppar -> \X
+\newcommand{\Ym}{{\bm{\mathcal{Y}}_{\Ppar}}}        % set of continuous functions \Ppar -> \Y
+\newcommand{\Km}{{\bm{\mathcal{K}}}}                % cone in \Ym
+% Approximation
+\newcommand{\bx}{b^x}               % basis functions of \hat{x}
+\newcommand{\bxa}{\bx_\alpha}       % \alpha'th basis functions of \hat{x}
+\newcommand{\cx}{\textsf{x}}        % coefficients of \hat{x}   ??? should we use $c^x$ ???
+\newcommand{\cxa}{\cx_\alpha}       % \alpha'th coefficient of \hat{x}
+\newcommand{\nx}{{n_x}}             % number of basis functions of \hat{x}
+\newcommand{\by}{b^y}               % basis functions of \hat{y}
+\newcommand{\bya}{\by_\alpha}       % \alpha'th basis functions of \hat{y}
+\newcommand{\cy}{\textsf{y}}        % coefficients of \hat{y}   ??? should we use $c^y$ ???
+\newcommand{\cya}{\cy_\alpha}       % \alpha'th coefficient of \hat{y}
+\newcommand{\ny}{{n_y}}             % number of basis functions of \hat{y}
+\newcommand{\Alpha}{\bm{\alpha}}    % set of multi-indices
+\newcommand{\meanh}{\bar{h}}        % averaged h
+\newcommand{\meanha}{\meanh_\alpha} % \alpha'th entry of averaged h
+\newcommand{\meang}{\bar{g}}        % averaged g
+\newcommand{\meanga}{\meang_\alpha} % \alpha'th entry of averaged g
+% B-spline approximation
+\newcommand{\pparL}{\underline{\ppar}}
+\newcommand{\pparU}{\overline{\ppar}}
+\newcommand{\bPi}{b^\Pi}                % basis functions of constraints in \Pi
+\newcommand{\bPia}{b^\Pi_\alpha}        % \alpha'th basis functions of constraints in \Pi
+\newcommand{\nPi}{{n_\Pi}}              % number of basis functions of constraints in \Pi
+\newcommand{\cg}{\textsf{g}}            % coefficients of g     ??? should we use $c^g$ ???
+\newcommand{\cga}{\textsf{g}_\alpha}    % \alpha'th coefficients of g
+\newcommand{\bDelta}{b^\Delta}          % basis functions of constraints in \Delta
+\newcommand{\bDeltaa}{b^\Delta_\alpha}  % \alpha'th basis functions of constraints in \Delta
+\newcommand{\nDelta}{{n_\Delta}}        % number of basis functions of constraints in \Delta
+\newcommand{\ch}{\textsf{h}}            % coefficients of h     ??? should we use $c^h$ ???
+\newcommand{\cha}{\textsf{h}_\alpha}    % \alpha'th coefficients of h
+\newcommand{\calMF}{\mathcal{M}_{\mathcal{F}}}              % ??? should we use $\mathcal{C}$ ???
+\newcommand{\calMFadj}{\mathcal{M}_{\mathcal{F}^\adj}}
+% SDP example
+\newcommand{\cG}{\textsf{G}}            % coefficients of G
+\newcommand{\cY}{\textsf{Y}}            % coefficients of Y
+\newcommand{\cYa}{\textsf{Y}_\alpha}    % \alpha'th coefficients of Y
+% Control application
+\newcommand{\Htwo}{\mathcal{H}_2}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
-\title{Explicitly Parameterized Solutions of Parametric Cone Programs}
+\title{B-spline Parameterized Approximate Solutions of Parametric Cone Programs}%
 
 \maketitle
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Parametric Programming}\label{sec:overall_approach}
+\section{Introduction}
 
-
-\subsection{Parametric Cone Programs}\label{subsec:parametric_program}
-
-Parametric programming considers optimization problems of which the data are affected by one or more parameters, and analyzes the solution of the problem in function of the parameters. Let us consider the following parametric cone program:
-\begin{gather}\label{eq:parametric_primal}
-\begin{aligned}
-\Pi(\ppar): && \minimize_{x\in\R^n} &&& h(\ppar)\t x\\
-             && \subj                &&& F(\ppar)x+g(\ppar)\preceq_K 0 \;,%
-\end{aligned}
-\end{gather}
-where the problem data depend on parameters $\ppar\in\R^t$. For the proper cone $K$, (combinations of) the nonnegative orthant, the second-order cone and the positive semidefinite cone are considered. The set of all parameter values for which $\Pi(\ppar)$ is feasible is denoted by $\Ppar_\text{feas}$:
-\[ \Ppar_\text{feas} = \{\ppar\in\R^t ~:~ \exists x ,~ F(\ppar)x+g(\ppar)\preceq_K 0 \}\,.%
-\]
-The optimal value function $p^\star:\Ppar_\text{feas}\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $X^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$. More generally, we will consider $\epsilon$-suboptimal set mappings $X_\epsilon^\star:\Ppar_\text{feas}\rightarrow 2^{\R^n}$ which give the $\epsilon$-suboptimal set of $\Pi(\ppar)$ as a function of $\ppar$:
-\[ X^\star_\epsilon(\ppar) = \{x ~:~ F(\ppar)x+g(\ppar)\preceq_K 0 ~,~ h(\ppar)\t x \leq p^\star(\ppar)+\epsilon\} \,.%
-\]
-An optimizer function $x^*:\Ppar_\text{feas}\rightarrow\R^n$ associates to each parameter $\ppar\in\Ppar_{\text{feas}}$ an optimizer $x^*(\ppar)\in X^*(\ppar)$.
-
-Relying of the fact that the considered cones $K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
-\begin{gather}\label{eq:parametric_dual}
-\begin{aligned}
-\Delta(\ppar): && \maximize_{y} &&& g(\ppar)\t y\\
-                && \subj         &&& F(\ppar)\t y + h(\ppar)= 0\\
-                &&               &&& y \succeq_K 0  \;.
-\end{aligned}
-\end{gather}
-Its optimal value function is denoted $d^\star$, its optimal set mapping $Y^\star$ and its $\epsilon$-suboptimal set mappings $Y^\star_\epsilon$.
-
-\commentGP{Above, $\Ppar_\text{feas}$ is purely linked to the feasibility of the primal while feasibility of the dual also matters. Notation: $\Ppar_{\text{pf}}$, $\Ppar_{\text{df}}$?}
-
-\commentGP{Should we mention strict feasibility here? Notation: $\Ppar_{\text{psf}}$, $\Ppar_{\text{dsf}}$?}
-
-
-\subsubsection*{Assumptions}
-
-Below, we present an approach for computing approximate solutions of the considered parametric cone programs on a subset $\Ppar$ of $\Ppar_\text{feas}$. Our approach relies on the following assumptions:
-
-\begin{enumerate}[\bf\text{A}1.]
-\item\label{ass_pdep} The problem data depend polynomially on $\ppar$. That is, $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$ are polynomial functions. \commentGP{This dependency may be considered piecewise polynomial, but do we have applications for this?}
-\item\label{ass_Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$. \commentGP{In a second step we may extend hyperrectangles to general polyhedra.}
-\item\label{ass_feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible.
-\end{enumerate}
-The last assumption guarantees that for all $\ppar\in\Ppar$
-\[ -\infty < p^\star(\ppar) = d^\star(\ppar) < \infty \,,%
-\]
-and that both $p^\star(\ppar)$ and $d^\star(\ppar)$ are attained (i.e. both $X^\star(\ppar)$ and $Y^\star(\ppar)$ are non-empty).
-
-\commentGP{We mainly need these last conditions, so maybe state them as assumption 3, and state below that this can be achieved using Slater's constraint qualification?}
-
+Parametric programming considers optimization problems of which the data are affected by one or more parameters, and analyzes the solution of the problem in function of the parameters. In this report we present an approach for computing approximate solutions to parametric cone programs.
 
 
 \subsection{Literature Survey}
@@ -113,95 +132,597 @@ Although the parametric programming problems mentioned above do admit an explici
 
 Recently, \cite{Oishi2013} presented an alternative approach to construct an approximate solution of the parametric QPs emerging in MPC. The optimizer function is explicitly parameterized as a polynomial function of the parameters. The coefficients are computed to guarantee feasibility for all parameter values and to minimize either the $\ell_\infty$ or the $\ell_1$ norm of the resulting optimal value function approximation. The semi-infinite constraints emerging in this formulation are transformed to finitely many LMIs using sum of squares.
 
+\commentGP{References to SOS approximations of trade-off curves?}
 
-\subsection{Explicitly Parameterized Solutions}\label{subsec:parameterized_solution}%
 
-In this report we adopt an approach similar to \cite{Oishi2013}. We construct an approximate primal optimizer function $\hat{x}(\ppar)$ and dual optimizer function $\hat{y}(\ppar)$ within \textit{a priori} chosen sets of basis functions $b_{x,i}(\ppar)$ and $b_{y,i}(\ppar)$ on $\Ppar$:
-\begin{subequations}\label{eq:approx_sol}
-\begin{align}
-\hat{x}(\ppar, C_x) &\;=\; C_x b_x(\ppar)\;, \label{eq:approx_sol_primal}\\
-\hat{y}(\ppar, C_y) &\;=\; C_y b_y(\ppar)\;, \label{eq:approx_sol_dual}
-\end{align}
-\end{subequations}
-with $b_x{\ppar}=(b_{x,i}(\ppar))$ and $b_y{\ppar}=(b_{y,i}(\ppar))$. \commentGP{Can we talk about basis functions? A basis for what type of functions? (polynomials: only a basis for analytical functions and hence, will generally fail to capture the true optimizer functions, generally only $C^1$, even if we let the number of basis functions go to $\infty$). Particularly for the multi-parametric case, how to choose the basis functions such that asymptotically we will include the true optimizer functions?} The approximate optimizer functions (\ref{eq:approx_sol}), give rise to approximate optimal value functions of the following form:
-\begin{align*}
-\hat{p}(\ppar, C_x) &\;=\;  h(\ppar)\t  C_x b_x(\ppar)\;,\\
-\hat{d}(\ppar, C_y) &\;=\;  g(\ppar)\t  C_y b_y(\ppar)\;.
-\end{align*}
+\subsection{Notation}
 
-In computing the coefficients $C_x$, we impose $\hat{x}(\ppar)$ to be a feasible point of $\Pi(\ppar)$ for all $\ppar\in\Ppar$. Hence, we enforce that for all $\ppar\in\Ppar$, there exists $\epsilon(\ppar)<\infty$ such that
-\[ \hat{x}(\ppar, C_x) \in X^\star_{\epsilon(\ppar)}(\ppar) \;.
-\]
-To obtain the best possible approximation, we minimize $\int_{\Ppar}\epsilon(\ppar)d\ppar$ while respecting the containment constraint above for all $\ppar\in\Ppar$. Since
-\[ \int_{\Ppar}\epsilon(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar, C_x)-p^\star(\ppar)d\ppar = \int_{\Ppar}\hat{p}(\ppar,C_x)d\ppar-\int_{\Ppar}p^\star(\ppar)d\ppar%
-\]
-we end up with the following semi-infinite cone program
-\begin{gather}\label{eq:semi-inf_primal}
+\commentGP{The use of caligraphical symbols is not very consistent. For instance, $\hat{x}(\cx)$ in fact corresponds to a linear mapping $\X^\nx\rightarrow\Xm$.}
+
+\commentGP{The symbol $\calF$ is somewhat abused as we write $\calF(\ppar)$ as well as $\calF x$.}
+
+\commentGP{Confusion because $x$ is used for vectors and vector functions?}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Methodology}\label{sec:methodology}
+
+
+\subsection{Parametric Cone Programs}\label{subsec:parametric_program}
+
+Let us consider a parametric cone program in inequality form:
+\begin{gather}\label{eq:parametric_primal}
 \begin{aligned}
-\hat{\Pi}: && \minimize_{C_x} &&& \int_{\Ppar} h(\ppar)\t  C_x b_x(\ppar) d\ppar\\%
-           && \subj           &&& F(\ppar) C_x b_x(\ppar)+g(\ppar)\preceq_K 0 \;, \quad\forall\ppar\in\Ppar\;.%
+\Pi(\ppar): && \minimize_{x\in\X} &&& \langle h(\ppar), x \rangle\\
+            && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_\K 0 \;,%
 \end{aligned}
 \end{gather}
+where the optimization variable $x$ lives in a finite-dimensional Hilbert space $\X$. The vector $\ppar\in\R^t$ groups the parameters that affect the problem data. For every $\ppar\in\R^t$, $\calF(\ppar)$ corresponds to a linear mapping from $\X$ into a finite Hilbert space $\Y$:
+\begin{align*}
+\calF(\ppar) ~:~ \X~ &\rightarrow~ \Y \\
+                  x~ &\mapsto~ \calF(\ppar)x ~.
+\end{align*}
+The Hilbert space $\Y$ corresponds to the Cartesian product of Euclidean spaces and/or vector spaces of symmetric matrices, and the proper cone $\K\subset\Y$ is a direct product of nonnegative orthants, second-order cones and/or positive semidefinite cones. The set of all parameter values for which $\Pi(\ppar)$ is feasible, respectively strictly feasible, is denoted by $\Pfeas$, respectively $\Pstrfeas$:
+\begin{align*}
+\Pfeas    &= \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\preceq_\K 0 \}\,,\\%
+\Pstrfeas &= \{\ppar\in\R^t ~:~ \exists x ,~ \calF(\ppar)x+g(\ppar)\prec_\K 0 \}\,.%
+\end{align*}
+The optimal value function $p^\opt:\Pfeas\rightarrow\R$ associates with every $\ppar$ the optimal value of $\Pi(\ppar)$, and the corresponding optimal set is given by the optimal set mapping $\bm{x}^\opt:\Pfeas\rightarrow 2^{\X}$:
+\[ \bm{x}^\opt(\ppar) = \{x ~:~ \calF(\ppar)x+g(\ppar)\preceq_\K 0 ~,~ \langle h(\ppar), x \rangle = p^\opt(\ppar)\} \,.%
+\]
+An optimizer function $x^\opt:\Pfeas\rightarrow\R^n$ associates to each parameter $\ppar\in\Pfeas$ an optimizer $x^\opt(\ppar)\in \bm{x}^\opt(\ppar)$.
+
+Relying of the fact that the considered cones $\K$ are self-dual, the dual cone program of $\Pi(\ppar)$ amounts to
+\begin{gather}\label{eq:parametric_dual}
+\begin{aligned}
+\Delta(\ppar): && \maximize_{y\in\Y} &&& \langle g(\ppar) , y \rangle\\
+               && \subj              &&& \calF(\ppar)^* y + h(\ppar)= 0\\
+               &&                    &&& y \succeq_\K 0  \;,
+\end{aligned}
+\end{gather}
+where $\calF(\ppar)^\adj: \Y\rightarrow\X$ denotes the adjoint mapping of $\calF(\ppar)$. The set of all parameter values for which $\Delta(\ppar)$ is (strictly) feasible is denoted by ($\Dstrfeas$) $\Dfeas$. The dual optimal value function is denoted by $d^\opt$, and the corresponding optimal set mapping by $\bm{y}^\opt$.
+
+
+\subsubsection{Assumptions}
+
+Below, we present an approach for computing approximate solutions of the considered parametric cone programs for $\ppar$ is a given set $\Ppar$. Initially, we rely on the assumptions below, while in Section~\ref{subsec:extensions}, Assumptions~{\it\text{A}\ref{ass:pdep}.} and {\it\text{A}\ref{ass:feas}.} will be relaxed.
+\begin{enumerate}[\it\text{A}1.]
+\item\label{ass:pdep} The problem data depend polynomially on $\ppar$. That is, $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$ can be written as
+    \begin{equation}\label{eq:pdep}
+       \calF(\ppar) = \sum_{\alpha\in\Alpha_\calF} \calF_\alpha \, \ppar^\alpha \,,\qquad%
+       g(\ppar)     = \sum_{\alpha\in\Alpha_g}         g_\alpha \, \ppar^\alpha \,,\qquad%
+       h(\ppar)     = \sum_{\alpha\in\Alpha_h}         h_\alpha \, \ppar^\alpha \,,%
+    \end{equation}
+    where $\alpha\in\N^t$ and $\ppar^\alpha$ denotes the monomial $\ppar_1^{\alpha_1} \cdots \ppar_t^{\alpha_t}$.
+\item\label{ass:Ppar} The considered set $\Ppar$ is a hyperrectangle in $\R^t$.
+\item\label{ass:feas} For all $\ppar\in\Ppar$ both the primal program $\Pi(\ppar)$ and the dual program $\Delta(\ppar)$ are strictly feasible. That is: $\Ppar\subseteq\Pstrfeas$ and $\Ppar\subseteq\Dstrfeas$.
+\end{enumerate}
+The last assumption guarantees that for all $\ppar\in\Ppar$ both $p^\opt(\ppar)$ and $d^\opt(\ppar)$ are finite and strong duality holds:
+\[ -\infty < p^\opt(\ppar) = d^\opt(\ppar) < \infty \,.%
+\]
+In addition, this assumption guarantees that both $p^\opt(\ppar)$ and $d^\opt(\ppar)$ are attained: both $\bm{x}^\opt(\ppar)$ and $\bm{y}^\opt(\ppar)$ are non-empty for all $\ppar\in\Ppar$.
+
+
+\subsubsection{Example}
+
+To clarify notation let us consider the following parametric semidefinite program (SDP):
+\[ \begin{aligned}
+\Pi(\ppar): && \minimize_{x\in\R^n} &&& h(\ppar)^\t x \\
+            && \subj                &&& x_1F^1(\ppar) + \cdots + x_nF^n(\ppar) + G(\ppar) \preceq 0 \;.%
+\end{aligned} \]
+Hence $\X = \R^n$, $\Y=\S^m$, the Hilbert space of real symmetric $m\times m$ matrices with $\langle U,V\rangle=\Tr(UV)$, and $\K$ is the corresponding cone of positive semidefinite matrices. We temporarily adopt common SDP notation by indicating vectors with lower case symbols and matrices with upper cases, and by omitting the positive semidefinite cone in the generalized inequality. This problem is of the form (\ref{eq:parametric_primal}) with linear mapping $\calF(\ppar)$ given by
+\begin{align*}
+\calF(\ppar) ~:~ \R^n~ &\rightarrow~ \S^m \\
+                  x~ &\mapsto~ \calF(\ppar)x = x_1F^1(\ppar) + \cdots + x_nF^n(\ppar) ~.%
+\end{align*}
+The corresponding adjoint mapping is
+\begin{align*}
+\calF(\ppar)^\adj ~:~ \S^m~ &\rightarrow~ \R^n\\
+                      Y~ &\mapsto~ \calF(\ppar)^\adj Y = \big(\Tr(F^1(\ppar)Y) \,,\, \ldots \,,\, \Tr(F^n(\ppar)Y)\big) ~,%
+\end{align*}
+such that the dual problem (\ref{eq:parametric_dual}) amounts to
+\[ \begin{aligned}
+\Delta(\ppar): && \maximize_{Y\in\S^m} &&& \Tr(G(\ppar)Y) \\
+               && \subj                &&& \Tr(F^i(\ppar)Y) + h^i = 0\,,\quad i=1,\ldots n \\%
+               &&                      &&& Y \succeq 0 \;.
+\end{aligned} \]
+
+Assumption~{\it\text{A}\ref{ass:pdep}.} requires $F^1(\ppar)$, \ldots, $F^n(\ppar)$, $G(\ppar)$ and $h(\ppar)$ to be polynomial functions. To derive the polynomial coefficients of $\calF(\ppar)$, let $\Alpha^\calF$ group the multi-indices of all monomials in $F^1(\ppar)$, \ldots, $F^n(\ppar)$, such that we can write all these matrices as
+\[  F^i(\ppar) = \sum_{\alpha\in\Alpha^\calF} F^i_\alpha \,, \ppar^\alpha\,,\qquad i=1,\ldots,n\,.%
+\]
+Then, $\calF(\ppar)$ can be written as in (\ref{eq:pdep}) with
+\begin{align*}
+\calF_\alpha ~:~ \R^n~ &\rightarrow~ \S^m \\
+                    x~ &\mapsto~ \calF_\alpha x = x_1F^1_\alpha + \cdots + x_nF^n_\alpha ~.%
+\end{align*}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{B-spline Parameterized Approximate Solution}\label{subsec:parameterized_solution}%
+
+In this section we present an approach for computing piecewise polynomial approximate primal and dual optimizer functions for $\ppar\in\Ppar$. These approximate optimizer functions, indicated by $\hat{x}$ and $\hat{y}$, are such that they (i) yield a feasible point $\hat{x}(\ppar)$ / $\hat{y}(\ppar)$ of $\Pi(\ppar)$ / $\Delta(\ppar)$ for all $\ppar\in\Ppar$; and (ii) minimize the average suboptimality of $\hat{x}(\ppar)$ / $\hat{y}(\ppar)$ over $\Ppar$. The derivation of these approximate optimizer functions starts from the observation that the search for a true optimizer function can be cast as an infinite-dimensional conic program. To obtain a tractable formulation, the set of possible functions is reduced to linear combinations of tensor product B-splines, and the semi-infinite constraints are relaxed to finite sets of constraints by exploiting the positivity of these basis functions.
+
+Our approach contrasts the ones presented in e.g. \commentGP{add refs on SOS approx of explicit MPC and on SOS approx of trade-off curves} in two respects: First, contrary to our piece-wise polynomial parametrization the latter approaches adopt a polynomial parametrization. As optimizer functions are generally not analytical, they are generally more easily approximated by piecewise polynomials compared to polynomials. Second, the approaches [???] rely on sum-of-squares based relaxations to convert the semi-infinite constraints to a finite set of constraints. These relaxations transform every conic constraint into linear matrix inequality (LMI), where the dimensions of the LMI relaxations increase dramatically from linear constraints over second-order cone constraints to LMIs. The B-spline based relaxations we adopt, on the other hand, translate into a set of conic constraints of the same type. Generally, this yields a better trade-off between conservatism and computational complexity.
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Exact solutions through infinite optimization}%
+
+Let $\Xm$ denote the Hilbert space completion of the vector space of continuous mappings $\Ppar \rightarrow \X$ equipped with the following inner product
+\[ \langle u,v \rangle = \int_{\Ppar} \langle u(\ppar), v(\ppar) \rangle \, d\ppar\,,%
+\]
+and let $\Ym$ be defined similarly. \commentGP{Is this equivalent to saying that every entry of $x\in\Xm$ is an element of $L^2_\Ppar$?} In addition, we define the cone $\Km\subset\Ym$ as follows:
+\[ \Km = \{y\in\Ym ~:~ y(\ppar)\in \K,\,\forall \ppar\in\Ppar\}\,,
+\]
+and the linear mapping $\calF:\Xm \rightarrow \Ym$ according to the point-wise application of $\calF(\ppar)$:
+\begin{align*}
+\calF x ~:~ \Ppar &~\rightarrow~ \Y \\
+            \ppar &~\mapsto~ \calF(\ppar)x(\ppar)\,.
+\end{align*}
+The corresponding adjoint mapping $\calF^\adj:\Ym\rightarrow\Xm$ is given by
+\begin{align*}
+\calF^\adj y ~:~ \Ppar &~\rightarrow~ \X \\
+                 \ppar &~\mapsto~ \calF(\ppar)^\adj y(\ppar)\,.
+\end{align*}
+With these definitions the problem of finding a primal optimizer function on $\Ppar$ in $\Xm$ \commentGP{When does such an optimizer function exist?} translates into the following infinite-dimensional program
+\begin{gather}\label{eq:inf_primal}
+\begin{aligned}
+\Pi: && \minimize_{x\in\Xm} &&& \langle h, x \rangle\\
+     && \subj               &&& \calF x + g \preceq_\Km 0 \;.%
+\end{aligned}
+\end{gather}
+%\begin{gather}\label{eq:inf_primal}
+%\begin{aligned}
+%\Pi: && \minimize_{x\in\Xm} &&& \langle h, x \rangle\\
+%     && \subj               &&& \calF(\ppar)x(\ppar) + g(\ppar)\preceq_\K 0 \;, && \forall \ppar\in\Ppar\;.%
+%\end{aligned}
+%\end{gather}
+A solution $x^\opt$ of $\Pi$ yields for every $\ppar\in\Ppar$ a feasible point $x^\opt(\ppar)$ of $\Pi(\ppar)$, and to minimize the integrated objective function over $\Ppar$, every $x^\opt(\ppar)$ must minimize $\langle h(\ppar), x(\ppar) \rangle$. Hence, $x^\opt$ is indeed an optimizer function for the parametric program $\Pi(\ppar)$.
+
+By Riesz's theorem the dual spaces $\Xm'$ and $\Ym'$ are (isomorphic to) the spaces themselves: $\Xm'=\Xm$ and $\Ym'=\Ym$. In addition, the cone $\Km$ is self-dual. As a result, the dual problem of $\Pi$ is given by
+\begin{gather}\label{eq:inf_dual}
+\begin{aligned}
+\Delta: && \maximize_{y\in\Ym} &&& \langle g , y \rangle\\
+        && \subj               &&& \calF^* y + h = 0 \\%
+        &&                     &&& y \succeq_\Km 0 \;,%
+\end{aligned}
+\end{gather}
+%\begin{gather}\label{eq:inf_dual}
+%\begin{aligned}
+%\Delta: && \maximize_{y\in\Ym} &&& \langle g , y \rangle\\
+%        && \subj               &&& \calF(\ppar)^* y(\ppar) + h(\ppar)= 0 \;, && \forall \ppar \in\Ppar\\%
+%        &&                     &&& y(\ppar) \succeq_\K 0                  \;, && \forall \ppar \in\Ppar\;.%
+%\end{aligned}
+%\end{gather}
+and searches for a dual optimizer function on $\Ppar$ in $\Ym$.
+
+\commentGP{Are (\ref{eq:inf_primal}) and (\ref{eq:inf_dual}) indeed each others dual and do the corresponding optimality conditions are equivalent to the optimal mappings $x^\opt$ and $y^\opt$ being optimizer functions for $\Pi(\ppar)$ and $\Delta(\ppar)$?}
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Approximate solutions through semi-infinite optimization}%
+
+To overcome the infinite dimensionality of the optimization problems above, the set of considered mappings is restricted to linear combinations of preset basis functions $b:\Ppar\rightarrow\R$, labeled by the (multi-)index $\alpha$. That is, we propose approximate optimizer functions of the following form:
+\begin{subequations}\label{eq:xy_approx}
+\begin{gather}
+\hat{x}(\cx) = \sum_{\alpha\in\Alpha_x} \cxa \, \bxa \,, \label{eq:x_approx} \\%
+\hat{y}(\cy) = \sum_{\alpha\in\Alpha_y} \cya \, \bya \,, \label{eq:y_approx}%
+\end{gather}
+\end{subequations}
+where $\cx\in\X^\nx$ and $\cy\in\Y^\ny$, with $\nx=|\Alpha_x|$ and $\ny=|\Alpha_y|$. The images of $\hat{x}(\cx)$ and $\hat{y}(\cy)$ for a particular $\theta$ are indicated by $\hat{x}(\cx,\ppar)$ and $\hat{y}(\cy,\ppar)$, respectively.
+%\[ \hat{x}(\cx,\ppar) = \sum_{\alpha\in\Alpha^x} \cx_\alpha \, b^x_\alpha(\ppar) \,, \qquad%
+%   \hat{y}(\cy,\ppar) = \sum_{\alpha\in\Alpha^y} \cy_\alpha \, b^y_\alpha(\ppar) \,. %
+%\]
+
+Substituting parametrization (\ref{eq:x_approx}) into (\ref{eq:inf_primal}) yields the following semi-infinite cone program:
+\begin{gather}\label{eq:semi-inf_primal}
+\begin{aligned}
+\hat{\Pi}: && \minimize_{\cx\in\X^\nx} &&& \langle h, \hat{x}(\cx) \rangle  \\%
+           && \subj                    &&& \calF \hat{x}(\cx) + g \preceq_\Km 0 \;.%
+\end{aligned}
+\end{gather}
+%\begin{gather}\label{eq:semi-inf_primal}
+%\begin{aligned}
+%\hat{\Pi}: && \minimize_{\cx\in\X^\nx} &&& \langle h, \hat{x}(\cx) \rangle  \\%
+%           && \subj                    &&& \calF(\ppar) \hat{x}(\cx,\ppar) + g(\ppar)\preceq_\K 0 \;, && \forall \ppar\in\Ppar\;.%
+%\end{aligned}
+%\end{gather}
 Similarly for the dual:
 \begin{gather}\label{eq:semi-inf_dual}
 \begin{aligned}
-\hat{\Delta}: && \maximize_{C_x} &&& \int_{\Ppar} g(\ppar)\t  C_y b_y(\ppar) d\ppar\\%
-              && \subj           &&& F(\ppar)\t  C_y b_y(\ppar) + h(\ppar)= 0 \;, &&\forall\ppar\in\Ppar\\%
-              &&                 &&&  C_y b_y(\ppar)\succeq_K 0  \;, &&\forall\ppar\in\Ppar\;.%
+\hat{\Delta}: && \maximize_{\cy\in\Y^\ny} &&& \langle g , \hat{y}(\cy) \rangle \\%
+              && \subj                    &&& \calF^* \hat{y}(\cy) + h = 0 \\%
+              &&                          &&& \hat{y}(\cy) \succeq_\Km 0\;.%
 \end{aligned}
 \end{gather}
-Let $C_x^\star$ and $C_y^\star$ denote optimal points of $\hat{\Pi}$ respectively $\hat{\Delta}$ then
-\[ \hat{d}(\ppar,C_y^\star) \leq d^\star(\ppar) \leq p^\star(\ppar) \leq \hat{p}(\ppar,C_x^\star)\,,\qquad\forall\ppar\in\Ppar\,,%
+%\begin{gather}\label{eq:semi-inf_dual}
+%\begin{aligned}
+%\hat{\Delta}: && \maximize_{\cy\in\Y^\ny} &&& \langle g , \hat{y}(\cy) \rangle \\%
+%              && \subj                    &&& \calF(\ppar)^* \hat{y}(\cy,\ppar) + h(\ppar)= 0 \;, && \forall \ppar \in\Ppar\\%
+%              &&                          &&& \hat{y}(\cy,\ppar) \succeq_\K 0                  \;, && \forall \ppar \in\Ppar\;.%
+%\end{aligned}
+%\end{gather}
+
+Let us denote the optimal value functions corresponding to the approximations (\ref{eq:xy_approx}) by $\hat{p}$ and $\hat{d}$:
+\begin{align*}
+\hat{p}(\cx,\ppar) &= \langle h(\ppar), \hat{x}(\cx,\ppar) \rangle \,,\\%
+\hat{d}(\cy,\ppar) &= \langle g(\ppar), \hat{y}(\cy,\ppar) \rangle \,  \,.%
+\end{align*}
+Then for every feasible point $\cx_\feas$ of $\hat{\Pi}$ and every feasible point $\cy_\feas$ of $\hat{\Delta}$, the following holds:
+\begin{equation}\label{eq:gap_approx}
+\hat{d}(\cy_\feas,\ppar) \leq d^\opt(\ppar) = p^\opt(\ppar) \leq \hat{p}(\cx_\feas,\ppar)\,,\qquad\forall\ppar\in\Ppar\,,%
+\end{equation}
+%and the gap between primal and dual objective equals the complementary slackness violation:
+%\[ \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) = \left\langle \calF(\ppar) \hat{x}(\cx_\feas,\ppar) + g(\ppar) \,,\, \hat{y}(\cy_\feas,\ppar) \right\rangle \,.%
+%\]
+%\commentGP{Readily follows from the optimality conditions of $\Pi(\ppar)$ and $\Delta(\ppar)$.}
+and by solving $\hat{\Pi}$ and $\hat{\Delta}$ the coefficients $\cx_\feas$ and $\cy_\feas$ are computed that minimize the average gap over $\Ppar$:
+\[ \inf_{\cx_\feas,\cy_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) - \hat{d}(\cy_\feas,\ppar) d\ppar = %
+   \inf_{\cx_\feas} \int_{\Ppar} \hat{p}(\cx_\feas,\ppar) d\ppar - \sup_{\cy_\feas} \int_{\Ppar} \hat{d}(\cy_\feas,\ppar) d\ppar\,.%
 \]
-and within the chosen parameterization, the average gap $\hat{p}(\ppar,C_x^\star)-\hat{d}(\ppar,C_y^\star)$ over $\Ppar$ is minimal.
+Even if one is only interested in constructing an approximate primal optimizer function, it is only by solving the dual problem as well that one can assess the quality of the approximation through the inequalities in (\ref{eq:gap_approx}).
 
-\vspace*{12pt}
-\noindent\textbf{To add:} Conversion to tracktable optimization problem by using B-splines as basis functions: semi-inf. equality constraints by equalizing B-spline coefficients / semi-inf. inequality constraints by enforcing inequality on the coefficients.
-
-In that last step we rely on properties of the B-spline bases functions (positivity and partition of unity):
-\[ b(\ppar)\geq0\,,~\forall\ppar\in\Ppar \qquad \mathbf{1}\t b \equiv 1\,.%
+In preparation of the elaborations below, the semi-infinite cone programs (\ref{eq:semi-inf_primal}) and (\ref{eq:semi-inf_dual}) are formulated more explicitly in terms of $\cx$ and $\cy$. To this end, we define $\meanh\in\X^\nx$ and $\meang\in\Y^\ny$ as follows:
+\[\begin{aligned}
+   \meanha &= \int_\Ppar h(\ppar)\bxa(\ppar) d\ppar \,, & \quad\alpha\in\Alpha_x \,,\\%
+   \meanga &= \int_\Ppar g(\ppar)\bya(\ppar) d\ppar \,, & \quad\alpha\in\Alpha_y \,,   %
+\end{aligned}\]
+such that
+\[ \langle h, \hat{x}(\cx) \rangle_\Xm = \langle \meanh, \cx \rangle_{\X^\nx} \,,\quad\text{and}\quad%
+   \langle g, \hat{y}(\cy) \rangle_\Ym = \langle \meang, \cy \rangle_{\Y^\ny} \,. %
 \]
-These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppar)$ are a convex combination of their coefficients. \commentGP{Technically, we only need the Bspline positivity for convex cone programs.}
-
-\vspace*{12pt}
-\noindent\textbf{To include somewhere:} Reasons for choosing a B-spline parameterization
-\begin{itemize}
-\item Great approximating power. Whereas polynomials form a basis for analytical functions, in most cases neither the optimizer function nor the optimal value function of the considered parametric programs is analytical. \commentGP{From the viewpoint of approximation the true solution, a simplicial subdivision of the parameter domain would be more appropriate than a hyperrectangular one \ldots}
-\item Transformation of semi-infinite constraints to a finite dimensional set of constraints. Generally good trade-off between conservatism and computational complexity (in contrast to sum-of-squares, particularly for matrix constraints), and 2 ways to reduce conservatism: knot insertion and degree augmentation. \commentGP{We should include some guidelines for choosing between these two and on where to insert knots.}
-\item It allows for various extensions:
-    \begin{itemize}
-    \item The polynomial parameter dependency can be extended to piecewise polynomial. The only complication is that there will be more constraints in the tractable reformulation.
-    \item The problem formulation can be further generalized to include some general convex functions. For instance, if $h(x,\ppar)$ is convex in $x$ for every $\ppar\in\Ppar$, then
-        \[ \int_{\Ppar} h(\hat{x}(\ppar), \ppar) d\ppar
-        \]
-        is convex in the coefficients $C_x$. Hence, general convex objective functions are readily allowed. In addition, if $g(x)$ is convex, then with a Bspline parameterization of $x(\ppar)$:
-        \[ g\left(\sum_{i=1}^m C_{x,i} b_{x,i}(\ppar)\right) \leq \sum_{i=1}^m g(C_{x,i}) b_{x,i}(\ppar) \qquad \forall \ppar\in\Ppar\,. %
-        \]
-        Hence,
-        \[ g(C_{x,i})\leq 0\,,~\forall i=1,\ldots,m \qquad \Rightarrow \qquad g(x(\ppar))\leq0\,,~\forall \ppar\in\Ppar\,.%
-        \]
-        \end{itemize}
-\end{itemize}
+In addition, both parameterizations (\ref{eq:pdep}) and (\ref{eq:xy_approx}) are substituted to reformulate the constraints:
+\begin{subequations}\label{eq:semi-inf_primal_bis}
+\begin{alignat}{4}
+\hat{\Pi}: &\quad& \minimize_{\cx\in\X^\nx} &\quad \langle \meanh, \cx \rangle  \label{eq:semi-inf_primal_bis_a}\\%
+           &\quad& \subj                    &\quad \sum_{\beta\in\Alpha_\calF}\sum_{\alpha\in\Alpha_x} \ppar^\beta\bxa(\ppar)\,\calF_\beta \cxa + g(\ppar)\preceq_\K 0 \;, &\quad& \forall \ppar\in\Ppar\;, \label{eq:semi-inf_primal_bis_b}%
+\end{alignat}
+\end{subequations}
+\begin{subequations}\label{eq:semi-inf_dual_bis}
+\begin{alignat}{4}
+\hat{\Delta}: &\quad& \maximize_{\cy\in\Y^\ny} &\quad \langle \meang, \cy \rangle \label{eq:semi-inf_dual_bis_a}\\%
+              &\quad& \subj                    &\quad \sum_{\beta\in\Alpha_\calF}\sum_{\alpha\in\Alpha_y} \ppar^\beta\bya(\ppar)\,\calF_\beta^* \cya + h(\ppar)= 0 \;, &\quad& \forall \ppar \in\Ppar \label{eq:semi-inf_dual_bis_b}\\%
+              &\quad&                          &\quad \sum_{\alpha\in\Alpha_x} \bya(\ppar)\cya \succeq_\K 0                  \;, &\quad& \forall \ppar \in\Ppar\;. \label{eq:semi-inf_dual_bis_c}%
+\end{alignat}
+\end{subequations}
 
 
-\subsection{Discussion / Notes / Thoughts}
-\begin{itemize}
-\item GP: Should we adopt a more general problem formulation, where we replace the constraint in (\ref{eq:parametric_primal}) by
-    \[ \mathcal{F}(x,\ppar) + F_0(\ppar) \preceq_K 0
-    \]
-    with $\mathcal{F}(x,\ppar)$ a mapping linear in $x$ and polynomial in $\ppar$? The dual problem then involves $\mathcal{F}^{\text adj}(y,\ppar)$.\\ Also, it might be more appropriate to write the explicit parameterizations in the sum form:
-    \[ \hat{x}(\ppar) = \sum_{i=1}^{N_x} C_{x,i}b_{x,i}(\ppar)\,.
-    \]
-    This would be more appropriate when dealing with matrices\ldots
-\item GP: The parameter dependencies $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$ can be extended to be piece-wise polynomial. What is the effect on the overall complexity (e.g. generally more knots and consequently, more constraints at the end) ???
-\item GP: I'm rather sure that the problem formulation can be extended to rational parameter dependencies $h(\ppar)$, $F(\ppar)$ and $g(\ppar)$. Ways to convert the semi-infinite constraints to a finite number of generalized inequalities: nurbs, S-procedure, descriptor forms \ldots
-\item GP: I'm rather sure that, when considering rational parameter dependencies of the data, the solutions $\hat{x}(\ppar)$ and $\hat{y}(\ppar)$ should still be parameterized as a linear combination of basis functions. Hence, no general rational functions with a free numerator and a free denominator. What would be appropriate rational basis functions ???
-\item GP: Which forms of $\Ppar$ are allowed (polyhedra, semi-algebraic sets \ldots) and how to derive such inner approximations of the set of parameter values for which $\Pi(\ppar)$ is strictly feasible? First idea: solve the parametric phase-1 type program:
-    \begin{align*}
-    \minimize_{x,t} &~~ t\\
-    \subj           &~~ F(\ppar)x+g(\ppar)\preceq_K t \bm{1}
-    \end{align*}
-\end{itemize}
+%-----------------------------------------------------------------------------
+\subsubsection{B-spline parameterized approximate solutions through finite optimization}%
+
+To convert the semi-infinite cone programs above to tractable optimization problems the optimizer functions are parameterized as tensor product polynomial splines. Tensor product B-splines are chosen as basis functions for this parametrization, and relying on their properties the semi-infinite cone constraints in (\ref{eq:semi-inf_primal_bis}) and (\ref{eq:semi-inf_dual_bis}) are relaxed to finite sets of constraints.
+
+Let us first consider univariate polynomial splines (i.e. piecewise polynomials) on a finite closed interval $\Ppar=[\pparL,\pparU]\subset\R$. Let $\xi = (\xi_0, \ldots, \xi_{l+1})$ be a sequence of points satisfying
+\[ \pparL = \xi_0 < \xi_1 < \cdots < \xi_{l} < \xi_{l+1} = \pparU \,,
+\]
+Let $k$ be a positive integer, and let $\nu=(\nu_1,\ldots,\nu_l)$ be a vector of integers with $0\leq \nu_i\leq k-1$. Then, $s$ is a polynomial spline of order $k$ with break points $\xi_1,\ldots,\xi_l$ and continuity conditions $\nu_1,\ldots,\nu_l$ if there exist polynomials $p_0, \ldots, p_l$ of order $k$ such that
+\begin{align*}
+s(x) = p_i(x)\,,\quad &\text{for~} \xi_i \leq x<\xi_{i+1}\,,\quad i = 0,1,\ldots,l-1\\%
+s(x) = p_l(x)\,,\quad &\text{for~} \xi_l \leq x\leq\xi_{l+1}\,,  %
+\end{align*}
+and
+\[ D^{j-1} p_{i-1}(\xi_i) = D^{j-1} p_i(\xi_i) \,,\quad \text{for~} j = 1, \ldots, \nu_i\,,\quad i = 1,\ldots,l\,.%
+\]
+The vector space of polynomial splines with a given $\xi$, $k$ and $\nu$ has dimension $n = (l+1)k-\sum_{i=1}^l \nu_i$, and as basis functions we use the normalized B-splines of order $k$ for the knot sequence $\lambda$:
+\[ \lambda = (\underbrace{\xi_0, \ldots, \xi_0}_k \,,\, \underbrace{\xi_1,\ldots,\xi_1}_{k-\nu_1} \,,\, \ldots \,,\, \underbrace{\xi_l,\ldots,\xi_l}_{k-\nu_l} \,,\, \underbrace{\xi_{l+1},\ldots,\xi_{l+1}}_{k})\,.%
+\]
+These basis functions will be denoted $b_{i,k,\lambda}$, $i=1,\ldots, n$ and $b_{k,\lambda} = (b_{1,k,\lambda},\ldots,b_{n,k,\lambda})$. B-splines are commonly chosen as basis for polynomial splines as they yield a stable evaluation of the functions and their derivatives, and have various useful properties \cite{deBoor_2001,Schumaker_2007}: They are nonnegative, sum up to one (partition of unity), and have local (minimal) support. \commentGP{more explanation?} Note that the restriction of a univariate polynomial to $\Ppar$ is also a polynomial spline.
+
+Tensor product polynomial splines constitute a particular multivariate  generalization of univariate polynomial splines using the tensor product construct. To define tensor product splines on
+\[  \Ppar = [\pparL^1,\pparU^1] \times \cdots \times  [\pparL^t,\pparU^t] \subset\R^t \,,%
+\]
+a degree $k^j$, break point sequence $\xi^j$ and continuity conditions vector $\nu^j$ needs to be specified for every coordinate $\ppar_j$, $j=1,\ldots,t$. Let the corresponding B-spline basis for every coordinate be indicated by $b_{k^j,\lambda^j}$, then the corresponding space of tensor product splines is defined as
+\[ \text{span} \{b_\alpha\}_{\alpha\in\Alpha} \,,
+\]
+with
+\begin{align*}
+& b_\alpha(\ppar) = \prod_{j=1}^t b_{\alpha_j, k^j, \lambda^j,}(\ppar_j) \,,\\%
+& \Alpha = \big\{(\alpha_1, \ldots, \alpha_t) ~:~ \alpha_j\in\{1,\ldots,n_j\},~ j=1,\ldots,t \big\}%
+\end{align*}
+The properties of the coordinate B-splines transfer to the tensor product B-splines $b_\alpha$: they are linearly independent, nonnegative, sum up to one (partition of unity), and have local (minimal) support. Also, the restriction of a multivariate polynomial to $\Ppar$ is a tensor product polynomial spline.
+
+Let us substitute a tensor product B-spline basis for $\bx$ in the formulation (\ref{eq:semi-inf_primal_bis}) of $\hat{\Pi}$. Then every term $\ppar^\beta \bxa$ in (\ref{eq:semi-inf_primal_bis_b}) is a tensor product spline multiplied with a monomial. Hence, each term is a tensor product spline itself, with the same break points and continuity conditions as $\bx$, but of higher order. Let $\bPi$ be the common tensor product B-spline basis for all terms $\ppar^\beta b_\alpha$ in (\ref{eq:semi-inf_primal_bis_b}) as well as the restriction $g|_\Ppar$ of the polynomial $g$ to $\Ppar$. The integer $\nPi$ indicates the dimension of $\bPi$, and the coefficients of $g|_\Ppar$ in this basis are denoted by $\cg\in\Y^\nPi$:
+\[ g|_\Ppar = \sum_{\alpha\in\Alpha_\Pi} \cga \bPia\,.%
+\]
+In addition, $\calMF:\X^\nx \rightarrow \Y^\nPi$ denotes the linear mapping that returns the coefficients of $\calF\hat{x}(\cx)$ in the basis $\bPi$. That is, for every $\cx\in\X^\nx $
+\[ \calF\hat{x}(\cx) = \sum_{\alpha\in\Alpha_\Pi} (\calMF \, \cx)_\alpha \, \bPia\,. %
+\]
+Consequently, the semi-infinite constraint (\ref{eq:semi-inf_primal_bis_b}) can be written as
+\[ \sum_{\alpha\in\Alpha_\Pi} \big( (\calMF \, \cx)_\alpha + \cga \big) \bPia(\ppar) \preceq_\K 0\,,\quad\forall\ppar\in\Ppar\,.%
+\]
+As the tensor product B-splines are nonnegative, this semi-infinite constraint hold if all coefficients are negative with respect to the cone $\K$. By tightening the constraint in this way, the semi-infinite program (\ref{eq:semi-inf_primal_bis}) is relaxed to
+\begin{gather}\label{eq:Bprog_primal}
+\begin{aligned}
+\hat{\Pi}_{\text{B-spline}}: && \minimize_{\cx\in\X^\nx} &&& \langle \meanh, \cx \rangle  \\%  \\%
+                             && \subj                    &&& \calMF \, \cx + \cg \preceq_{\K^\nPi} 0 \;.%
+\end{aligned}
+\end{gather}
+
+A similar procedure is adopted for the dual problem $\hat{\Delta}$. Substituting a tensor product B-spline basis for $\by$ in (\ref{eq:semi-inf_dual_bis}), the semi-infinite equality constraint (\ref{eq:semi-inf_dual_bis_b}) concerns a tensor product spline with the same breakpoints and continuity conditions as $\by$ but of higher order. The corresponding tensor product B-spline basis is denoted by $\bDelta$, and its dimension by $\nDelta$. The coefficients of $h|_\Ppar$ in this basis are denoted by $\ch\in\X^\nDelta$:
+\[ h|_\Ppar = \sum_{\alpha\in\Alpha_\Delta} \cha \bDeltaa \,,%
+\]
+and $\calMFadj:\Y^\ny \rightarrow \X^\nDelta$ denotes the linear mapping that returns the coefficients of $\calF^\adj\hat{y}(\cy)$ in the basis $\bDelta$: for every $\cy\in\Y^\ny$
+\[ \calF^\adj \hat{y}(\cy) = \sum_{\alpha\in\Alpha_\Delta} (\calMFadj \, \cy)_\alpha \, \bDeltaa\,. %
+\]
+This way, equality constraint (\ref{eq:semi-inf_dual_bis_b}) is equivalent to
+\[ \calMFadj\,\cy + \ch = 0 \,.
+\]
+Relaxing the semi-infinite cone constraint (\ref{eq:semi-inf_dual_bis_c}) using the positivity of the tensor product B-splines, we obtain
+\begin{gather}\label{eq:Bprog_dual}
+\begin{aligned}
+\hat{\Delta}_{\text{B-spline}}: && \maximize_{\cy\in\Y^\ny} &&& \langle \meang, \cy \rangle \\%
+                                && \subj                    &&& \calMFadj\,\cy + \ch = 0 \\%
+                                &&                          &&& \cy \succeq_{\K^\ny} 0     \;.%
+\end{aligned}
+\end{gather}
+
+Positivity of the tensor product B-spline coefficients is only a sufficient
+condition for the conic inequality constraints in $\hat{\Pi}$ and
+$\hat{\Delta}$ to hold for all $\ppar\in\Ppar$ and hence these conditions
+inevitably introduce conservatism. The conservatism is due to the distance
+between the control polytope of a spline \commentWVL{Define polytope in
+appendix?} and the spline itself. This distance is
+essentially determined by two factors, the knots and the degree, leading to
+two strategies reduce conservatism, knot insertion and degree elevation.
+
+Knot insertion adds new knots into the existing knot sequence without changing
+the shape of the spline. The more refined the knot sequence, the closer the
+control polytope lies to the spline, as illustrated in Figure... .
+\commentWVL{Introduce yet another linear mapping?} Knot insertion acts locally
+on the constraints and can target specific regions where the conservatism is
+high (see Section~???).
+
+Degree elevation on the other hand is a global approach. This strategy
+expresses the spline in a basis of higher degree, similar to P\'olya's
+relaxation for polynomials. Figure ... illustrates the control polytope  Whereas inserting a single
+knot increases the dimension of the basis by one, degree elevation requires the
+same continuity conditions and increases the dimension by $l+1$, which is
+equivalent to one midpoint refinement of the knot sequence.
+
+Both knot insertion and degree elevation require a basis transformation, given
+by a transformation matrix $T_a^b$ such that $b^b = T_a^b b^a$. It can be shown
+that this transformation matrix is always entrywise nonnegative~\commentWVL{
+appendix?} such that
+conservatism is reduced with each refinement.
+
+Generally, knot insertion performs better than degree elevation. It can be
+shown that the distance between the control polytope and the spline is
+proportional to~\cite{deBoor_2001} \commentWVL{Formula? Also interesting papers
+on this topic by Lutterkort}
+
+\commentWVL{
+Another source of conservatism is more fundamental and lies in the
+chosen parameterization. The ability of a B-spline to approximate a given
+continuously differentiable function is discussed at length in~\cite[Chapter
+XII]{deBoor_2001}.
+}
+
+\commentGP{As a general note: The way in which the methodology is explained and the optimization problems are formulated in this report shouldn't match the corresponding numerical implementations. For instance, to enforce a spline to equal zero, numerically it may not be the best idea to compute the spline's coefficients in a B-spline basis and then enforce the coefficients to equal zero. One can also enforce the spline evaluations for various points to equal zero. In addition, it is generally a good attitude to eliminate equality constraints in the parametric programs.}
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Example}
+
+To clarify the elaborations above, we continue the example of Section~\ref{subsec:parametric_program}. For the sake of clarity, we assume a scalar parameter $\ppar\in\Ppar=[0,1]\subset\R$, $G$ and $h$ to be parameter independent, and $\calF(\ppar)$ to have a polynomial dependency of order 2 (i.e. degree $<2$): $\Alpha_\calF = \{0,1\}$. We seek continuous approximate optimizer functions $\hat{x}$ and $\hat{y}$ that are piecewise linear on $\Ppar$ with one internal break point at $0.5$. That is: $k=2$, $\xi = (0, 0.5, 1)$ and $\nu = 1$, and the space of such splines has dimension $n=3$. The knot sequence for the corresponding  B-spline basis equals $\lambda=(0,0,0.5,1,1)$ and the basis functions  $b_{2,\lambda}$ are depicted in Figure~\ref{fig:exSDP}(a). In this case, the nonnegativity and the partition of unity property of the basis functions are readily verified.
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[scale=1]{b_exSDP.pdf}
+\end{center}
+\caption{Normalized B-spline basis functions: (a) $\bx=\by$; and (b) $\bPi=\bDelta$.} %
+\label{fig:exSDP}
+\end{figure}
+
+Let us now consider an approximate primal optimizer function of the form (\ref{eq:x_approx}) with $\bx = b_{2,\lambda}$ and hence, $\Alpha_x=\{1,2,3\}$. Elaborating mapping $\calF \hat{x}(\cx)$ as in (\ref{eq:semi-inf_primal_bis_b}) yields
+\begin{equation}\label{eq:exSDP1}
+\calF \hat{x}(\cx) = \bx_1 \, \calF_0\cx_1 + \bx_2 \, \calF_0\cx_2 + \bx_3 \, \calF_0\cx_3 + \ppar\bx_1 \, \calF_1\cx_1 + \ppar\bx_2 \, \calF_1\cx_2 + \ppar\bx_3 \, \calF_1\cx_3 \,,%
+\end{equation}
+As clarified in Section~\ref{subsec:parametric_program}, the coefficients $\calF_\beta \cxa \in \S^m$, with $\beta\in\{0,1\}$ and $\alpha\in\{1,2,3\}$, are given by
+\[ \calF_\beta \cxa = \cx_{\alpha,1} F_\beta^1 + \cdots + \cx_{\alpha,n} F_\beta^n \,.%
+\]
+Both the basis functions $\bx$ multiplied by $\ppar$ as well as the basis functions themselves are polynomial splines of order 3, with knots $\xi = (0, 0.5, 1)$ and continuity condition $\nu = 1$. The corresponding B-spline basis $\bPi$ is shown in Figure~\ref{fig:exSDP}(b). To formulate $\calF \hat{x}(\cx)$ in terms of $\bPi$ we use the following relations
+\[ \begin{bmatrix} \bx_1 \\ \bx_2 \\ \bx_3 \\ \ppar\bx_1 \\ \ppar\bx_2 \\ \ppar\bx_3 \end{bmatrix} = %
+   \begin{bmatrix} 1 & 0.5  & 0   & 0    & 0 \\
+                   0 & 0.5  & 1   & 0.5  & 0 \\
+                   0 & 0    & 0   & 0.5  & 1 \\
+                   0 & 0.25 & 0   & 0    & 0 \\
+                   0 & 0    & 0.5 & 0.5  & 0 \\
+                   0 & 0    & 0   & 0.25 & 1 \end{bmatrix}
+   \begin{bmatrix} \bPi_1 \\[2pt] \bPi_2 \\[2pt] \bPi_3 \\[2pt]  \bPi_4 \\[2pt] \bPi_5 \end{bmatrix} \,,%
+\]
+to rewrite (\ref{eq:exSDP1}) as
+\[\begin{aligned}
+    \calF \hat{x}(\cx) &= (\calF_0\cx_1)\,\bPi_1 + (0.5\calF_0\cx_1 + 0.5\calF_0\cx_2 + 0.25 \calF_1\cx_1)\, \bPi_2 %
+                       + (\calF_0\cx_2+0.5\calF_1\cx_2)\,\bPi_3 + \\%
+                       &\qquad + (0.5\calF_0\cx_2+\calF_0\cx_3+\calF_1\cx_2+0.25\calF_1\cx_3)\,\bPi_4 %
+                       + (\calF_0\cx_3 +\calF_1\cx_3)\,\bPi_5\,.
+\end{aligned}\]
+The function $\calMF$ maps every $\cx$ into the five coefficients above. From fact that $\bPia$ forms a partition of unity:
+\[ 1 = \sum_{\alpha=1}^5 \bPia \,,
+\]
+we get the coefficients of $G|_\Ppar$ in $\bPi$:
+\[ \cG = (G \,,\, G \,,\, G \,,\, G \,,\, G) \,.%
+\]
+By additionally substituting the integrals of $\bx$
+\[ \int_\Ppar \bx_1(\ppar)d\ppar = 0.25\,,\quad \int_\Ppar \bx_2(\ppar)d\ppar = 0.5 \,,\quad \int_\Ppar \bx_3(\ppar)d\ppar = 0.25 \,,%
+\]
+the conic program $\hat{\Pi}_{\text{B-spline}}$ (\ref{eq:Bprog_primal}) amounts to
+\[\begin{aligned}
+\hat{\Pi}_{\text{B-spline}}: && \minimize_{\cx_1,\cx_2,\cx_3\in\R^n} &&&  0.25\,h^\t\cx_1 + 0.5\,h^\t\cx_2 + 0.25\,h^\t\cx_3  \\%
+                             && \subj                               &&& \calF_0\cx_1 + G \preceq 0 \\%
+                             &&                                     &&& 0.5\calF_0\cx_1 + 0.5\calF_0\cx_2 + 0.25 \calF_1\cx_1 + G \preceq 0 \\%
+                             &&                                     &&& \calF_0\cx_2+0.5\calF_1\cx_2 + G \preceq 0 \\%
+                             &&                                     &&& 0.5\calF_0\cx_2+\calF_0\cx_3+\calF_1\cx_2+0.25\calF_1\cx_3 + G \preceq 0 \\%
+                             &&                                     &&& \calF_0\cx_3 +\calF_1\cx_3 + G \preceq 0 %
+\end{aligned}\]
+
+Using $\by = \bx = b_{2,\lambda}$ for the dual yields $\bDelta=\bPi$, and the conic program $\hat{\Delta}_{\text{B-spline}}$ (\ref{eq:Bprog_dual}) amounts to
+\[\begin{aligned}
+\hat{\Delta}_{\text{B-spline}}: && \minimize_{\cY_1,\cY_2,\cY_3\in\S^m} &&&  0.25\,\Tr(G\cY_1) + 0.5\,\Tr(G\cY_2) + 0.25\,\Tr(G\cY_3)  \\%
+                                && \subj                                &&& \calF^\adj_0\cY_1 + h = 0 \\%
+                                &&                                      &&& 0.5\calF^\adj_0\cY_1 + 0.5\calF^\adj_0\cY_2 + 0.25 \calF^\adj_1\cY_1 + h = 0 \\%
+                                &&                                      &&& \calF^\adj_0\cY_2+0.5\calF^\adj_1\cY_2 + h = 0 \\%
+                                &&                                      &&& 0.5\calF^\adj_0\cY_2+\calF^\adj_0\cY_3+\calF^\adj_1\cY_2+0.25\calF^\adj_1\cY_3 + h = 0 \\%
+                                &&                                      &&& \calF^\adj_0\cY_3 +\calF^\adj_1\cY_3 + h = 0 \\%
+                                &&                                      &&& \cY1, \cY2, \cY3 \succeq 0 %
+\end{aligned}\]
+Recall from Section~\ref{subsec:parametric_program} that the vectors $\calF^\adj_\beta \cYa \in \R^n$, with $\beta\in\{0,1\}$ and $\alpha\in\{1,2,3\}$, are given by
+\[ \calF^\adj_\beta \cYa = \big(\Tr(F_\beta^1\cYa) \,,\, \ldots \,,\, \Tr(F_\beta^1\cYa) \big)\,.%
+\]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Extensions}\label{subsec:extensions}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Allowing data with spline parameter dependencies}
+
+The polynomial parameter dependencies required in  Assumption~{\it\text{A}\ref{ass:pdep}.} can readily be extended to tensor product polynomial spline dependencies for $\calF(\ppar)$, $g(\ppar)$ and $h(\ppar)$. The relaxation of the semi-infinite programs $\hat{\Pi}$ and $\hat{\Delta}$ to tractable cone programs $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ using the positivity of B-splines remains valid, only the dimensions of the bases $\bPi$ and $\bDelta$ increase.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Allowing infeasible parameter values}%
+
+To relax Assumption~{\it\text{A}\ref{ass:feas}.} a two step procedure is proposed. Let us consider the case where $\Ppar\subseteq\Dfeas$ but $\Ppar\nsubseteq\Pfeas$. In the first step, we solve the following parametric phase I problem for $\Pi(\ppar)$:
+\[ \begin{aligned}
+\Phi(\ppar): && \minimize_{x\in\X, t\in\R} &&& t \\%
+             && \subj                      &&& \calF(\ppar)x + g(\ppar)\preceq_\K  \mathbf{1} t \;,%
+\end{aligned} \]
+as well as the corresponding dual
+\[ \begin{aligned}
+\Psi(\ppar): && \maximize_{y\in\Y} &&& \langle g(\ppar), y \rangle \\%
+             && \subj              &&& \calF(\ppar)^\adj y = 0 \\%
+             &&                    &&& \langle \mathbf{1}, y \rangle = 1\\%
+             &&                    &&& y \succeq_\K 0 \;.%
+\end{aligned} \]
+Note that both $\Phi(\ppar)$ and $\Psi(\ppar)$ are strictly feasible for all parameter values $\ppar\in\PPar$ so that we can apply the methodology of Section~\ref{subsec:parameterized_solution} to get approximate optimizer functions $\hat{x}$, $\hat{t}$ and $\hat{y}$. These allow us to determine $\Pfeas\subset\Ppar$ as
+\[ \begin{aligned}
+\hat{t}(\ppar) \leq 0 &~~\Rightarrow~~ \ppar\in\Pfeas \,,\\
+\langle g(\ppar), \hat{y}(\ppar) \rangle > 0 &~~\Rightarrow~~ \ppar\notin\Pfeas\,.%
+\end{aligned}\]
+
+In the second step, we solve the relaxed problem
+\[ \begin{aligned}
+\Pi_{\hat{t}_+}(\ppar): && \minimize_{x\in\X} &&& \langle h(\ppar), x \rangle\\%
+                        && \subj              &&& \calF(\ppar)x +g(\ppar)\preceq_\K \mathbf{1} \hat{t}_+(\ppar)  \;,%
+\end{aligned} \]
+where $\hat{t}_+$ is constructed from $\hat{t}$ by replacing its negative coefficients by zero such that
+\[ \hat{t}_+(\ppar) \gtrapprox \max\{0, \hat{t}(\ppar)\}\,,\quad\forall\ppar\in\Ppar\,.%
+\]
+Note that $\hat{t}_+(\ppar)$ would be the result of our approach applied to $\Phi(\ppar)$ supplemented with the constraint $t\geq0$. The dual problem of $\Pi_{\hat{t}_+}(\ppar)$ is given by
+\[ \begin{aligned}
+\Delta_{\hat{t}_+}(\ppar): && \maximize_{y\in\Y} &&& \langle g(\ppar) - \hat{t}_+(\ppar), y \rangle\\%
+               && \subj              &&& \calF(\ppar)^* y + h(\ppar)= 0\\
+               &&                    &&& y \succeq_\K 0  \;.
+\end{aligned}\]
+
+A similar two-step procedure is adopted in case $\Ppar\subseteq\Pfeas$ but $\Ppar\nsubseteq\Dfeas$.\\
+
+\commentGP{How to deal with cases where $\Ppar\nsubseteq\Pfeas$ and $\Ppar\nsubseteq\Dfeas$. That is: for some values $\ppar$ $\Pi(\ppar)$ is infeasible and for some others it is unbounded below; and the same occurs in $\Delta(\ppar)$.}
+
+\commentGP{So far we have only looked at cases with one constraint (e.g. one LMI). In the case of multiple constraints: do we keep 1 common $t$, or does every constraint gets its own $t$?}
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Computing a feasible point for $\hat{\Delta}_{\text{B-spline}}$ from $\hat{\Pi}_{\text{B-spline}}$ or vice versa}%
+
+In general, both $\hat{\Pi}_{\text{B-spline}}$ and $\hat{\Delta}_{\text{B-spline}}$ need to be solved in order to assess the quality of the resulting approximate optimizer functions by means of the inequalities in (\ref{eq:gap_approx}). However, in particular cases a feasible point for $\hat{\Delta}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$ that can be used to assess the quality of the approximate primal optimizer function $\hat{x}(\cx)$. In other cases, a feasible point for $\hat{\Pi}_{\text{B-spline}}$ can be constructed from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ to assess the quality of the approximate dual optimizer function $\hat{y}(\cy)$.
+
+Below, we elaborate the construction of a feasible point for $\hat{\Delta}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Pi}_{\text{B-spline}}$. This construction requires $\calF(\ppar)$ and $h(\ppar)$ to be parameter-independent:
+\[  \calF(\ppar) = \calF\,,\qquad h(\ppar) = h\,.
+\]
+\commentGP{notation conflict: $\calF$ is also used for the function mapping!?!} The construction of a feasible point for $\hat{\Pi}_{\text{B-spline}}$ from the Lagrange multipliers of $\hat{\Delta}_{\text{B-spline}}$ proceeds along the same lines, but then $g(\ppar)$ is required to be parameter independent instead of $h(\ppar)$.
+
+Let $\bPi$ be a tensor product B-spline basis that encompasses both $\hat{x}(\cx)$ and $g$. To represent $\hat{x}(\cx)$ in the basis $\bPi$, we introduce the transformation matrix $T\in\R^{\nx\times\nPi}$ that captures the coefficients in $\bPi$ of every basis $\bxa$:
+\[ \bx = T \bPi\,.
+\]
+As elaborated in Section~???, all entries in $T$ are nonnegative. According to this basis transformation, the coefficients of $\hat{x}(\cx) = \sum_{\alpha\in\Alpha_x}\cxa\bxa$ in the basis $\bPi$ are given by
+\[  \sum_{\alpha\in\Alpha_x}\! T_{\alpha,\beta}\,\cx_\alpha\;, \quad \beta\in\Alpha_\Pi\,.%
+\]
+Combining this decomposition of $\hat{x}(\cx)$ with the parameter independency of $\calF$, the problem $\hat{\Pi}_\text{B-spline}$ can be formulated as
+\begin{gather*}
+\begin{aligned}
+\hat{\Pi}_\text{B-spline}: && \minimize_{\cx\in\X^\nx} &&& \langle \meanh, \cx \rangle    \\%
+                           && \subj                    &&& \calF \sum_{\alpha\in\Alpha_x}\! T_{\alpha,\beta}\,\cx_\alpha + \cg_\beta \preceq_\K 0 \;, \quad \forall \beta\in\Alpha_\Pi\;.%
+\end{aligned}
+\end{gather*}
+Because of our assumption of $h$ being parameter independent,
+\begin{equation}\label{eq:ass_h}
+\meanha = h \, \underbrace{\int_\Ppar \bxa(\ppar)d\ppar}_{\rho_\alpha} \,.%
+\end{equation}
+The Lagrange dual of $\hat{\Pi}_\text{B-spline}$ is given by
+\begin{gather}\label{eq:Bprog_primal2_dualized}
+\begin{aligned}
+ && \maximize_{z\in\Y^\nPi} &&& \langle \cg, z \rangle    \\%
+ && \subj                   &&& \calF^\adj \sum_{\beta\in\Alpha_\Pi}\!T_{\alpha,\beta}\,z_\beta +  \meanha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
+ &&                         &&& z \succeq_{\K^\nPi} 0 \;,%
+\end{aligned}
+\end{gather}
+while the program $\hat{\Delta}_\text{B-spline}$ with $\by=\bx$ equals
+\begin{gather}\label{eq:Bprog_dual2}
+\begin{aligned}
+\hat{\Delta}_\text{B-spline}: && \maximize_{\cy\in\Y^\nx} &&& \langle \meang, \cy \rangle    \\%
+                              && \subj                    &&& \calF^* \cya +  \cha = 0 \;, \quad \forall \alpha\in \Alpha_x\\%
+                              &&                          &&& \cy \succeq_{\K^\nx} 0 \;.%
+\end{aligned}
+\end{gather}
+Here $\cha$ denote the coefficients of $h$ in the basis $\bx$. Because of the partition of unity property of B-splines, we obtain for a parameter independent $h$
+\[ \cha = h\,,\quad\forall\alpha\in\Alpha_x\,.
+\]
+From a solution $z$ of (\ref{eq:Bprog_primal2_dualized}), i.e. from the Lagrange multipliers of $\hat{\Pi}_\text{B-spline}$, a feasible point $\cy$ of $\hat{\Delta}_\text{B-spline}$ (\ref{eq:Bprog_dual2}) is constructed as follows:
+\[ \cya = \frac{1}{\rho_\alpha} \, \sum_{\beta\in\Alpha_\Pi}\! T_{\alpha,\beta}\,z_\beta\,,\quad\alpha\in\Alpha_x\,.%
+\]
+This point $\cy$ clearly satisfies the equality constraint in (\ref{eq:Bprog_dual2}). In addition, $\cy \succeq_{\K^\nx} 0$ because $z \succeq_{\K^\nPi} 0$, all entries $T_{\alpha,\beta}$ are nonnegative, and the scalars $\rho_\alpha$, as defined in (\ref{eq:ass_h}) are positive. Although $\cy$ is generally not optimal for (\ref{eq:Bprog_dual2}), its suboptimality is often limited, particularly when $T=I$ (i.e. $\bPi=\bx$).
+
+As a final remark we note that the parameter independency assumption on $h$ can be relaxed to the requirements that $h$ is included in $\text{span}\{\bx\}$, and there exist positive scalars $\rho_\alpha$ such that
+\[ \meanha = \rho_\alpha \, \cha \,.
+\]
+This last requirement, for instance, allows for $h(\ppar)$ of the form $h(\ppar)=hs(\ppar)$, with $s$ a scalar spline with positive B-spline coefficients.
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Local refinements}
+Local support of the basis functions allow for cheap local refinements both in the relaxation of the semi-infinite constraints as in the approximation $x(\ppar)$ or $y(\ppar)$.
+\commentWVL{Perhaps we should look at literature concerning subdivision schemes
+for B-spline approximation}
+
+
+%-----------------------------------------------------------------------------
+\subsubsection{Minimizing the approximations' duality gap}
+
+As explained in Section~\ref{subsec:parameterized_solution}, solving $\hat{\Pi}$ (\ref{eq:semi-inf_primal}) and $\hat{\Delta}$ (\ref{eq:semi-inf_dual}) is equivalent to minimizing the average of the duality gap $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$. As an alternative, the root mean square value of the gap can be minimized, or its peak value. In contrast to the former, the latter two couple the computations of $\cx$ and $\cy$. For instance, minimizing the peak value of $\hat{p}(\cx,\ppar)-\hat{d}(\cy,\ppar)$ over $\Ppar$ amounts to
+\[ \begin{aligned}
+\minimize &&& t \\%
+\subj     &&& \langle h(\ppar) , \hat{x}(\cx,\ppar) \rangle - \langle g(\ppar) , \hat{y}(\cy,\ppar) \rangle \leq t\,,\quad\forall\ppar\in\Ppar\\ %
+          &&& \calF \hat{x}(\cx) + g \preceq_\Km 0 \\%
+          &&& \calF^* \hat{y}(\cy) + h = 0 \\%
+          &&& \hat{y}(\cy) \succeq_\Km 0\;,%
+\end{aligned}\]
+with optimization variables $\cx\in\X^\nx$, $\cy\in\Y^\ny$ and $t\in\R$.
+
+\subsubsection{General parametric convex programming}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Allowing general parametric convex functions}
+
+The objective function in $\Pi(\ppar)$ can be generalized to a function $h(x,\ppar)$ that is convex in $x$ for every $\ppar\in\Ppar$. The semi-infinite program $\hat{\Pi}$ then has as objective
+\[ \int_{\Ppar} h(\hat{x}(\cx,\ppar), \ppar) d\ppar\,,
+\]
+which is convex in the coefficients $\cx$. \commentGP{How about the dual?}
+
+In addition, nonparametric convex constraints $g(x)\leq0$ with $g(x)$ a convex function are allowed in $\Pi(\ppar)$. In converting the semi-infinite program $\hat{\Pi}$ with tensor product B-spline basis $\bx$ to a tractable problem we rely on the nonnegativity and the partition of unity property of B-splines. By these properties, the parametrization (\ref{eq:x_approx}) means that for every $\ppar\in\Ppar$, $\hat{x}(\cx,\ppar)$ is a convex combination of the coefficients $\cxa$, $\alpha\in\Alpha_x$. As a result:
+\[ g\left(\sum_{\alpha\in\Alpha_x} \cxa \bxa(\ppar)\right) ~\leq~ \sum{\alpha\in\Alpha_x} g(\cxa) \bxa(\ppar)\,, \quad \forall \ppar\in\Ppar\,. %
+\]
+Hence,
+\[ g(\cxa)\leq 0\,,~\forall \alpha\in\Alpha_x \qquad \Rightarrow \qquad g(\hat{x}(\cx,\ppar))\leq0\,,\quad\forall \ppar\in\Ppar\,.%
+\]
+
+\commentGP{Which constraint functions $g(x,\ppar)$ are allowed? E.g. polynomial in $x$ and $\ppar$, and convex in $x$? General jointly convex in $x$ and $\ppar$?} 
+
+\commentGP{We can also allow for parametric constraints $g(x,\ppar)\leq0$ where $g(x,\ppar)$ is a tensor product polynomial spline in $\ppar$, and convex in $x$ for every $\ppar\in\Ppar$. Or $g(x,\ppar)$ is a convex function of a spline in $\ppar$ that is affine in $x$; or $g(x,\ppar)$ is a convex and nondecreasing function of a spline in $\ppar$ that is convex in $x$; or $g(x,\ppar)$ is a convex and nonincreasing function of a spline in $\ppar$ that is concave in $x$.}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -219,6 +740,14 @@ These properties imply at each value $\ppar$, $\hat{x}(\ppar)$ and $\hat{y}(\ppa
     \item What is the effect of the choice of the objective function ??? Also, what is the value of the $\ell_1$ objective for varying parameters (suppose for instance that the worst case $\ell_2$ gain gets only slightly larger, but better performance over large parts of the parameter domain)???
     \end{itemize}
 \end{itemize}
+
+In order to facilitate the formulation of the optimization problems a MATLAB
+toolbox was developed. It relies on YALMIP~\cite{YALMIP}, a high level tool for
+modeling optimization problems. The toolbox together with all presented examples can
+be freely downloaded from ... .
+
+\subsection{Illustrative example}
+
 
 \subsection{Case study: combined structure control design for earthquake isolation}
 Consider the 3-DOF model of \cite{Camino_2003}, that should be prevented against earthquakes. In this case study, the objective is to design a state-feedback controller with a good tradeoff between disturbance rejection and actuator effort, while optimizing a time-invariant structural parameter. Viewing this problem as an LPV state-feedback synthesis problem with time-invariant parameter, solving only one LMI optimization problem results in accurate approximations of the performance as a function of the structural parameter. In this way, a (nearly) optimal structural parameter can be efficiently selected.
@@ -256,7 +785,7 @@ We are interested in optimizing $\gamma$ as a function of parameter $\ppar$ (ins
  & C_z Q(\ppar) C_z^T - \mu I \prec 0, \\
  & \left[ \begin{array}{cc} Q(\ppar) & L(\ppar)^T \\ L(\ppar) & Z(\ppar) \end{array} \right] \succ 0.
 \end{eqnarray*}
-To make this optimization problem numerically tractable, it is necessary to impose a specific parameterization on the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs. 
+To make this optimization problem numerically tractable, it is necessary to impose a specific parameterization on the LMI variables, and subsequently use some relaxation technique to derive a finite set of sufficient LMIs.
 
 The LMI variables are parameterized as polynomial splines of some preselected degree, and can thus be expressed in terms of Bspline basis functions and coefficients. For example, the variable $Q(\ppar)$ is parameterized as
 \begin{equation*}
@@ -264,7 +793,7 @@ The LMI variables are parameterized as polynomial splines of some preselected de
 \end{equation*}
 where $b_{Q,i}$ and $C_{Q,i}$, $i = 1,\dots,m$ are Bspline basis functions and constant matrix coefficients, respectively. A polynomial parameterization results as a special case.
 
-Solving the resulting optimization problem yields an upper bound $\hat{p}(\ppar)$ on the optimal value function $p^{\star}(\ppar)$, while solving the associated dual problem
+Solving the resulting optimization problem yields an upper bound $\hat{p}(\ppar)$ on the optimal value function $p^\opt(\ppar)$, while solving the associated dual problem
 \begin{eqnarray*}
  \text{maximize} & \int_0^1 \text{Trace}\{U_{12}(\ppar)B_w^T\} + \text{Trace}\{U_{12}(\ppar)^T B_w\} - \text{Trace}\{U_{22}(\ppar)\} - \mu \text{Trace}\{V(\ppar)\}d\ppar, \\
  \text{subject to} & U(\ppar) := \left[ \begin{array}{cc} U_{11}(\ppar) & U_{12}(\ppar) \\ U_{12}(\ppar)^T & U_{22}(\ppar) \end{array} \right] \succ 0, \\
@@ -273,7 +802,7 @@ Solving the resulting optimization problem yields an upper bound $\hat{p}(\ppar)
 \end{eqnarray*}
 provides a lower bound $\hat{d}(\ppar)$:
 \begin{equation*}
- \hat{d}(\ppar) \leq d^{\star}(\ppar) \leq p^{\star}(\ppar) \leq \hat{p}(\ppar), \quad \ppar \in [0,1].
+ \hat{d}(\ppar) \leq d^{\opt}(\ppar) \leq p^{\opt}(\ppar) \leq \hat{p}(\ppar), \quad \ppar \in [0,1].
 \end{equation*}
 
 The optimal $\Htwo$ performance is obtained for fixed values of $\ppar$ by gridding the parameter space using 100 equidistant points on the interval $[ \underline{k}_2,\overline{k}_2] = [14546500,58186000]$. The resulting tradeoff curve is shown in Figure \ref{fig:sampled}, revealing an optimal value $k_2 \approx 4.9 \cdot 10^7$. The computation of this tradeoff curve requires solving 100 convex optimization problems. On the other hand, parametric programming allows the computation of an upper and a lower bound on the exact solution by only solving one convex optimization problem.
@@ -345,61 +874,247 @@ To reduce conservatism, a first possibility is to increase the polynomial degree
 	\end{tabular}
 \end{table}
 
-\subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
-Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
-in~\cite{Borrelli_et_al_2003}:
-\begin{gather*}
+
+\subsection{(Convex) inner and outer approximations of nonconvex sets}
+We consider the problem of approximating from the inside the feasible set $
+\mathbf{P} \subset \R^n$ of a matrix inequality $P(\ppar) \succeq 0$. Two examples
+from~\cite{Henrion_Lasserre_2012} concerning the approximation of the stability region of linear
+systems are considered.
+
+An inner approximation is easily determined by solving the parametric phase I feasibility
+problem
+\[
 \begin{aligned}
-\minimize_{x\in\R^2} &&& h(\ppar)\t -2 x_1 - x_2\\
-             \subj   &&& x_1 + 3 x_2 \leq 9 - 2\ppar_1 +\ppar_2 \\%
-                     &&& 2 x_1 + x_2 \leq 8 + \ppar_1 - 2\ppar_2 \\%
-                     &&& x_1 \leq 4 + \ppar_1 + \ppar_2 \\%
-                     &&& x_1, x_2 \geq 0 \;,
+\minimize_{x\in\R} &&& x \\
+\subj              &&& P(\theta) + xI \succeq 0 \; .%
 \end{aligned}
-\end{gather*}
-on $\Ppar \in [-10, 10] \times [-10, 10]$.
+\]
+The inner approximation to $\mathbf{P}$ is
+\[
+\mathbf{\hat{P}} = \{\ppar \in \R^n \, : x^\opt(\ppar) \geq 0 \}.
+\]
+From the solution of the dual problem
+\[
+\begin{aligned}
+\minimize_{Y\in \S^m} &&& \Tr(YP) \\
+\subj              &&& Y \succeq 0 \\
+                   &&& \Tr(Y) = 1 \; ,%
+\end{aligned}
+\]
+an outer approximation
+\[
+\mathbf{\bar{P}} = \{\ppar \in \R^n \, : \Tr(Y^\opt(\ppar) P(\ppar)) \leq 0 \}
+\]
+is found. Convexity of the inner (outer) approximations can be imposed by
+constraining the Hessian of the objective functions to be positive (negative)
+semidefinite.
 
-It can be shown that for this problem $\Ppar_\text{feas}$ is a triangular set.
-Hence, the optimization variables cannot be parameterized by a tensor spline
-in $\theta_1$ and $\theta_2$ as this would render the problem infeasible.
-Instead, a parameterization is chosen that maps a rectangular domain to a
-polyhedral set.
+Moreover, since there are no crossterms between $\ppar$ and the optimization
+variables in the primal, we can derive a dual feasible point from its Lagrange
+multipliers as described in Section~\ref{subsec:extensions}.
 
-Consider a spline parameterization $(p_{\ppar_1}(\alpha),
-p_{\ppar_2}(\alpha))$ of the boundary of $\Ppar_\text{feas}$ in terms of a
-scalar parameter $\alpha \in [0, 1]$ \commentWVL{What about higher dimensions?
-Is it straightforward to parameterize such polyhedral sets?}. To `fill' the
-polydral set an additional variable $\beta \in [0, 1]$ is introduced. By
-defining $\ppar_1(\alpha,\beta) = p_{\ppar_1}(\alpha) \beta$ and
-$\ppar_2(\alpha,\beta) = p_{\ppar_2}(\alpha) \beta$, any $(\alpha, \beta)$ now
-maps to a feasible $\ppar_1, \ppar_2$. Similarly, $x$ can also be
-parameterized as a tensor spline in $\alpha$ and $\beta$.
+The first example considers the nonconvex polynomial matrix inequality
+\[
+\mathbf{P} = \{\ppar \in \R^2 \, : \, P(\ppar) = \begin{pmatrix} 1 - 16\ppar_1
+\ppar_2 & \ppar_1 \\ \ppar_1 & 1 - \ppar_1^2 - \ppar_2^2 \end{pmatrix} \succeq
+0 \}.
+\]
 
-Figure~\ref{fig:mplp_objective} shows the approximated objective function for
-a tensor spline of degree 1. The accordance with the true objective function
-is good, except near the switch in critical regions, as shown in
-figure~\ref{fig:mplp_error}.
+Figure~\ref{fig:PMI1_Henrion2012} shows the nonconvex (left) and convex
+(right) inner and outer approximations of the set $\mathbf{P}$, indicated in
+dark gray. A degree 3 B-spline basis with 13 internal knots was chosen both
+for the primal and the dual.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{figures/mplp_poly_objective.png}
-\caption{The approximated objective function for a degree 1 tensor product
-spline with 21 equidistantly spaced knots in $\alpha$ and 51 in $\beta$.}
-\label{fig:mplp_objective}
+\includegraphics{figures/PMI1_Henrion2012_tikz.pdf}
+\caption{Nonconvex (left) and convex (right) inner (solid) and outer (dashed)
+approximations of the set $\mathbf{P}$}\label{fig:PMI1_Henrion2012}
 \end{figure}
+
+A second example considers the stability region of a degree 3 discrete-time
+polynomial $z^3 + \ppar_1 z^2  + \ppar_2 z + \ppar_3$. The polynomial matrix
+defining $\mathbf{P}$ is given by
+\[
+P(x) = \begin{pmatrix}
+1 - \ppar_3^2 & \ppar_1 - \ppar_2 \ppar_3 & \ppar_2 - \ppar_1 \ppar_3 \\
+\ppar_1 - \ppar_2 \ppar_3 & 1 + \ppar_1^2 - \ppar_2^2 - \ppar_3^2 & \ppar_1 -
+\ppar_2 \ppar_3 \\
+\ppar_2 - \ppar_1 \ppar_3 & \ppar_1 - \ppar_2 \ppar_3 & 1 - \ppar_3^2
+\end{pmatrix}.
+\]
+
+\subsection{Approximate explicit model predictive control}
+For linear systems, the classical MPC problem admits following parametric
+formulation~\cite{Bemporad_et_al_2002}:
+\[
+\begin{aligned}
+\minimize_{x \in \R^n} &&& \frac{1}{2} x^\t H x + \ppar^\t F x \\
+\subj              &&& Gx \leq W + E\ppar \; ,
+\end{aligned}
+\]
+where the parameters $\ppar$ denote the current state of the system and $x$
+denotes the vector system inputs along the entire control horizon.
+
+We consider Example 7.1 from~\cite{Bemporad_et_al_2002}. At first, we only
+consider the constraint $-2 \leq x \leq 2$ without any state constraints such
+that the optimization problem is feasible for all $\ppar$. Figure~ compares
+the state and input trajectories of our approximate solution, parameterized by
+a B-spline of degree 2 with 8 knots uniformly distributed over $[-1.5,
+1.5]\times[-1.5, 1.5]$ \commentWVL{Perhaps we should speak of `mesh' instead
+of `knots'?}, with those of the exact solution. Note that while there is
+little loss in performance for the approximate solution, the evaluation of the
+controller boils down to a simple function evaluation.
+
+In case of state constraints, we follow the two step approach for infeasible
+parameter values as discussed in Section~\ref{subsec:extensions}: by solving
+the phase I problem we minimize the infeasibilities and subsequently we can
+solve the optimization problem over $\Ppar$ by adding the minimal
+infeasibility to the constraints. Note that even when the value of $\ppar$ is
+infeasible for the original problem (e.g. due to disturbances), the
+approximate solution still yields a control value.
+Figure~\ref{fig:MPC_Bemporad2002} shows the state trajectory from an initial
+condition $[-1, -0.8]$. The shaded area illustrates the feasible region for
+the approximate parametric program.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{figures/mplp_poly_error.png}
-\caption{The error between the true value of the objective function and our
-approximation.}
-\label{fig:mplp_error}
+\includegraphics{figures/mpc_bemporad2002_if_tikz.pdf}
+\caption{State trajectory for the approximate MPC starting from the infeasible
+initial state $[-1, -0.8]$}\label{fig:MPC_Bemporad2002}
 \end{figure}
+
+
+\subsection{$\mathcal{H}_\infty$ optimization: solving BMI problems}
+The $\mathcal{H}_\infty$ optimization problem of a static output feedback
+controller on the linear system
+\[
+\begin{cases}
+\dot{x} = Ax + B_1 w + Bu \\
+z = C_1 x + D_{11} w + D_{12} u \\
+y = Cx
+\end{cases}
+\]
+can be cast as following parametric program
+\[
+\begin{aligned}
+\minimize_{\gamma \in \R \atop X \in \S^n} &&& \gamma  \\
+\subj              &&&
+\begin{pmatrix}
+A_\pPar^\t X + X A_\pPar  &  XB_1  &  C_\pPar^\t \\
+B_1^\t X                  & -\gamma I & D_{11}^\t \\
+C_\pPar                   & D_{11}    & -\gamma I
+\end{pmatrix} \preceq 0 \; ,
+\end{aligned}
+\]
+where $A_\pPar = A + B \pPar C$ and $C_\pPar = C_1 + D_{12} \pPar C$ and $\pPar$
+is the controller.
+
+Assuming the parametric problem is feasible for all $\pPar \in \PPar \subset
+\R ^{n_u \times n_y}$,\footnote {In case of infeasible parameter values, one
+has to resort to finding the phase I problem for the constraint $A_\pPar^\t X
++ X A_\pPar \preceq -I, X \succeq I$ as described in
+Section~\ref{subsec:extensions}} the solution of the approximate parametric
+optimization problem yields $\gamma (\pPar)$. Then, a simple box constrained
+minimization of $\gamma(\theta)$ over $\PPar$ yields the optimal controller.
+Note that the minimal value of the control polytope formed by the
+coefficients of $\gamma$ and the mesh of Greville abscissae provides an
+initial guess for the optimal controller.
+
+The method is tested on data from the COMPl$_\text{e}$ib library
+\commentWVL{ reference} and benchmarked with solutions from HIFOO
+\commentWVL{reference}. As the problem size grows exponentially with the number of
+parameters, the numerical examples are limited to a maximum 4 parameters. Table
+... shows the value of $\gamma$ attained with HIFOO and the proposed method.
+The results are very similar for both methods.
+
+
+
+% \subsection{Case study: A multiparametric \textsc{lp} with polyhedral parameter set}
+% Consider the following multiparametric \textsc{lp} reported in~\cite{Gal_1979} and subsequently treated
+% in~\cite{Borrelli_et_al_2003}:
+% \begin{gather*}
+% \begin{aligned}
+% \minimize_{x\in\R^2} &&& -2 x_1 - x_2\\
+%              \subj   &&& x_1 + 3 x_2 \leq 9 - 2\ppar_1 +\ppar_2 \\%
+%                      &&& 2 x_1 + x_2 \leq 8 + \ppar_1 - 2\ppar_2 \\%
+%                      &&& x_1 \leq 4 + \ppar_1 + \ppar_2 \\%
+%                      &&& x_1, x_2 \geq 0 \;,
+% \end{aligned}
+% \end{gather*}
+% on $\Ppar \in [-10, 10] \times [-10, 10]$.
+
+% It can be shown that for this problem $\Pfeas$ is a triangular set.
+% Hence, the optimization variables cannot be parameterized by a tensor spline
+% in $\theta_1$ and $\theta_2$ as this would render the problem infeasible.
+% Instead, a parameterization is chosen that maps a rectangular domain to a
+% polyhedral set.
+
+% Consider a spline parameterization $(p_{\ppar_1}(\alpha),
+% p_{\ppar_2}(\alpha))$ of the boundary of $\Pfeas$ in terms of a
+% scalar parameter $\alpha \in [0, 1]$ \commentWVL{What about higher dimensions?
+% Is it straightforward to parameterize such polyhedral sets?}. To `fill' the
+% polydral set an additional variable $\beta \in [0, 1]$ is introduced. By
+% defining $\ppar_1(\alpha,\beta) = p_{\ppar_1}(\alpha) \beta$ and
+% $\ppar_2(\alpha,\beta) = p_{\ppar_2}(\alpha) \beta$, any $(\alpha, \beta)$ now
+% maps to a feasible $\ppar_1, \ppar_2$. Similarly, $x$ can also be
+% parameterized as a tensor spline in $\alpha$ and $\beta$.
+
+% Figure~\ref{fig:mplp_objective} shows the approximated objective function for
+% a tensor spline of degree 1. The accordance with the true objective function
+% is good, except near the switch in critical regions, as shown in
+% figure~\ref{fig:mplp_error}.
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.8\textwidth]{figures/mplp_poly_objective.png}
+% \caption{The approximated objective function for a degree 1 tensor product
+% spline with 21 equidistantly spaced knots in $\alpha$ and 51 in $\beta$.}
+% \label{fig:mplp_objective}
+% \end{figure}
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.8\textwidth]{figures/mplp_poly_error.png}
+% \caption{The error between the true value of the objective function and our
+% approximation.}
+% \label{fig:mplp_error}
+% \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+\section{Sums and products of B-splines}
+
+\[
+    \xi = (\xi_1, \ldots, \xi_l)
+\]
+and the $i$-th normalized B-spline function of degree $k$, defined on $[\xi_i, \xi_{i+k+1})$, is computed using the Cox-de Boor recursive formula
+\commentWVL{add reference}:
+\[
+    b_{i,k,\xi}(x) = \frac{x-\xi_i}{\xi_{i+k} - \xi_i}
+    b_{i,k-1,\xi}(x) +
+    \frac{\xi_{i+k+1}-x}{\xi_{i+k+1} - \xi_{i+1}}
+    b_{i+1,k-1,\xi}(x) ,
+\]
+starting with
+\[
+    b_{i,0,\xi}(x)  =
+    \begin{cases}
+        1 , \text{if } x \in [\xi_i , \xi_{i+1} ) , \\
+        0, \text{if } x \notin [\xi_i , \xi_{i+1} ) .
+    \end{cases}
+\]
+
+Sums and products of splines with bases $b_{k,\kappa}$ and $b_{l,\lambda}$ with
+can be expressed in a new basis $b_{m, \mu}$.
+
+For a sum of two splines, we find
+\[\mu_i = \]
 
 \bibliographystyle{plain}
 \bibliography{references/pprog}
+
 
 \end{document}
