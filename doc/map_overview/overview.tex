@@ -1,8 +1,8 @@
 \documentclass{standalone}
 
-\usepackage{fontspec}
-\setmainfont[BoldFont=DTLProkyonSTMedium,ItalicFont=DTLProkyonSTLightItalic, Numbers={Lining}]{DTLProkyonSTLight}
-\let\sfdefault\rmdefault
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\renewcommand*\familydefault{\sfdefault}
 
 \usepackage{tikz,enumerate}
 \usepackage{verbatim, bm}
@@ -45,7 +45,7 @@
 \tikzstyle{tech} = [rectangle, rounded corners,
                     fill = black!10,
                     draw = red, thick,
-                    minimum height = 13cm, minimum width = 15cm]
+                    minimum height = 14cm, minimum width = 15cm]
 
 \tikzstyle{app1} = [rectangle, rounded corners,
                     fill = black!10,
@@ -67,8 +67,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[draw=red, fill=red!20, rounded corners, very thick, anchor=north, minimum height=16cm, minimum width=35cm] at (0,2) (tech){};%
-\node at ($(tech.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{red}{ENABLING TECHNOLOGIES}}};%
+\node[draw=red, fill=red!20, rounded corners, very thick, anchor=north, minimum height=17cm, minimum width=35cm] at (0,2) (tech){};%
+\node[anchor=north] at ($(tech.north)+(0,-0.4)$) {\textbf{\LARGE \textcolor{red}{ENABLING TECHNOLOGIES}}};%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,9 +102,11 @@
     \begin{itemize} \vspace*{-4pt} \itemsep 0pt
     \item simplex splines (for polyhedral domains only)
     \item tensor-product spline mapping of hyperrectangle to parameter domain \\(relation with simplex splines for polyhedral domains?)
-    \item relation with Polya's relaxation for convex polyhedrons
+    \item relation with Polya's relaxation for polynomials on convex polyhedrons
     \end{itemize}
-\item dealing with complex variables (e.g. in unit disc or RHP)
+\item assessing conservatism of the constraints + strategy for local refinements
+\item rational constraints and \textsc{nurbs}    
+\item dealing with complex variables (e.g. in unit disc or \textsc{rhp})
     \begin{itemize}\vspace*{-4pt} \itemsep 0pt
     \item one variable instead of real and imaginary part
     \item  trigonometric splines (when properly redefined)
@@ -144,6 +146,7 @@
 \techSubtitle{Open issues: methodology}
 \begin{itemize}\vspace*{-4pt} \itemsep 0pt
 \item best way to alternate between outer and inner approximations
+\item relation with other nonlinear interior point solvers
 \end{itemize}
 
 \techSubtitle{Open issues: software}
@@ -157,21 +160,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[draw=blue, fill=blue!20, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=33cm] at ($(tech.south)+(-11,-3)$) (mot){};%
-\node at ($(mot.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{blue}{OPTIMAL MOTION PLANNING}}};%
+\node[draw=blue, fill=blue!30, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=33cm] at ($(tech.south)+(-11,-3)$) (mot){};%
+\node[anchor=north] at ($(mot.north)+(0,-0.4)$) {\textbf{\LARGE \textcolor{blue}{\parbox{20cm}{OPTIMAL MOTION PLANNING for DIFFERENTIALLY FLAT SYSTEMS}}}};%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[draw=green, fill=green!20, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=44cm] at ($(tech.south)+(16.5,-4)$) (rob){};%
-\node at ($(rob.north)+(0,-0.75)$) {\textbf{\LARGE \textcolor{green}{ROBUST OPTIMIZATION}}};%
+\node[draw=green, fill=green!30, opacity=0.5, rounded corners, very thick, anchor=north, minimum height=24.5cm, minimum width=44cm] at ($(tech.south)+(16.5,-5)$) (rob){};%
+\node[anchor=north] at ($(rob.north)+(0,-0.4)$) {\textbf{\LARGE \textcolor{green}{ROBUST OPTIMIZATION}}};%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\node[app12, anchor=north] at($(mot.north)+(11,-2.5)$) (flat){%};%
+\node[app12, anchor=north] at($(mot.north)+(11,-3)$) (flat_free){%};%
 %\node[anchor=north] at (flat.north) {%
 \begin{tabular}{c}
 \mbox{~}\\[-6pt]
@@ -234,7 +237,9 @@
 
 \robSubtitle{Open issues: methodology}
 \begin{itemize}\vspace*{-4pt} \itemsep 0pt
-\item ???
+\item conservatism of parametrization (versus conservatism of constraints) %
+\item convergence to true solution?
+\item infeasible parameter values
 \end{itemize}
 
 \robSubtitle{Open issues: software}
@@ -393,10 +398,16 @@
 node[black,midway] {\large\textbf{spline based relaxations}};%
 
 \draw[ultra thick, black!40, ->] ($(CCprog.south)$) .. controls ($(CCprog.south)+(0,-4)$) and ($(sys.north)+(0,4)$) .. ($(sys.north)$)%
-node[black,near start] {\large\textbf{solving structured control problems}};%
+node[black,near start] {\large\textbf{\hspace*{2cm}solving structured control problems}};%
 
 \draw[ultra thick, black!40, ->] ($(CCprog.south)$) .. controls ($(CCprog.south)+(0,-2)$) and ($(mot.north)+(0,2)$) .. ($(mot.north)$)%
 node[black,midway] {\large\textbf{solving some motion planning problems}};%
+
+\draw[ultra thick, black!40, ->] ($(nlp.south)$) .. controls ($(nlp.south)+(0,-3)$) and ($(sysapp.west)+(-3,3.1)$) .. ($(sysapp.west)+(0,3.1)$)%
+node[black,midway] {\large\textbf{solving \textsc{bmi}s}};%
+
+\draw[ultra thick, black!40, ->] ($(parapp.east)+(0,-2)$) .. controls ($(parapp.east)+(3,-2)$) and ($(sysapp.west)+(-3,2.9)$) .. ($(sysapp.west)+(0,2.9)$)%
+node[black,midway] {\large\textbf{solving \textsc{bmi}s}};%
 
 % add arrow rob -> mot (anti-collision)
 
