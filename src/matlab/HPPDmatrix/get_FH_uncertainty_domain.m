@@ -30,8 +30,8 @@ if strcmp(type,'6v') % use polytopic domain with 6 vertices
                 end
             end
     end
-    F = V(1:N,:);
-    H = V(N+1:end,:);
+    F{1} = V(1:N,:);
+    H{1} = V(N+1:end,:);
 elseif strcmp(type,'3v') % divide polytopic domain in subdomains with 3 vertices
     % MANUALLY IMPLEMENTED NOW FOR SPECIFIC SUBDIVISION...
     if N > 2

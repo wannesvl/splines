@@ -1,3 +1,6 @@
+% Gijs Hilhorst, Dept. of Mechanical Engineering, 
+% Division of Production Engineering, Machine Design and Automation
+% KU Leuven, 2014
 classdef HPPDmatrix
     properties (Access=protected)
         cl
@@ -27,11 +30,11 @@ classdef HPPDmatrix
             % Ex.: A(a1,a2) = a1 A_10 + a2 A_01
             % is stored in a 2x2 cell as A{2,1} = A_10, A{1,2} = A_01,
             % and represents a HPPD matrix of degree 1 with 2 vertices
-            if isa(coeffs,'double')   % constant matrix
+            if ~isa(coeffs,'cell')    % constant matrix/SDPvar
                 A.degree   = 0;
                 A.coeffs   = coeffs;
                 A.cl       = str2func(class(A));
-            elseif isa(coeffs,'cell') % HPPD matrix
+            elseif isa(coeffs,'cell') % HPPD matrix/SDPvar
                 A.vertices = length(size(coeffs));
                 A.degree   = size(coeffs,1) - 1;
                 A.coeffs   = coeffs;
@@ -53,37 +56,51 @@ classdef HPPDmatrix
         end
              
         function s = plus(A,B)
-            if A.vertices ~= B.vertices
-                error('A and B should have same number of vertices!')
+            if ~isa(A,'HPPDmatrix') % if A is constant matrix/SDPvar
+                A = HPPDmatrix(A);
             end
-            if A.degree ~= B.degree % homogenize s.t. A and B have same degree
-                if A.degree > B.degree && B.degree > 0
-                   B = increase_degree(B,A.degree-B.degree); 
-                elseif A.degree > B.degree && B.degree == 0
-                   B = increase_degree(B,A.degree-B.degree,A.vertices);
-                elseif B.degree > A.degree && A.degree > 0
-                   A = increase_degree(A,B.degree-A.degree);
-                else
-                   A = increase_degree(A,B.degree-A.degree,B.vertices); 
+            if ~isa(B,'HPPDmatrix') % if B is constant matrix/SDPvar
+                B = HPPDmatrix(B);
+            end  
+            if ~isa(A.coeffs,'cell') && ~isa(B.coeffs,'cell')
+                try % if A and B are constant
+                    coeffs = A.coeffs + B.coeffs;
+                catch err
+                    error('something wrong: addition not possible!')
                 end
+            else                
+                if A.vertices ~= B.vertices
+                    error('A and B should have same number of vertices!')
+                end
+                if A.degree ~= B.degree % homogenize s.t. A and B have same degree
+                    if A.degree > B.degree && B.degree > 0
+                       B = increase_degree(B,A.degree-B.degree); 
+                    elseif A.degree > B.degree && B.degree == 0
+                       B = increase_degree(B,A.degree-B.degree,A.vertices);
+                    elseif B.degree > A.degree && A.degree > 0
+                       A = increase_degree(A,B.degree-A.degree);
+                    else
+                       A = increase_degree(A,B.degree-A.degree,B.vertices); 
+                    end
+                end
+                ind = find(~cellfun('isempty',A.coeffs),1);   
+                nrA = size(A.coeffs{ind},1); 
+                ncA = size(A.coeffs{ind},2);
+                ind = find(~cellfun('isempty',B.coeffs),1); 
+                nrB = size(B.coeffs{ind},1);
+                ncB = size(B.coeffs{ind},2); 
+                if nrA ~= nrB || ncA ~= ncB
+                    error('dimensions of matrices must agree')
+                end
+                coeffs = cellfun(@plus, A.coeffs, B.coeffs, 'UniformOutput', false);
             end
-            ind = find(~cellfun('isempty',A.coeffs),1);   
-            nrA = size(A.coeffs{ind},1); 
-            ncA = size(A.coeffs{ind},2);
-            ind = find(~cellfun('isempty',B.coeffs),1); 
-            nrB = size(B.coeffs{ind},1);
-            ncB = size(B.coeffs{ind},2); 
-            if nrA ~= nrB || ncA ~= ncB
-                error('dimensions of matrices must agree')
-            end
-            coeffs = cellfun(@plus, A.coeffs, B.coeffs, 'UniformOutput', false);
             s = A.cl(coeffs);
         end
         
         function C = uminus(A)
-            if isa(A.coeffs,'double') % constant matrix
+            if ~isa(A.coeffs,'cell') % constant matrix/SDPvar
                 coeffs = -A.coeffs;
-            else                      % HPPD matrix
+            else                     % HPPD matrix/SDPvar
                 coeffs = cellfun(@uminus, A.coeffs, 'UniformOutput', false);
             end
             C = A.cl(coeffs);
@@ -94,7 +111,7 @@ classdef HPPDmatrix
         end
         
         function B = ctranspose(A)
-            if isa(A.coeffs,'double') % constant matrix
+            if ~isa(A.coeffs,'cell')  % constant matrix
                 coeffs = (A.coeffs)';
             else                      % HPPD matrix
                 coeffs = cellfun(@ctranspose, A.coeffs, 'UniformOutput', false);
@@ -103,15 +120,23 @@ classdef HPPDmatrix
         end      
         
         function C = mtimes(A,B)       
+            % convert doubles to HPPD matrices
+            if ~isa(A,'HPPDmatrix')
+                A = HPPDmatrix(A);
+            end
+            if ~isa(B,'HPPDmatrix')
+                B = HPPDmatrix(B);
+            end
+            
             % The case that A and/or B is a constant matrix is taken into account  
-            if isa(A.coeffs,'double') && isa(B.coeffs,'double')
+            if ~isa(A.coeffs,'cell') && ~isa(B.coeffs,'cell')
                 try 
                     coeffs = A.coeffs*B.coeffs;
                     C = A.cl(coeffs);
                 catch err 
                     coeffs = A.coeffs.*B.coeffs;
                 end
-            elseif isa(A.coeffs,'double') && isa(B.coeffs,'cell')
+            elseif ~isa(A.coeffs,'cell') && isa(B.coeffs,'cell')
                 ind = find(~cellfun('isempty',B.coeffs),1);   
                 KNg = get_KNg(B.vertices,B.degree);
                 if size(A.coeffs,2) ~= size(B.coeffs{ind},1)
@@ -130,12 +155,12 @@ classdef HPPDmatrix
                     end
                 end 
                 C = B.cl(coeffs); 
-            elseif isa(A.coeffs,'cell') && isa(B.coeffs,'double')
+            elseif isa(A.coeffs,'cell') && ~isa(B.coeffs,'cell')
                 ind = find(~cellfun('isempty',A.coeffs),1);  
                 KNg = get_KNg(A.vertices,A.degree);                
                 if size(A.coeffs{ind},2) ~= size(B.coeffs,1)
                     try              
-                        for j = 1:get_JNg(B.vertices,B.degree)
+                        for j = 1:get_JNg(A.vertices,A.degree)
                             jj = get_monomial_string(KNg(j,:));
                             eval(['coeffs{' jj '} = A.coeffs{' jj '}.*B.coeffs;'])
                         end
@@ -184,7 +209,7 @@ classdef HPPDmatrix
                 Ad = A;
                 return
             end
-            if isa(A.coeffs,'double') % if A is a constant matrix
+            if ~isa(A.coeffs,'cell') % if A is constant or SDPvar
                 if nargin < 3
                     error('number of vertices unknown');
                 end
@@ -217,6 +242,13 @@ classdef HPPDmatrix
         function s = horzcat(varargin)
             % horizontal concatenation of HPPD matrices
             
+            % convert doubles to HPPDmatrices
+            for i = 1:length(varargin)
+                if isa(varargin{i},'double')
+                    varargin{i} = HPPDmatrix(varargin{i}); 
+                end
+            end
+                        
             % determine maximum polynomial degree of all terms
             for i = 1:length(varargin)
                if isa(varargin{i}, 'HPPDmatrix')
@@ -259,6 +291,13 @@ classdef HPPDmatrix
         
         function s = vertcat(varargin)
             % vertical concatenation of HPPD matrices
+            
+            % convert doubles to HPPDmatrices
+            for i = 1:length(varargin)
+                if isa(varargin{i},'double')
+                    varargin{i} = HPPDmatrix(varargin{i}); 
+                end
+            end
             
             % determine maximum polynomial degree of all terms
             for i = 1:length(varargin)
@@ -360,16 +399,16 @@ classdef HPPDmatrix
             %            is 1,4,2 for, respectively, b=0, 0<b<1 and b=1.
           
             if strcmp(type_domain,'6v') 
-                
+
                 % 1) compute F and H matrices
                 [F,H] = get_FH_uncertainty_domain(A.vertices,b,'6v');
-                M = size(F,2); % #vertices gamma domain
+                M = size(F{1},2);
                 
                 % 2) compute c_F_t_ell coefficient
-                if strcmp(type_transform,'hat')       
-                    c = get_coeff_t_ell_F(A.degree,F);
+                if strcmp(type_transform,'hat')
+                    c = get_coeff_t_ell_F(A.degree,F{1});
                 elseif strcmp(type_transform,'tilde')
-                    c = get_coeff_t_ell_F(A.degree,F+H);
+                    c = get_coeff_t_ell_F(A.degree,F{1}+H{1});
                 else
                     error('incorrect type of transformation selected')
                 end
@@ -385,17 +424,17 @@ classdef HPPDmatrix
                         eval(['coeffs{' tt '} = coeffs{' tt '} + c(t,l)*A.coeffs{' ll '};'])
                     end   
                 end
-                s = A.cl(coeffs);
+                s{1} = A.cl(coeffs);
                 
             elseif strcmp(type_domain,'3v')
-                
+                                
                 % 1) compute F and H matrices
                 [F,H] = get_FH_uncertainty_domain(A.vertices,b,'3v');
-                M = size(F{1},2); % #vertices gamma domain
+                M = size(F{1},2);
                 
                 % 2) compute c_F_t_ell coefficient for each subdomain
                 for i = 1:length(F)
-                    if strcmp(type_transform,'hat')       
+                    if strcmp(type_transform,'hat')
                         c{i} = get_coeff_t_ell_F(A.degree,F{i});
                     elseif strcmp(type_transform,'tilde')
                         c{i} = get_coeff_t_ell_F(A.degree,F{i}+H{i});
@@ -407,7 +446,7 @@ classdef HPPDmatrix
                 % 3) construct transformed HPPDmatrix for each subdomain
                 KNg = get_KNg(A.vertices,A.degree);
                 KMg = get_KNg(M,A.degree);
-                for i = 1:length(F)
+                for i = 1:length(c)
                     for t = 1:get_JNg(M,A.degree) 
                         tt = get_monomial_string(KMg(t,:));  
                         eval(['coeffs{' tt '} = 0;'])
@@ -423,10 +462,6 @@ classdef HPPDmatrix
             end
         end
         
-        % TO DO: 
-        % - evaluation of HPPD matrix at different points simultaneously
-        % - make implementation of transformation to gamma-domain more
-        % efficient: handle cell inputs to compute transformation for multiple HPPD matrices at once, 
-        % to avoid recomputing c_F_t_ell coefficient.
+        % TO DO: improve speed of functions... ? 
     end
 end
