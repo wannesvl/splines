@@ -42,6 +42,7 @@ tstart = tic;
 
 BasisQ  = BSplineBasis([0*ones(1,p)  , linspace(0,1,n+2), ones(1,p)  ],p);
 BasisZL = BSplineBasis([0*ones(1,p+1), linspace(0,1,n+2), ones(1,p+1)],p+1);
+
 % generate the LMI variables
 Q = BSpline.sdpvar(BasisQ, [nx, nx], 'symmetric');
 Z = BSpline.sdpvar(BasisZL, [nu, nu], 'symmetric');

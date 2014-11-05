@@ -56,5 +56,5 @@ k2U = 2*k2;
 A{2,1} = A0 + k2U*A1;
 A{1,2} = A0 + k2L*A1;
 
-save('model_3store2.mat')
+% save('model_3store2.mat')
 
