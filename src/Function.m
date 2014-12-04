@@ -45,12 +45,19 @@ classdef Function
         function s = f(self, x)
             % Evaluate a Function at x
             warning('OFF', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved')
-            if self.dims == 1 && ~isa(x, 'cell')
+            if self.dims == 1 && ~isa(x, 'cell') && ~isa(x, 'Function')
                 s = self.basis{1}.f(x) * self.coeffs;
+            elseif isa(x, 'Function')
+                s = 0;
+                basiseval = self.basis{1}.f(x);
+                for i=1:length(self.basis{1})
+                    s = s + basiseval{i} * self.coeffs.coeffs{i};
+                end
+                return
             else
-                s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
+                s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;    
             end
-            if self.coeffs.isscalar  % If scalar coefficients, convert to regular matrix
+            if self.coeffs.isscalar %&& ~isa(s,'BSpline') % If scalar coefficients, convert to regular matrix
                 s = s.coeffs2tensor;
             else  % Return cell array
                 s = s.coeffs;

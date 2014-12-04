@@ -41,10 +41,17 @@ classdef PolynomialBasis < UnivariateBasis
         end
 
         function b = f(self, x)
-            x = x(:);
-            b = zeros(length(x), length(self));
-            for i=1:length(self)
-                b(:, i) = x .^ (i - 1);
+            if isa(x,'BSpline')
+                b = [];
+                for i=1:length(self)
+                    b{1,i} =  x ^ (i - 1);
+                end
+            else
+                x = x(:);
+                b = zeros(length(x), length(self));
+                for i=1:length(self)
+                    b(:, i) = x .^ (i - 1);
+                end
             end
         end
     end

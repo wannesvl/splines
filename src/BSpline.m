@@ -162,5 +162,13 @@ classdef BSpline < Function
             end
             m = self.f(num2cell(X));
         end
+        
+        function p = mpower(self, k)
+            % Get power of Bspline: self^k
+            p = 1;
+            for i = 1:k
+                p = self*p;
+            end
+        end        
     end
 end
