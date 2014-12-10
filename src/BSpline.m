@@ -38,6 +38,13 @@ classdef BSpline < Function
             end
         end
 
+        function s = mpower(self,k)
+            s = 1;
+            for j = 1:k
+                s = s*self;
+            end
+        end
+
         function s = plus(self, other)
             if isa(self, 'Function') & isa(other, 'Function')
                 % First convert to same subclass
