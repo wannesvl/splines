@@ -47,7 +47,8 @@ classdef Function
             warning('OFF', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved')
             if self.dims == 1 && ~isa(x, 'cell') && ~isa(x, 'Function')
                 s = self.basis{1}.f(x) * self.coeffs;
-            elseif isa(x, 'Function')
+            elseif isa(self, 'Polynomial') && isa(x, 'Function')
+                % evaluate scalar-valued polynomial at a function
                 s = 0;
                 basiseval = self.basis{1}.f(x);
                 for i=1:length(self.basis{1})
