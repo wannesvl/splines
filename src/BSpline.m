@@ -47,7 +47,7 @@ classdef BSpline < Function
         end
 
         function s = plus(self, other)
-            if isa(self, 'Function') & isa(other, 'Function')
+            if isa(self, 'Function') && isa(other, 'Function')
                 % First convert to same subclass
                 if ~isa(other, mfilename)
                     domain = cellfun(@(b) [b.knots(1), b.knots(end)], self.basis, 'UniformOutput', false);

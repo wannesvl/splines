@@ -106,7 +106,7 @@ classdef Function
                 T = A \ B;
                 T(abs(T) < 1e-10) = 0;
             end
-            if isa(self, class(other)) 
+            if isa(self, class(other))
                 % Basis of product
                 basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
                 % Take kronecker product of coefficients
@@ -277,9 +277,8 @@ classdef Function
             % Only works for YALMIP at the moment
             b = [];
             if isa(self, 'double')
-                temp = self;
-                self = other;
-                other = temp;
+                b = le(other, self);
+                return
             end
             c = self.coeffs.coeffs;
             if ~isvector(c{1})
@@ -299,9 +298,8 @@ classdef Function
             % Only works for YALMIP at the moment
             b = [];
             if isa(self, 'double')
-                temp = self;
-                self = other;
-                other = temp;
+                b = ge(other, self);
+                return
             end
             c = self.coeffs.coeffs;
             if ~isvector(c{1})
