@@ -165,39 +165,60 @@ classdef Coefficients
                 c = self.cl(cellfun(@mtimes, A.coeffs, self.coeffs, 'UniformOutput', false));
                 return
             end
-            coeffs = self.coeffs2tensor;
+            % coeffs = self.coeffs2tensor;
             if isa(A, 'double')  % Univariate transformation matrix
-                if isvector(self.coeffs)
-                    coeffs = kron(A, eye(self.shape(1))) * coeffs;
-                else
-                    error('Univariate splines cannot be multiplied with cell array of matrices')
-                end
-            elseif isa(A, 'cell')  % Multivariate transformation matrices
-                if isvector(self.coeffs)
-                    A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
-                else  % Not yet correct for dims >= 3
-                    A = cellfun(@(a, i) kron(a, eye(self.shape(i))), A, num2cell(1:ndims(self.coeffs)), 'UniformOutput', false, 'ErrorHandler', @(varargin) varargin{2});
-                end
-                if length(A) == 1
-                    coeffs = A{1} * coeffs;
-                else
-                    coeffs = tmprod(coeffs, A, 1:ndims(self.coeffs));
-                end
+                A = {A};
             end
+            c = self.cl(self.tucker(A));
+        end
+        
+        function A = tucker(self, V)
+            % Apply Tucker operator on coefficient matrix with matrices in the cell array V
+            if length(V) == 1
+                V = {V{1}, 1};
+            end
+            X = self.coeffs;
+            nsize = cellfun(@(x) size(x, 1), V);
+            sX = size(X);
+            sX1 = size(X{1}, 1);
+            prodsX = prod(sX);
+            nX = ndims(X);
+            vX = vertcat(X{:});
+            cnumelV = cumsum([0 cellfun(@numel, V(1:end-1))]);
+            s1V = cellfun(@(x) size(x, 1), V);
+            VV = cellfun(@(x) x(:), V, 'uni', 0);
+            VV = vertcat(VV{:});
 
-            % The tricky part is converting it to a cell again
-            % D = cell(1, ndims(self.coeffs));
-            D = {};
-            for i=1:ndims(self.coeffs)
-                if i > 2
-                    D{i} = ones(size(coeffs, i), 1);
-                else
-                    D{i} = ones(size(coeffs, i) / self.shape(i), 1);
+            % Avoids having to use ind2sub
+            ranges_i = arrayfun(@(x) 1:x, nsize, 'uni', 0);
+            idx_i = cell(nX, 1);
+            [idx_i{:}] = ndgrid(ranges_i{:});
+            li = numel(idx_i{1});
+            idx_i = cat(nX, idx_i{:});
+            ranges_k = arrayfun(@(x) 1:x, sX, 'uni', 0);
+            idx_k = cell(nX, 1);
+            [idx_k{:}] = ndgrid(ranges_k{:});
+            lk = numel(idx_k{1});
+            idx_k = cat(nX, idx_k{:});
+
+            % Preallocate result
+            A = cell(prod(nsize), 1);
+            for i = 1:length(A)
+                ai = zeros(1,prodsX);
+                ii = idx_i(i:li:end);
+                for k = 1:prodsX
+                    ik = idx_k(k:lk:end);
+                    idx_V = ii + (ik - 1) .* s1V + cnumelV;
+                    ai(k) = prod(VV(idx_V));
                 end
+                % Avoid kron(ai, eye(sX1))
+                B = zeros(1, prodsX, sX1, sX1);
+                B(:, :, 1:sX1+1:sX1^2) = repmat(ai, [1 1 sX1]);
+                B = permute(B, [3 1 4 2]);
+                B = reshape(B, [sX1, prodsX * sX1]);
+                A{i} = B * vX;
             end
-            D{1} = self.shape(1) * D{1};
-            D{2} = self.shape(2) * D{2};
-            c = self.cl(mat2cell(coeffs, D{:}));
+            A = reshape(A, nsize);
         end
 
         function c = multiply(self, A, dims)
