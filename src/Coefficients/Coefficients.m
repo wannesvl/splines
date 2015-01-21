@@ -1,298 +1,275 @@
 classdef Coefficients
-    properties (Access=protected)
-        cl
-        tensor
-    end
-    % properties (Access={?Coefficients,?Function})
-    %     shape
-    % end
     properties
-        coeffs
+        data
+        siz
         shape
     end
+
+    properties (Access=protected)
+        cl
+    end
+
     methods
-        function c = Coefficients(coeffs)
-            % Constructor for Coefficients
-            %
-            % The coefficients are either vector for scalar valued
-            % splines, or cells of vectors and matrices for vector
-            % or matrix valued splines
-            %
-            % This is not the preferred way. Better to make class for
-            % scalar, vector and matrix valued coefficients???
-            if isa(coeffs, 'cell')
-                if isvector(coeffs)
-                    coeffs = coeffs(:);
-                end
-                % Check if all elements are of equal size
-                sizes = cellfun(@size, coeffs, 'UniformOutput', false);
-                if length(sizes) | isequal(sizes{:})
-                    c.coeffs = coeffs;
-                else
-                    error('Coefficients should all be of equal size');
-                end
-            elseif isvector(coeffs)  % Scalar valued
-                coeffs = coeffs(:);
-                c.coeffs = mat2cell(coeffs, ones(size(coeffs, 1), 1));
-            else
-                error('Coeffs not correctly formatted');
+        function blktens = Coefficients(varargin)
+            if nargin == 3
+                data = varargin{1};
+                blktens.siz = varargin{2};
+                blktens.shape = varargin{3};
+                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), []);
+            elseif nargin == 2
+                % infer size from shape
+                data = varargin{1};
+                sdata = size(data);
+                shape = varargin{2};
+                blktens.data = reshape(data, size(data, 1), []);
+                blktens.shape = shape;
+                blktens.siz = [sdata(1) / shape(1), sdata(2) / shape(2), sdata(3:end)];
             end
-            c.shape = size(c.coeffs{1});
-            c.cl = str2func(class(c));
+            blktens.cl = str2func(mfilename);
         end
 
-        function l = length(self)
-            l = length(self.coeffs);
+        function tens = astensor(self)
+            tens = reshape(self.data, self.totalsize);
         end
 
-        function s = size(self, i)
+        function siz = size(self, i)
             if nargin == 1
-                s = size(self.coeffs);
+                siz = self.siz;
             else
-                s = size(self.coeffs, i);
+                siz = self.siz(i);
             end
         end
 
-        function b = isscalar(self)
-            % Are we dealing with scalar coefficients?
-            b = isscalar(self.coeffs{1});
+
+        function siz = totalsize(self)
+            siz = [self.siz(1) * self.shape(1), ...
+                   self.siz(2) * self.shape(2), ...
+                   self.siz(3:end)];
         end
 
-        function b = isvector(self)
-            % Are we dealing with vector coefficients?
-            b = isvector(self.coeffs{1});
+        function bool = isscalar(self)
+            bool = all(self.shape == [1, 1]);
         end
 
-        function m = coeffs2tensor(self)
-            % Convert the coefficients to tensor
+        function bool = isvector(self)
+            bool = self.shape(2) == 1;
+        end
+
+        function blktens = plus(self, other)
+            if isa(self, class(other))
+                blktens = self.cl(self.data + other.data, self.siz, self.shape);
+            elseif isa(self, mfilename)
+                other = repmat(other, [self.siz(1), prod(self.size(2:end))]);
+                blktens = self.cl(self.data + other, self.siz, self.shape);
+            else
+                blktens = other + self;
+            end
+        end
+
+        function blktens = times(self, other)
+            % Multiply each block of self with the corresponding block from other
             %
-            % Shortened copy of mat2cell
-            if isempty(self.tensor)
-                c = self.coeffs;
-                elements = numel(c);
+            % [A B; C D] .* [E F; G H] = [AE BF; CG DH]
 
-                if elements == 1
-                    m = c{1};
-                    return
+            % Creat all zero tensor and populate using linear indexing
+            blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
+            if isa(self, class(other))
+                for i = 1:prod(self.siz)
+                    % For some reason we cannot use overloaded method so we
+                    % have to call subsref directly
+                    S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+                    blktens = blktens.subsasgn(S(1), self.subsref(S) .* other.subsref(S));
                 end
+            elseif isa(self, mfilename)
+                for i = 1:prod(self.siz)
+                    S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+                    blktens = blktens.subsasgn(S(1), self.subsref(S) * other);
+                end
+            else
+                for i = 1:prod(other.siz)
+                    S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+                    blktens = blktens.subsasgn(S(1), self * other.subsref(S));
+                end
+            end
+        end
 
-                csize = size(c);
-                % Construct the matrix by concatenating each dimension of the cell array into
-                %   a temporary cell array, CT
-                % The exterior loop iterates one time less than the number of dimensions,
-                %   and the final dimension (dimension 1) concatenation occurs after the loops
+        function blktens = mtimes(T, other)
+            % Full mode tensor matrix product
+            if isa(T, mfilename)
+                error('Not yet implemented');
+            end
+            blktens = other.tmprod(T, 1:length(other.siz));
+        end
 
-                % Loop through the cell array dimensions in reverse order to perform the
-                %   sequential concatenations
-                for cdim=(length(csize)-1):-1:1
-                    % Pre-calculated outside the next loop for efficiency
-                    ct = cell([csize(1:cdim) 1]);
-                    cts = size(ct);
-                    ctsl = length(cts);
-                    mref = {};
+        function blktens = tmprod(self, U, mode)
+            % Inspired by tmprod in Tensorlab.
 
-                    % Concatenate the dimension, (CDIM+1), at each element in the temporary cell
-                    %   array, CT
-                    for mind=1:prod(cts)
-                        [mref{1:ctsl}] = ind2sub(cts,mind);
-                        % Treat a size [N 1] array as size [N], since this is how the indices
-                        %   are found to calculate CT
-                        if ctsl==2 && cts(2)==1
-                            mref = {mref{1}};
+            % kron matrices with I to account for block shape
+            for i=1:min(length(U), 2)
+                U{i} = kron(U{i}, speye(self.shape(i)));
+            end
+
+            % Heuristically sort modes
+            size_tens = self.totalsize;
+            [~, idx] = sort(size_tens(mode) ./ cellfun('size', U, 1));
+            mode = mode(idx);
+            U = U(idx);
+
+            % Prepermute tensor
+            n = length(mode);
+            N = length(self.siz);
+            modec = setxor(mode, 1:N);
+            perm = [mode modec];
+            size_tens = size_tens(perm);
+            S = self.data;
+            I = reshape(1:prod(size_tens), size_tens);
+            if any(mode ~= 1:n)
+                I = reshape(permute(I, perm), size_tens(1), []);
+                S = S(I);
+            end
+
+            % Cycle through the products
+            for i = 1:n
+                size_tens(1) = size(U{i}, 1);
+                I = reshape(1:prod(size_tens), size_tens);
+                I = permute(I, [2:N, 1]);
+                S = U{i} * S;
+                if i < n
+                    S = S(reshape(I, size(S, 1), []));
+                    size_tens = size_tens([2:N 1]);
+                end
+            end
+
+            % Inverse permute
+            iperm(perm([n:N 1:n-1])) = 1:N;
+            siz = [size_tens(1:2) ./ self.shape, size_tens(3:end)];
+            I = reshape(1:prod(size_tens), size_tens(iperm));
+            I = permute(I, iperm);
+            S = S(reshape(I, size(S, 1), []));
+            blktens = self.cl(S, siz(iperm), self.shape);
+        end
+
+        function blktens = vertcat(varargin)
+            % Find out which input is of blktens class
+            for i = 1:length(varargin)
+                if isa(varargin{i}, mfilename)
+                    t = varargin{i};
+                    break
+                end
+            end
+            S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});
+            data = [];
+            len = 0;
+            for i = 1:length(varargin)
+                if isa(varargin{i}, mfilename)
+                    data = [data; varargin{i}.subsref(S)];
+                    len = len + varargin{i}.shape(1);
+                else
+                    data = [data; repmat(varargin{i}, 1, prod(t.siz))]
+                    len = len + size(varargin{i}, 1);
+                end
+            end
+            blktens = t.cl(zeros(size(data)), t.siz, [len, t.shape(2)]);
+            S = struct('type', {'()'}, 'subs', {{':'}});
+            blktens = blktens.subsasgn(S, data);
+        end
+
+        function blktens = horzcat(varargin)
+            % Find out which input is of blktens class
+            for i = 1:length(varargin)
+                if isa(varargin{i}, mfilename)
+                    t = varargin{i};
+                    break
+                end
+            end
+            S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});
+            data = [];
+            len = 0;
+            for i = 1:length(varargin)
+                if isa(varargin{i}, mfilename)
+                    data = [data varargin{i}.subsref(S)'];
+                    len = len + varargin{i}.shape(2);
+                else
+                    data = [data repmat(varargin{i}, prod(t.siz), 1)]
+                    len = len + size(varargin{i}, 2);
+                end
+            end
+            data'
+            blktens = t.cl(zeros(size(data)), t.siz, [t.shape(1), len]);
+            S = struct('type', {'()'}, 'subs', {{':'}});
+            blktens = blktens.subsasgn(S, data');
+        end
+
+        function blktens = ctranspose(self)
+            % Transpose each of the blocks separately
+            blktens = self.cl(zeros(size(self.data)), self.siz, [self.shape(2), self.shape(1)]);
+            for i = 1:prod(self.siz)
+                S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+                blktens = blktens.subsasgn(S(1), self.subsref(S)');
+            end
+        end
+
+        function n = end(self)
+            n = prod(self.siz)
+        end
+
+        function varargout = subsref(self, S)
+            switch S(1).type
+                case '()'
+                    if length(S(1).subs) == 1  % Linear indexing
+                        if strcmp(S(1).subs{1}, ':')
+                            S(1).subs{1} = 1:prod(self.siz);
                         end
-                        % Perform the concatenation along the (CDIM+1) dimension
-                        ct{mref{:}} = cat(cdim+1,c{mref{:},:});
+                        [i, j] = ind2sub([self.siz(1), prod(self.size(2:end))], S(1).subs{1});
+                        I = repmat((1:self.shape(1))', size(i, 1), size(i, 2) * self.shape(2));
+                        J = repmat(1:self.shape(2), size(j, 1) * self.shape(1), size(j, 2));
+                        i = kron(i, ones(self.shape));
+                        j = kron(j, ones(self.shape));
+                        idx = sub2ind(size(self.data), (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
+                        y = self.cl(self.data(idx), self.shape);
+                    else % Convert indices to linear indices?
+                        idx = sub2ind(self.siz, S(1).subs{:});
+                        S(1).subs = {idx};
+                        [varargout{1:nargout}] = subsref(self, S);
+                        return
                     end
-                    % Replace M with the new temporarily concatenated cell array, CT
-                    c = ct;
-                end
-                % Finally, concatenate the final rows of cells into a matrix
-                m = cat(1,c{:});
-            else
-                m = self.tensor;
+                    if length(S) > 1
+                        [varargout{1:nargout}] = subsref(y, S(2:end));
+                    else
+                        varargout{1} = y;
+                    end
+                case '.'
+                    if any(strcmp(S(1).subs, properties(self))) || ...
+                       any(strcmp(S(1).subs, methods(self)))
+                        [varargout{1:nargout}] = builtin('subsref', self, S);
+                    end
             end
         end
 
-        function c = plus(self, other)
-            % Returns the sum of coefficients
-            %
-            % Returns: 
-            %    Coefficients: The sum of self.coeffs and other.coeffs.
-            %       If either of the terms is a matrix the function sums each of
-            %       the coefficient with the matrix
-            if isa(self, class(other))
-                c = self.cl(cellfun(@plus, self.coeffs, other.coeffs, 'UniformOutput', false));
-            else
-                try
-                    c = self.cl(cellfun(@(v) v + other, self.coeffs, 'UniformOutput', false));
-                catch err
-                    c = other + self;
-                end
+        function y = subsasgn(self, S, varargin)
+            switch S(1).type
+                case '()'
+                    if length(S(1).subs) == 1  % Linear indexing
+                        if strcmp(S(1).subs{1}, ':')
+                            S(1).subs{1} = 1:prod(self.siz);
+                        end
+                        [i, j] = ind2sub([self.siz(1), prod(self.size(2:end))], S(1).subs{1});
+                        I = repmat((1:self.shape(1))', size(i, 1), size(i, 2) * self.shape(2));
+                        J = repmat(1:self.shape(2), size(j, 1) * self.shape(1), size(j, 2));
+                        i = kron(i, ones(self.shape));
+                        j = kron(j, ones(self.shape));
+                        idx = sub2ind(size(self.data), (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
+                        y = self;
+                        y.data(idx) = varargin{1};
+                    else
+                        error('Not yet implemented')
+                    end
+                case '.'
+                    if any(strcmp(S(1).subs, properties(self))) || ...
+                       any(strcmp(S(1).subs, methods(self)))
+                        y = builtin('subsasgn', self, S, varargin);
+                    end
             end
-        end
-
-        function c = sum(self)
-            % Only for univariate splines
-            c = ones(length(self), 1)' * self;
-            c = c.coeffs{1};
-        end
-
-        function c = uminus(self)
-            c = self.cl(cellfun(@uminus, self.coeffs, 'UniformOutput', false));
-        end
-
-        function c = minus(self, other)
-            c = self + (-other);
-        end
-
-        function c = times(self, other)
-            % pointwise product
-            if isa(self, class(other))
-                c = cellfun(@times, self.coeffs, other.coeffs, 'UniformOutput', false);
-            else
-                if isa(self, 'Coefficients')
-                    c = cellfun(@(v) v * other, self.coeffs, 'UniformOutput', false);
-                else
-                    c = cellfun(@(v) self * v, other.coeffs, 'UniformOutput', false);
-                end
-            end
-            c = Coefficients(c);
-        end
-
-        function c = mtimes(A, self)
-            % Matrix multiplication with same type or transformation matrices
-            if isa(A, class(self))  % Both inputs are coefficients
-                c = self.cl(cellfun(@mtimes, A.coeffs, self.coeffs, 'UniformOutput', false));
-                return
-            end
-            % coeffs = self.coeffs2tensor;
-            if isa(A, 'double')  % Univariate transformation matrix
-                A = {A};
-            end
-            c = self.cl(self.tucker(A));
-        end
-        
-        function A = tucker(self, V)
-            % Apply Tucker operator on coefficient matrix with matrices in the cell array V
-            if length(V) == 1
-                V = {V{1}, 1};
-            end
-            X = self.coeffs;
-            nsize = cellfun(@(x) size(x, 1), V);
-            sX = size(X);
-            sX1 = size(X{1}, 1);
-            prodsX = prod(sX);
-            nX = ndims(X);
-            vX = vertcat(X{:});
-            cnumelV = cumsum([0 cellfun(@numel, V(1:end-1))]);
-            s1V = cellfun(@(x) size(x, 1), V);
-            VV = cellfun(@(x) x(:), V, 'uni', 0);
-            VV = vertcat(VV{:});
-
-            % Avoids having to use ind2sub
-            ranges_i = arrayfun(@(x) 1:x, nsize, 'uni', 0);
-            idx_i = cell(nX, 1);
-            [idx_i{:}] = ndgrid(ranges_i{:});
-            li = numel(idx_i{1});
-            idx_i = cat(nX, idx_i{:});
-            ranges_k = arrayfun(@(x) 1:x, sX, 'uni', 0);
-            idx_k = cell(nX, 1);
-            [idx_k{:}] = ndgrid(ranges_k{:});
-            lk = numel(idx_k{1});
-            idx_k = cat(nX, idx_k{:});
-
-            % Preallocate result
-            A = cell(prod(nsize), 1);
-            for i = 1:length(A)
-                ai = zeros(1,prodsX);
-                ii = idx_i(i:li:end);
-                for k = 1:prodsX
-                    ik = idx_k(k:lk:end);
-                    idx_V = ii + (ik - 1) .* s1V + cnumelV;
-                    ai(k) = prod(VV(idx_V));
-                end
-                % Avoid kron(ai, eye(sX1))
-                B = zeros(1, prodsX, sX1, sX1);
-                B(:, :, 1:sX1+1:sX1^2) = repmat(ai, [1 1 sX1]);
-                B = permute(B, [3 1 4 2]);
-                B = reshape(B, [sX1, prodsX * sX1]);
-                A{i} = B * vX;
-            end
-            A = reshape(A, nsize);
-        end
-
-        function c = multiply(self, A, dims)
-            % Multiply coeffs with cell array A along dimensions dims
-            %
-            % 
-            coeffs = self.coeffs2tensor;
-            size1 = cellfun(@(a) size(a, 1), A)
-            A = cellfun(@(a) kron(a, eye(self.shape(1))), A, 'UniformOutput', false);
-            coeffs = squeeze(tmprod(coeffs, A, dims))
-            s = size(self);
-            c = 0;
-            return
-            if ndims(self.coeffs) - length(dims) > 0
-                reshape(coeffs, s(1:end - dims))
-            end
-            c = 0;
-            % D = {};
-            % for i=1:ndims(self.coeffs)
-            %     D{i} = ones(size(coeffs, i))
-        end
-
-        function c = vertcat(varargin)
-            % Concatenate matrices vertically
-            d = cellfun(@(v) v.coeffs, varargin, ...
-                        'UniformOutput', false, ...
-                        'ErrorHandler', @(s, i) num2cell(i));  % Concatenation with arrays
-            c = Coefficients(cellfun(@vertcat, d{:}, 'UniformOutput', false));
-        end
-
-        function c = horzcat(varargin)
-            % Concatenate matrices horizontaly
-            d = cellfun(@(v) v.coeffs, varargin, ...
-                        'UniformOutput', false, ...
-                        'ErrorHandler', @(s, i) num2cell(i));
-            c = Coefficients(cellfun(@horzcat, d{:}, 'UniformOutput', false));
-        end
-
-        function c = transpose(self)
-            % Transpose each of the coefficients
-            %
-            % What about multivariate spline coefficients??
-            c = self.cl(cellfun(@transpose, self.coeffs, 'UniformOutput', false));
-        end
-
-        function c = ctranspose(self)
-            % Conjugate transpose each of the coefficients
-            c = self.cl(cellfun(@ctranspose, self.coeffs, 'UniformOutput', false));
-        end
-
-        function c = diag(self, v)
-            c = self.cl(cellfun(@(c) diag(c, v), self.coeffs, 'UniformOutput', false));
-        end
-
-        function varargout = subsref(self, s)
-            % Note to this function: c.coeffs{:} does not work!!
-            % Instead you should define dummy d = c.coeffs and d{:}
-            %
-            % For this reason I consider changing the implementation to object arrays
-            if strcmp(s(1).type, '.')
-                if any(strcmp(s(1).subs, properties(self))) || ...
-                   any(strcmp(s(1).subs, methods(self)))
-                    [varargout{1:nargout}] = builtin('subsref', self, s);
-                else
-                    error(['''%s'' is not a public property or method ' ...
-                        'of the Coefficients class.'],s(1).subs);
-                end
-            else
-                varargout{1} = self.cl(subsref(self.coeffs, s));
-            end
-        end
-
-        function c = double(self)
-            c = self.cl(cellfun(@double, self.coeffs, 'UniformOutput', false));
         end
     end
 end
