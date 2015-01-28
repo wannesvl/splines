@@ -9,12 +9,12 @@ classdef Function
     methods
         function s = Function(basis, coeffs)
             % A generic function class
-            % 
+            %
             % Function(b, c) creates a function object defined by bases b and
             % coefficients c.
             %
             % Args:
-            %    basis (cell of basis objects): The function bases to use     
+            %    basis (cell of basis objects): The function bases to use
             %    coeffs (array, cell or Coefficients): The function
             %      coefficients. Array input is allowed only for scalar coefficients
             %
@@ -56,10 +56,10 @@ classdef Function
                 end
                 return
             else
-                s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;    
+                s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
             end
             if self.coeffs.isscalar %&& ~isa(s,'BSpline') % If scalar coefficients, convert to regular matrix
-                s = s.coeffs2tensor;
+                s = s.data;
             else  % Return cell array
                 s = s.coeffs;
             end
@@ -70,7 +70,7 @@ classdef Function
             %
             % Returns a new Function object
             b = arrayfun(@(i) self.basis{i}.f(x{i}), idx, 'UniformOutput', false);
-            
+
             s = 0;
         end
 
@@ -175,7 +175,7 @@ classdef Function
             if isscalar(size_b)  % Correction for univariate splines
                 size_b = [size_b, 1];
             end
-            
+
             % Compute coefficients in common basis
             c = cell(size(varargin));
             for i=1:length(varargin)
@@ -211,7 +211,7 @@ classdef Function
             if isscalar(size_b)  % Correction for univariate splines
                 size_b = [size_b, 1];
             end
-            
+
             % Compute coefficients in common basis
             c = cell(size(varargin));
             for i=1:length(varargin)
@@ -255,11 +255,17 @@ classdef Function
                 end
             elseif strcmp(s(1).type, '()')
                 basis = self.basis;
-                coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
+                c1 = self.coeffs(1).data;
+                coeffs = Coefficients(repmat(c1(s(1)), 1, prod(self.coeffs.siz)), self.coeffs.siz, size(c1(s(1))));
+                for i=1:prod(self.coeffs.siz)
+                    c = self.coeffs(i).data;
+                    coeffs(i) = c(s(1));
+                end
+                % coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
                 if isscalar(s)
-                    varargout{1} = self.cl(basis, Coefficients(coeffs));
+                    varargout{1} = self.cl(basis, coeffs);
                 else
-                    [varargout{1:nargout}] = builtin('subsref', self.cl(basis, Coefficients(coeffs)), s(2:end));
+                    [varargout{1:nargout}] = builtin('subsref', self.cl(basis, coeffs), s(2:end));
                 end
             else
                 error('Invalid use of {}')
@@ -280,14 +286,14 @@ classdef Function
                 b = le(other, self);
                 return
             end
-            c = self.coeffs.coeffs;
-            if ~isvector(c{1})
-                for i=1:numel(c)
-                    b = [b, 0.5 * (c{i} + c{i}') >= other];
+            c = self.coeffs;
+            if ~isvector(c(1))
+                for i=1:prod(c.siz)
+                    b = [b, 0.5 * (c(i).data + c(i).data') >= other];
                 end
             else
-                for i=1:numel(c)
-                    b = [b, c{i} >= other];
+                for i=1:prod(c.siz)
+                    b = [b, c(i).data >= other];
                 end
             end
         end
@@ -301,14 +307,14 @@ classdef Function
                 b = ge(other, self);
                 return
             end
-            c = self.coeffs.coeffs;
-            if ~isvector(c{1})
-                for i=1:numel(c)
-                    b = [b, 0.5 * (c{i} + c{i}') <= other];
+            c = self.coeffs;
+            if ~isvector(c(1))
+                for i=1:prod(c.siz)
+                    b = [b, 0.5 * (c(i).data + c(i).data') <= other];
                 end
             else
-                for i=1:numel(c)
-                    b = [b, c{i} <= other];
+                for i=1:prod(c.siz)
+                    b = [b, c(i).data <= other];
                 end
             end
         end
@@ -337,10 +343,10 @@ classdef Function
         function s = increase_degree(self, degree)
             % Increase each basis by degree(i)
             %
-            % Args: 
+            % Args:
             %    degree (vector): Degree increase for each basis
             %
-            % Returns:            
+            % Returns:
             %    BSpline: Bspline with updated coefficients
             b = arrayfun(@(i) self.basis{i}.increase_degree(degree(i)), 1:self.dims, 'UniformOutput', false);
             T = cellfun(@(b1, b2) b1.transform(b2), b, self.basis, 'UniformOutput', false);
@@ -355,7 +361,7 @@ classdef Function
     end
 
     methods (Static)
-        function s = sdpvar(basis, dim, p)
+        function s = sdpvar(basis, shape, p)
             if isscalar(basis) && ~isa(basis, 'cell')
                 basis = {basis};
             end
@@ -367,11 +373,11 @@ classdef Function
                 lengths = [lengths, 1];
             end
             if nargin == 2
-                coeffs = sdpvar(dim(1) * ones(1, prod(lengths)), dim(2) * ones(1, prod(lengths)));
+                coeffs = sdpvar(shape(1) * lengths(1), shape(2) *prod(lengths(2:end)));
             elseif nargin == 3
-                coeffs = sdpvar(dim(1) * ones(1, prod(lengths)), dim(2) * ones(1, prod(lengths)), p);
+                coeffs = sdpvar(shape(1) * lengths(1), shape(2) *prod(lengths(2:end)), p);
             end
-            s = cl(basis, reshape(coeffs, lengths));
-        end     
+            s = cl(basis, Coefficients(coeffs, lengths, shape));
+        end
     end
 end

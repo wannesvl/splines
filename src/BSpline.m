@@ -68,7 +68,7 @@ classdef BSpline < Function
         function i = integral(self)
             T = cellfun(@(b) [b.integral; zeros(1, length(b))], self.basis, 'UniformOutput', false);
             i = T * self.coeffs;
-            i = i.coeffs{1};
+            i = i(1).data;
         end
 
         function d = derivative(self, ord, coord)
@@ -126,11 +126,11 @@ classdef BSpline < Function
         function s = insert_knots(self, knots, uniq)
             % Insert knots in each basis
             %
-            % Args: 
+            % Args:
             %    knots (cell): Desired knot insertions for each
             %    basis
             %
-            % Returns:            
+            % Returns:
             %    BSpline: Bspline with updated coefficients for the refined
             %    knot sequences
             if nargin == 2
@@ -160,7 +160,7 @@ classdef BSpline < Function
             obj = @(x) self.f(num2cell(x));
             Jself = self.gradient;
             grad = @(x) Jself.f(num2cell(x));
-            dom = self.domain;            
+            dom = self.domain;
             lb = cellfun(@(k) k(1), dom);
             ub = cellfun(@(k) k(2), dom);
             if self.dims == 1
@@ -169,6 +169,6 @@ classdef BSpline < Function
                 X = fmincon(@(x) deal(obj(x), cell2mat(grad(x))), x0, [], [], [], [], lb, ub, [],  options);
             end
             m = self.f(num2cell(X));
-        end  
+        end
     end
 end

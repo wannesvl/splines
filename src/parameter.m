@@ -32,9 +32,9 @@ function p = parameter(varargin)
             end
         end
     else
-        p_coeffs = [0, 1];
+        p_coeffs = {0, 1};
     end
-    p = Polynomial(p_coeffs);
+    p = Polynomial(Coefficients(cell2mat(p_coeffs), size(p_coeffs), size(p_coeffs{1})));
     if switched
         p = p';
     end

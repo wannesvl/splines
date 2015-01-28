@@ -3,7 +3,7 @@ classdef Polynomial < Function
         function p = Polynomial(varargin)
             if nargin == 1  % Assume only the coefficients are given
                 coeffs = varargin{1};
-                if ~isa(coeffs, 'cell')  % Scalar valued polynomial
+                if ~isa(coeffs, 'Coefficients') && ~isa(coeffs, 'cell')  % Scalar valued polynomial
                     coeffs = num2cell(coeffs);
                 end
                 if isvector(coeffs)
@@ -31,7 +31,7 @@ classdef Polynomial < Function
                 s = plus@Function(self, other);
             else  % Assume plus with array
                 try
-                    basis = self.basis; 
+                    basis = self.basis;
                     coeffs = self.coeffs;
                     coeffs.coeffs{1} = coeffs.coeffs{1} + other;
                     s = self.cl(basis, coeffs);
@@ -52,7 +52,7 @@ classdef Polynomial < Function
                     T(i:lB-1+i, lB*(i-1)+1:lB*i) = eye(lB);
                 end
             end
-            if isa(self, class(other)) 
+            if isa(self, class(other))
                 % Basis of product
                 basis = cellfun(@mtimes, self.basis, other.basis, 'UniformOutput', false);
                 % Take kronecker product of coefficients

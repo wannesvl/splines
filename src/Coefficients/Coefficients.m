@@ -15,7 +15,9 @@ classdef Coefficients
                 data = varargin{1};
                 blktens.siz = varargin{2};
                 blktens.shape = varargin{3};
-                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), []);
+                if ~strcmp(data, 'empty')
+                    blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), []);
+                end
             elseif nargin == 2
                 % infer size from shape
                 data = varargin{1};
@@ -72,8 +74,8 @@ classdef Coefficients
             % [A B; C D] .* [E F; G H] = [AE BF; CG DH]
 
             % Creat all zero tensor and populate using linear indexing
-            blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
             if isa(self, class(other))
+                blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
                 for i = 1:prod(self.siz)
                     % For some reason we cannot use overloaded method so we
                     % have to call subsref directly
@@ -81,11 +83,13 @@ classdef Coefficients
                     blktens = blktens.subsasgn(S(1), self.subsref(S) .* other.subsref(S));
                 end
             elseif isa(self, mfilename)
+                blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
                 for i = 1:prod(self.siz)
                     S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
                     blktens = blktens.subsasgn(S(1), self.subsref(S) * other);
                 end
             else
+                blktens = other.cl(zeros(size(other.data)), other.siz, other.shape);
                 for i = 1:prod(other.siz)
                     S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
                     blktens = blktens.subsasgn(S(1), self * other.subsref(S));
@@ -96,9 +100,21 @@ classdef Coefficients
         function blktens = mtimes(T, other)
             % Full mode tensor matrix product
             if isa(T, mfilename)
-                error('Not yet implemented');
+                self = T;
+                % This is not correct!
+                blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
+                [m, n] = size(self.data);
+                blktens = self.cl(sdpvar(m,n), self.siz, self.shape);
+                for i = 1:prod(self.siz)
+                    S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+                    blktens = blktens.subsasgn(S(1), self.subsref(S) .* other.subsref(S));
+                end
+                return
             end
-            blktens = other.tmprod(T, 1:length(other.siz));
+            if ~iscell(T)
+                T = {T};
+            end
+            blktens = other.tmprod(T, 1:length(T));
         end
 
         function blktens = tmprod(self, U, mode)
@@ -130,7 +146,9 @@ classdef Coefficients
 
             % Cycle through the products
             for i = 1:n
-                size_tens(1) = size(U{i}, 1);
+                if ~isscalar(U{i})
+                    size_tens(1) = size(U{i}, 1);
+                end
                 I = reshape(1:prod(size_tens), size_tens);
                 I = permute(I, [2:N, 1]);
                 S = U{i} * S;
@@ -258,7 +276,7 @@ classdef Coefficients
                         J = repmat(1:self.shape(2), size(j, 1) * self.shape(1), size(j, 2));
                         i = kron(i, ones(self.shape));
                         j = kron(j, ones(self.shape));
-                        idx = sub2ind(size(self.data), (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
+                        idx = sub2ind([self.shape .* self.siz(1:2), self.siz(3:end)], (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
                         y = self;
                         y.data(idx) = varargin{1};
                     else
