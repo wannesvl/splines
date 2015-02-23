@@ -90,7 +90,7 @@ classdef PieceWiseBasis < UnivariateBasis
                 b = self.combine(other, degree);
             elseif isa(other, 'double')
                 b = self;
-            elseif isa(self, 'double')                
+            elseif isa(self, 'double')
                 b = other;
             else
                 error('Incompatible datatype')
@@ -186,6 +186,8 @@ classdef PieceWiseBasis < UnivariateBasis
                 end
             end
             [i, j, dummy] = find(p);
+            i = i(:);
+            j = j(:);
         end
 
         function T = transform(self, other)
@@ -211,4 +213,4 @@ classdef PieceWiseBasis < UnivariateBasis
         end
     end
 end
-        
+

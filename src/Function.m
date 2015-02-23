@@ -31,9 +31,16 @@ classdef Function
                 if all(size(coeffs) == lengths) && ~isa(coeffs, 'cell') % Scalar coefficients
                     % sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
                     % coeffs = mat2cell(coeffs, sp{:});
-                    coeffs = num2cell(coeffs);
+                    % coeffs = num2cell(coeffs);
+                    siz = size(coeffs);
+                    shape = [1,1];
+                    data = coeffs;
+                elseif isa(coeffs, 'cell')
+                    siz = size(coeffs);
+                    shape = size(coeffs{1});
+                    data = cell2mat(coeffs);
                 end
-                s.coeffs = Coefficients(coeffs);
+                s.coeffs = Coefficients(data, siz, shape);
             end
             % Validate input
             if lengths ~= size(s.coeffs)
@@ -59,7 +66,7 @@ classdef Function
                 s = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false) * self.coeffs;
             end
             if self.coeffs.isscalar %&& ~isa(s,'BSpline') % If scalar coefficients, convert to regular matrix
-                s = s.data;
+                s = s.astensor;
             else  % Return cell array
                 s = s.coeffs;
             end
@@ -255,11 +262,11 @@ classdef Function
                 end
             elseif strcmp(s(1).type, '()')
                 basis = self.basis;
-                c1 = self.coeffs(1).data;
-                coeffs = Coefficients(repmat(c1(s(1)), 1, prod(self.coeffs.siz)), self.coeffs.siz, size(c1(s(1))));
+                c1 = builtin('subsref', self.coeffs(1).data, s(1));
+                coeffs = Coefficients(repmat(c1, 1, prod(self.coeffs.siz)), self.coeffs.siz, size(c1));
                 for i=1:prod(self.coeffs.siz)
                     c = self.coeffs(i).data;
-                    coeffs(i) = c(s(1));
+                    coeffs(i) = builtin('subsref', c, s(1));
                 end
                 % coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
                 if isscalar(s)
@@ -288,9 +295,11 @@ classdef Function
             end
             c = self.coeffs;
             if ~isvector(c(1))
-                for i=1:prod(c.siz)
-                    b = [b, 0.5 * (c(i).data + c(i).data') >= other];
-                end
+                d = c.spblkdiag();
+                b = [0.5 * (d + d') >= other];
+                % for i=1:prod(c.siz)
+                %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
+                % end
             else
                 for i=1:prod(c.siz)
                     b = [b, c(i).data >= other];
@@ -309,9 +318,11 @@ classdef Function
             end
             c = self.coeffs;
             if ~isvector(c(1))
-                for i=1:prod(c.siz)
-                    b = [b, 0.5 * (c(i).data + c(i).data') <= other];
-                end
+                d = c.spblkdiag();
+                b = [0.5 * (d + d') <= other];
+                % for i=1:prod(c.siz)
+                %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
+                % end
             else
                 for i=1:prod(c.siz)
                     b = [b, c(i).data <= other];
@@ -329,15 +340,15 @@ classdef Function
                 self = other;
                 other = temp;
             end
-            c = self.coeffs.coeffs;
-            for i=1:numel(c)
-                b = [b, c{i} == other];
+            c = self.coeffs;
+            for i=1:prod(c.siz)
+                b = [b, c(i).data == other];
             end
         end
 
-        function s = double(self)
+        function s = value(self)
             % Overload double for use with YALMIP variables
-            s = self.cl(self.basis, double(self.coeffs));
+            s = self.cl(self.basis, value(self.coeffs));
         end
 
         function s = increase_degree(self, degree)
@@ -355,8 +366,8 @@ classdef Function
 
         function s = trace(self)
             % Return the trace of a matrix valued spline
-            c = cellfun(@trace, self.coeffs.coeffs, 'UniformOutput', false);
-            s = self.cl(self.basis, c);
+            % c = cellfun(@trace, self.coeffs.coeffs, 'UniformOutput', false);
+            s = self.cl(self.basis, trace(self.coeffs));
         end
     end
 

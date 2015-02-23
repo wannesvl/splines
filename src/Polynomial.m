@@ -23,7 +23,7 @@ classdef Polynomial < Function
         end
 
         function s = plus(self, other)
-            if isa(self, 'Function') & isa(other, 'Function')
+            if isa(self, 'Function') && isa(other, 'Function')
                 if ~isa(other, mfilename)
                     s = other + self;  % Let the other class handle summation
                     return
@@ -33,7 +33,7 @@ classdef Polynomial < Function
                 try
                     basis = self.basis;
                     coeffs = self.coeffs;
-                    coeffs.coeffs{1} = coeffs.coeffs{1} + other;
+                    coeffs(1) = coeffs(1).data + other;
                     s = self.cl(basis, coeffs);
                 catch err
                     s = other + self;
@@ -58,6 +58,7 @@ classdef Polynomial < Function
                 % Take kronecker product of coefficients
                 [i_other, i_self] = arrayfun(@(i) find(ones(size(other.coeffs, i), size(self.coeffs, i))), 1:self.dims, 'UniformOutput', false);  % Give all indices of products
                 coeffs_product = self.coeffs(i_self{:}) * other.coeffs(i_other{:});
+                % self.coeffs.data, i_self{:}
                 % Determine transformation matrices
                 T = cellfun(@(b1, b2) transform(b1, b2), self.basis, other.basis, 'UniformOutput', false);
                 s = self.cl(basis, T * coeffs_product);
