@@ -1,4 +1,7 @@
 classdef Function
+    properties (Constant)
+        BLKDIV = 100;
+    end
     properties (Access=protected)
         cl
     end
@@ -225,6 +228,8 @@ classdef Function
                 if isa(varargin{i}, mfilename)
                     T = cellfun(@(b, bi) b.transform(bi), b, varargin{i}.basis, 'UniformOutput', false);
                     c{i} = T * varargin{i}.coeffs;
+                elseif isempty(varargin{i})
+                    break
                 else  % Constant function: Simply repeat matrices along dimensions of b
                     c{i} = Coefficients(repmat({varargin{i}}, size_b));
                 end
@@ -262,12 +267,28 @@ classdef Function
                 end
             elseif strcmp(s(1).type, '()')
                 basis = self.basis;
-                c1 = builtin('subsref', self.coeffs(1).data, s(1));
-                coeffs = Coefficients(repmat(c1, 1, prod(self.coeffs.siz)), self.coeffs.siz, size(c1));
-                for i=1:prod(self.coeffs.siz)
-                    c = self.coeffs(i).data;
-                    coeffs(i) = builtin('subsref', c, s(1));
+                prodsiz = prod(self.coeffs.siz);
+                prodshape = prod(self.coeffs.shape);
+                c = self.coeffs(1:prodsiz).data;
+                if length(s(1).subs) == 2
+                    idx = sub2ind(self.coeffs.shape, s(1).subs{:});
+                else
+                    idx = s(1).subs{1};
                 end
+                % size(repmat(idx, prodsiz, 1)), size(kron((0:prodshape:prodshape*prodsiz)', ones(size(idx))))
+                I = repmat(idx, prodsiz, 1) + kron((0:prodshape:prodshape*prodsiz-1)', ones(size(idx)));
+                coeffs = Coefficients(c(I), [prodsiz, 1], size(idx));
+                I = reshape(1:prodsiz, self.coeffs.siz);
+                coeffs = coeffs(I);
+                %bla
+                % Needs vectorization!!
+                % coeffs = builtin('subsref', self.coeffs, s(1));
+                % c1 = builtin('subsref', self.coeffs(1).data, s(1));
+                % coeffs = Coefficients(repmat(c1, 1, prod(self.coeffs.siz)), self.coeffs.siz, size(c1));
+                % for i=1:prod(self.coeffs.siz)
+                %     c = self.coeffs(i).data;
+                %     coeffs(i) = builtin('subsref', c, s(1));
+                % end
                 % coeffs = cellfun(@(c) builtin('subsref', c, s(1)), self.coeffs.coeffs, 'UniformOutput', false);
                 if isscalar(s)
                     varargout{1} = self.cl(basis, coeffs);
@@ -295,15 +316,22 @@ classdef Function
             end
             c = self.coeffs;
             if ~isvector(c(1))
-                d = c.spblkdiag();
-                b = [0.5 * (d + d') >= other];
+                nel = prod(c.siz);
+                b = [];
+                for i = 1:self.BLKDIV:nel
+                    m = min(i+self.BLKDIV-1, nel);
+                    d = c(i:m).spblkdiag();
+                    b = [b, 0.5 * (d + d') >= other];
+                end
+                b = unblkdiag(b);
                 % for i=1:prod(c.siz)
                 %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
                 % end
             else
-                for i=1:prod(c.siz)
-                    b = [b, c(i).data >= other];
-                end
+                b = [c(:).data >= other];
+                % for i=1:prod(c.siz)
+                %     b = [b, c(i).data >= other];
+                % end
             end
         end
 
@@ -318,15 +346,22 @@ classdef Function
             end
             c = self.coeffs;
             if ~isvector(c(1))
-                d = c.spblkdiag();
-                b = [0.5 * (d + d') <= other];
+                nel = prod(c.siz);
+                b = [];
+                for i = 1:self.BLKDIV:nel
+                    m = min(i+self.BLKDIV, nel);
+                    d = c(i:m).spblkdiag();
+                    b = [b, 0.5 * (d + d') <= other];
+                end
+                b = unblkdiag(b);
                 % for i=1:prod(c.siz)
                 %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
                 % end
             else
-                for i=1:prod(c.siz)
-                    b = [b, c(i).data <= other];
-                end
+                b = [c(:).data <= other];
+                % for i=1:prod(c.siz)
+                %     b = [b, c(i).data <= other];
+                % end
             end
         end
 
@@ -384,11 +419,15 @@ classdef Function
                 lengths = [lengths, 1];
             end
             if nargin == 2
-                coeffs = sdpvar(shape(1) * lengths(1), shape(2) *prod(lengths(2:end)));
-            elseif nargin == 3
-                coeffs = sdpvar(shape(1) * lengths(1), shape(2) *prod(lengths(2:end)), p);
+                coeffs = sdpvar(shape(1) * lengths(1), shape(2) * prod(lengths(2:end)));
+                coeffs = Coefficients(coeffs, lengths, shape);
+            elseif nargin == 3  % This is incorrect! should be applied on subblocks!
+                coeffs = sdpvar(shape(1) * ones(1, prod(lengths)), shape(2) * ones(1, prod(lengths)), p);
+                coeffs = Coefficients(horzcat(coeffs{:}), [1, prod(lengths)], shape);
+                I = reshape(1:prod(lengths), lengths);
+                coeffs = coeffs(I);
             end
-            s = cl(basis, Coefficients(coeffs, lengths, shape));
+            s = cl(basis, coeffs);
         end
     end
 end

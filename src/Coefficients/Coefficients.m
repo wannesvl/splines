@@ -102,7 +102,7 @@ classdef Coefficients
                     return
                 end
                 if isscalar(self)  % Correct size
-                    data = kron(self.spblkdiag(), eye(size(other, 1))) * repmat(other, prod(self.siz), 1);
+                    data = kron(self.spblkdiag(), speye(size(other, 1))) * repmat(other, prod(self.siz), 1);
                     blktens = self.cl(data, [prod(self.siz), 1], size(other));
                 else
                     data = self.spblkdiag() * repmat(other, prod(self.siz), 1);
@@ -117,7 +117,7 @@ classdef Coefficients
                     return
                 end
                 if isscalar(other)
-                    data = repmat(self, 1, prod(other.siz)) * kron(other.spblkdiag(), eye(size(self, 1)));
+                    data = repmat(self, 1, prod(other.siz)) * kron(other.spblkdiag(), speye(size(self, 1)));
                     blktens = other.cl(data, [1, prod(other.siz)], size(self));
                 else
                     data = repmat(self, 1, prod(other.siz)) * other.spblkdiag();
@@ -195,11 +195,11 @@ classdef Coefficients
             N = length(self.siz);
             modec = setxor(mode, 1:N);
             perm = [mode modec];
+            I = reshape(1:prod(size_tens), size_tens);
             size_tens = size_tens(perm);
             S = self.data;
-            I = reshape(1:prod(size_tens), size_tens);
             if any(mode ~= 1:n)
-                I = reshape(permute(I, perm), size_tens(perm(1)), []);
+                I = reshape(permute(I, perm), size_tens(1), []);
                 S = S(I);
             end
 
@@ -322,14 +322,23 @@ classdef Coefficients
         end
 
         function blktens = ctranspose(self)
-            % Transpose each of the blocks separately
-            % blktens = self.cl(zeros(size(self.data)), self.siz, [self.shape(2), self.shape(1)]);
-            blktens = self;
-            blktens.shape = [self.shape(2), self.shape(1)];
-            for i = 1:prod(self.siz)
-                S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
-                blktens = blktens.subsasgn(S(1), self.subsref(S)');
-            end
+            % Inner block transpose
+            data = self.subsref(struct('type', {'()', '.'}, 'subs', {{':'}, 'data'}));
+            blktens = self.cl(data', [1, prod(self.siz)], fliplr(self.shape));
+            I = reshape(1:prod(self.siz), self.siz);
+            blktens = blktens.subsref(struct('type', {'()'}, 'subs', {{I}}));
+            % Needs vectorization!
+            % blktens = self;
+            % blktens.shape = [self.shape(2), self.shape(1)];
+            % for i = 1:prod(self.siz)
+            %     S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
+            %     blktens = blktens.subsasgn(S(1), self.subsref(S)');
+            % end
+        end
+
+        function blktens = transpose(self)
+            % Outer block transpose
+            error('not implemented')
         end
 
         function n = end(self)
