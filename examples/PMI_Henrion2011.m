@@ -17,7 +17,7 @@ K = [1 - 16 * th(1) * th(2), th(1); th(1), 1 - th(1) * th(1) - th(2) * th(2)];
 % =====================
 options = sdpsettings('verbose', 1, 'solver', 'sdpt3');
 con = [K + t * speye(2) >= 0];
-sol = solvesdp(con, t.integral, options);
+sol = optimize(con, t.integral, options);
 t1 = value(t);
 
 % Construct dual solution from lagrange multipliers
@@ -34,7 +34,7 @@ t1_ = trace(Y * K);
 % ===============================================
 g = t.gradient;
 con = [K + t * speye(2) >= 0, t.hessian >= 0];
-sol = solvesdp(con, t.integral, options);
+sol = optimize(con, t.integral, options);
 t2 = value(t);
 
 % Construct dual solution from lagrange multipliers
@@ -52,12 +52,12 @@ Z = BSpline.sdpvar({Bth, Bth}, [2, 2], 'symmetric');
 obj = trace(Z * K);
 
 con = [Z >= 0, trace(Z) == 1];
-sol = solvesdp(con, obj.integral, options);
+sol = optimize(con, obj.integral, options);
 t3 = -value(obj);
  
 % Solve phase-1 dual convex
 % =========================
-sol = solvesdp([Z >= 0, trace(Z) == 1, obj.hessian <= 0], obj.integral, options);
+sol = optimize([Z >= 0, trace(Z) == 1, obj.hessian <= 0], obj.integral, options);
 t4 = -value(obj);
  
 % Plot inner and outer approximations
@@ -98,7 +98,7 @@ options = sdpsettings('verbose', 1, 'solver', 'sdpt3');
 
 % Solve phase-1 problem
 % =====================
-sol = solvesdp([K + t * speye(3) >= 0], t.integral, options);
+sol = optimize([K + t * speye(3) >= 0], t.integral, options);
 t1 = value(t);
 
 figure
@@ -126,7 +126,7 @@ lighting gouraud
 
 % Solve phase-1 problem with convexity constraint
 % ===============================================
-sol = solvesdp([K + t * eye(3) >= 0, t.hessian >= 0], t.integral, options);
+sol = optimize([K + t * eye(3) >= 0, t.hessian >= 0], t.integral, options);
 t2 = value(t);
 
 figure
@@ -157,7 +157,7 @@ lighting gouraud
 Bth = BSplineBasis([-3, 3], degree, n_knots);
 Z = BSpline.sdpvar({Bth, Bth, Bth}, [3, 3], 'symmetric');
 obj = trace(Z * K);
-sol = solvesdp([Z >= 0, trace(Z) == 1], obj.integral, options);
+sol = optimize([Z >= 0, trace(Z) == 1], obj.integral, options);
 t3 = -value(obj);
 
 figure

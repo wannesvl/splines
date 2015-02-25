@@ -12,7 +12,7 @@ x = BSpline.sdpvar(Bl, [2, 1]);
 obj = x(1) + 2 * x(2);
 con = [x(1) >= 0, x(2) >= 0, x(2) <= 2, x(1) + l * x(2) <= 2];
 options = sdpsettings('verbose',1);
-sol = solvesdp(con, -obj.integral, options);
+sol = optimize(con, -obj.integral, options);
 
 L_ = linspace(0, L, 101);
 obj = value(obj);
@@ -28,7 +28,7 @@ y = BSpline.sdpvar(Bl, [1, 2]);
 obj = 2 * y(1) + 2 * y(2);
 con = [y >= 0, y(2) >= 1, y(1) + l * y(2) >= 2];
 options = sdpsettings('verbose',1);
-sol = solvesdp(con, obj.integral, options);
+sol = optimize(con, obj.integral, options);
 
 L_ = linspace(0, L, 101);
 y = value(y);
