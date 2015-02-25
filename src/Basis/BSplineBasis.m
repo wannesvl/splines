@@ -1,17 +1,23 @@
 classdef BSplineBasis < PieceWiseBasis
     methods
-        function basis = BSplineBasis(knots, degree)
+        function basis = BSplineBasis(knots, degree, n)
             % Constructor for BSplineBasis, a subclass of PieceWiseBasis
             %
             % Args:
             %    knots (vector, double): the knot sequence of the basis
             %    degree (int): the degree of the basis
+            %    n (int): optional argument for easy equidistant knot choice
             %
             % Returns:
             %    BSplineBasis: an instance of the Basis class
             %
             % Example:
             %    > B = BsplineBasis([0, 0, 0, 0.5, 1, 1, 1], 2)
+            if nargin == 3
+                knots = [knots(1) * ones(1, degree), ...
+                         linspace(knots(1), knots(2), n), ...
+                         knots(2) * ones(1, degree)];
+            end
             basis@PieceWiseBasis(knots, degree)
         end
 
@@ -24,7 +30,7 @@ classdef BSplineBasis < PieceWiseBasis
             % Args:
             %    x (vector, double): The evaluation sites
             %
-            % Returns:            
+            % Returns:
             %    matrix, double: Each column of b contains the evaluated basis
             %        function at the evaluation sites
             x = x(:);
@@ -66,7 +72,7 @@ classdef BSplineBasis < PieceWiseBasis
             P = eye(length(self));
             k = self.knots;
             B = self.cl(self.knots(o + 1:end - o), self.degree - o);
-            for i=0:o-1 
+            for i=0:o-1
                 k = k(2:end-1);
                 delta_k = k(self.degree - i + 1:end) - k(1:end - self.degree + i);
                 T = zeros(length(self) - 1 - i, length(self) - i);
