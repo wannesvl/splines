@@ -6,7 +6,9 @@ classdef Polynomial < Function
                 if ~isa(coeffs, 'Coefficients') && ~isa(coeffs, 'cell')  % Scalar valued polynomial
                     coeffs = num2cell(coeffs);
                 end
-                if isvector(coeffs)
+                if isa(coeffs, 'Coefficients')
+                    basis = arrayfun(@PolynomialBasis, size(coeffs) - 1, 'UniformOutput', false);
+                elseif isvector(coeffs)
                     coeffs = coeffs(:);
                     basis = {PolynomialBasis(length(coeffs) - 1)};
                 else  % And assume coeffs is correctly formatted
