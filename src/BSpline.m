@@ -80,6 +80,10 @@ classdef BSpline < Function
                     error('A coordinate must be supplied')
                 end
             end
+            if self.basis{coord}.degree < ord
+                d = 0;
+                return
+            end
             b = self.basis;
             bi = self.basis{coord};
             [dbi, P] = bi.derivative(ord);
