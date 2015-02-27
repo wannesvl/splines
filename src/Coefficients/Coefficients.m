@@ -249,13 +249,11 @@ classdef Coefficients
         function blktens = spblkdiag(self)
             % Return the entries of self on a sparse block diagonal matrix
             pr = prod(self.siz);
-            i = bsxfun(@plus, repmat(1:self.shape(1), pr * self.shape(2), 1), kron(0:self.shape(2):pr*self.shape(1)-1, ones(1, self.shape(2)))')';
+            i = kron(reshape(1:pr*self.shape(1), self.shape(1), []), ones(1, self.shape(2)));
             j = repmat(1:pr*self.shape(2) , self.shape(1), 1);
-            S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});
-            data = self.subsref(S)';
-            blktens = sparse(j, i, data(:));
-            % TODO: remove transposition!
-            % TODO: YALMIP requires third argument to be a vector
+            S = struct('type', {'()', '.'}, 'subs', {{1:pr}, 'data'});
+            data = self.subsref(S);
+            blktens = sparse(i, j, data(:));
         end
 
         function blktens = vertcat(varargin)
