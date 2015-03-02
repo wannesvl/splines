@@ -151,7 +151,8 @@ classdef Coefficients
                     data = self.spblkdiag() * other.subsref(S);
                     blktens = self.cl(data, [prod(self.siz), 1], [self.shape(1), other.shape(2)]);
                 else
-                    data = self.subsref(S)' * other.spblkdiag()';
+                    S = struct('type', {'()', '.'}, 'subs', {{1:prod(self.siz)}, 'data'});
+                    data = self.subsref(S) * other.spblkdiag();
                     blktens = self.cl(data, [1, prod(self.siz)], [self.shape(1), other.shape(2)]);
                 end
                 I = reshape(1:prod(self.siz), [self.siz(1), prod(self.siz(2:end))]);
