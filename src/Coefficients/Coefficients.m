@@ -75,6 +75,15 @@ classdef Coefficients
 
         function blktens = plus(self, other)
             if isa(self, class(other))
+                if isscalar(self)'
+                    self = repmat({self}, other.shape(1), 1);
+                    self = vertcat(self{:});
+                    self = repmat({self}, other.shape(2), 1);
+                    self = horzcat(self{:});
+                elseif isscalar(other)
+                    blktens = other + self;
+                    return
+                end
                 blktens = self.cl(self.data + other.data, self.siz, self.shape);
             elseif isa(self, mfilename)
                 other = repmat(other, [self.siz(1), prod(self.size(2:end))]);
@@ -117,7 +126,7 @@ classdef Coefficients
                     return
                 end
                 if isscalar(other)
-                    data = repmat(self, 1, prod(other.siz)) * kron(other.spblkdiag(), speye(size(self, 1)));
+                    data = repmat(self, 1, prod(other.siz)) * kron(other.spblkdiag(), speye(size(self, 2)));
                     blktens = other.cl(data, [1, prod(other.siz)], size(self));
                 else
                     data = repmat(self, 1, prod(other.siz)) * other.spblkdiag();
@@ -259,7 +268,6 @@ classdef Coefficients
 
         function blktens = vertcat(varargin)
             % Find out which input is of blktens class
-            % This implementation is faulty for higher dimensions!
             for i = 1:length(varargin)
                 if isa(varargin{i}, mfilename)
                     t = varargin{i};
@@ -282,13 +290,6 @@ classdef Coefficients
             blktens = t.cl(data, [1, prod(t.siz)], [len, t.shape(2)]);
             I = reshape(1:prod(t.siz), t.siz);
             blktens = blktens.subsref(struct('type', {'()'}, 'subs', {{I}}));
-            %blktens.subsref(struct('type', {'()', '.'}, 'subs', {{':'}, 'data'}))
-            %blktens.siz = t.siz
-
-            % blktens = t.cl(zeros(size(data)), t.siz, [len, t.shape(2)]);
-            % S = struct('type', {'()'}, 'subs', {{':'}});
-            % blktens = blktens.subsasgn(S, data);
-            % data
         end
 
         function blktens = horzcat(varargin)
