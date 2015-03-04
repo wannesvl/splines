@@ -193,7 +193,8 @@ classdef Function
                     T = cellfun(@(b, bi) b.transform(bi), b, varargin{i}.basis, 'UniformOutput', false);
                     c{i} = T * varargin{i}.coeffs;
                 else  % Constant function: Simply repeat matrices along dimensions of b
-                    c{i} = Coefficients(repmat({varargin{i}}, size_b));
+                    % varargin{i}
+                    c{i} = Coefficients(repmat(varargin{i}, size_b), size_b, size(varargin{i}));
                 end
             end
 
@@ -231,7 +232,7 @@ classdef Function
                 elseif isempty(varargin{i})
                     break
                 else  % Constant function: Simply repeat matrices along dimensions of b
-                    c{i} = Coefficients(repmat({varargin{i}}, size_b));
+                    c{i} = Coefficients(repmat(varargin{i}, size_b), size_b, size(varargin{i}));
                 end
             end
 

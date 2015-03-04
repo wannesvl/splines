@@ -12,12 +12,15 @@ classdef BSpline < Function
                 T = A \ B;
                 T(abs(T) < 1e-10) = 0;
             end
-            if ~isa(self, mfilename) && isa(self, 'Function')  % make sure self is the BSpline object
-                temp = self;
-                self = other;
-                other = temp;
-            end
-            if isa(other, 'Polynomial')
+            % if ~isa(self, mfilename) && isa(self, 'Function')  % make sure self is the BSpline object
+            %     temp = self;
+            %     self = other;
+            %     other = temp;
+            % end
+            if isa(self, 'Polynomial')
+                domain = cellfun(@(b) [b.knots(1), b.knots(end)], other.basis, 'UniformOutput', false);
+                self = self.to_bspline(domain)
+            elseif isa(other, 'Polynomial')
                 domain = cellfun(@(b) [b.knots(1), b.knots(end)], self.basis, 'UniformOutput', false);
                 other = other.to_bspline(domain);
             end

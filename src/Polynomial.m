@@ -65,7 +65,7 @@ classdef Polynomial < Function
                 T = cellfun(@(b1, b2) transform(b1, b2), self.basis, other.basis, 'UniformOutput', false);
                 s = self.cl(basis, T * coeffs_product);
             elseif isa(other, 'BSpline')
-                s = other * self;
+                s = (other' * self')';
             else       % Assume multiplication with array
                 s = mtimes@Function(self, other);
             end
