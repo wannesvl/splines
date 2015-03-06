@@ -107,7 +107,7 @@ classdef Coefficients
                 blktens = self.cl(self.data .* other.data, self.siz, self.shape);
             elseif isa(self, mfilename)
                 if isscalar(other)  % Speedup for scalar multiplication
-                    blktens = other.cl(self.data * other, self.siz, self.shape);
+                    blktens = self.cl(self.data * other, self.siz, self.shape);
                     return
                 end
                 if isscalar(self)  % Correct size
