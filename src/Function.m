@@ -1,4 +1,4 @@
-classdef Function
+classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
     properties (Constant)
         BLKDIV = 100;
     end
@@ -311,28 +311,32 @@ classdef Function
             %
             % Only works for YALMIP at the moment
             b = [];
-            if isa(self, 'double')
+            if isa(self, 'numeric')
                 b = le(other, self);
                 return
             end
             c = self.coeffs;
-            if ~isvector(c(1))
-                nel = prod(c.siz);
-                b = [];
-                for i = 1:self.BLKDIV:nel
-                    m = min(i+self.BLKDIV-1, nel);
-                    d = c(i:m).spblkdiag();
-                    b = [b, 0.5 * (d + d') >= other];
+            if isa(c.data, 'sdpvar') || isa(c.data, 'numeric')
+                if ~isvector(c(1))
+                    nel = prod(c.siz);
+                    b = [];
+                    for i = 1:self.BLKDIV:nel
+                        m = min(i+self.BLKDIV-1, nel);
+                        d = c(i:m).spblkdiag();
+                        b = [b, 0.5 * (d + d') >= other];
+                    end
+                    b = unblkdiag(b);
+                    % for i=1:prod(c.siz)
+                    %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
+                    % end
+                else
+                    b = [c(:).data >= repmat(other, c.siz)];
+                    % for i=1:prod(c.siz)
+                    %     b = [b, c(i).data >= other];
+                    % end
                 end
-                b = unblkdiag(b);
-                % for i=1:prod(c.siz)
-                %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
-                % end
             else
-                b = [c(:).data >= other];
-                % for i=1:prod(c.siz)
-                %     b = [b, c(i).data >= other];
-                % end
+                b = Constraint(c.data(:), other, inf);
             end
         end
 
@@ -346,23 +350,27 @@ classdef Function
                 return
             end
             c = self.coeffs;
-            if ~isvector(c(1))
-                nel = prod(c.siz);
-                b = [];
-                for i = 1:self.BLKDIV:nel
-                    m = min(i+self.BLKDIV, nel);
-                    d = c(i:m).spblkdiag();
-                    b = [b, 0.5 * (d + d') <= other];
+            if isa(c.data, 'sdpvar') || isa(c.data, 'numeric')
+                if ~isvector(c(1))
+                    nel = prod(c.siz);
+                    b = [];
+                    for i = 1:self.BLKDIV:nel
+                        m = min(i+self.BLKDIV, nel);
+                        d = c(i:m).spblkdiag();
+                        b = [b, 0.5 * (d + d') <= other];
+                    end
+                    b = unblkdiag(b);
+                    % for i=1:prod(c.siz)
+                    %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
+                    % end
+                else
+                    b = [c(:).data <= repmat(other, c.siz)];
+                    % for i=1:prod(c.siz)
+                    %     b = [b, c(i).data <= other];
+                    % end
                 end
-                b = unblkdiag(b);
-                % for i=1:prod(c.siz)
-                %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
-                % end
             else
-                b = [c(:).data <= other];
-                % for i=1:prod(c.siz)
-                %     b = [b, c(i).data <= other];
-                % end
+                b = Constraint(c.data(:), -inf, other);
             end
         end
 
@@ -377,8 +385,12 @@ classdef Function
                 other = temp;
             end
             c = self.coeffs;
-            for i=1:prod(c.siz)
-                b = [b, c(i).data == other];
+            if isa(c.data, 'sdpvar') || isa(c.data, 'numeric')
+                for i=1:prod(c.siz)
+                    b = [b, c(i).data == other];
+                end
+            else
+                b = Constraint(c.data(:), other, other);
             end
         end
 
@@ -428,6 +440,22 @@ classdef Function
                 I = reshape(1:prod(lengths), lengths);
                 coeffs = coeffs(I);
             end
+            s = cl(basis, coeffs);
+        end
+
+        function s = MX(basis, shape, name)
+            if isscalar(basis) && ~isa(basis, 'cell')
+                basis = {basis};
+            end
+            % dim = num2cell(dim);
+            cl = class(basis{1});
+            cl = str2func(cl(1:end-5));  % Determine type of function (Polynomial, BSpline, ...)
+            lengths = cellfun(@length, basis);
+            if isscalar(lengths)
+                lengths = [lengths, 1];
+            end
+            coeffs = casadi.MX.sym(name, shape(1) * lengths(1), shape(2) * prod(lengths(2:end)));
+            coeffs = Coefficients(coeffs, lengths, shape);
             s = cl(basis, coeffs);
         end
     end

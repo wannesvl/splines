@@ -1,4 +1,4 @@
-classdef Polynomial < Function
+classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Polynomial < Function
     methods
         function p = Polynomial(varargin)
             if nargin == 1  % Assume only the coefficients are given

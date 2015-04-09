@@ -1,6 +1,4 @@
-% TODO: replace subsref/subsasgn loops by vectorized versions!
-
-classdef Coefficients
+classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
     properties
         data
         siz
@@ -13,11 +11,14 @@ classdef Coefficients
 
     methods
         function blktens = Coefficients(varargin)
+            % Constructor for Coefficients object
+            %
+            % Args
             if nargin == 3
                 data = varargin{1};
                 blktens.siz = varargin{2};
                 blktens.shape = varargin{3};
-                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), []);
+                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), blktens.siz(2) * blktens.shape(2));
             elseif nargin == 2
                 % infer size from shape
                 data = varargin{1};
@@ -29,10 +30,6 @@ classdef Coefficients
             end
             blktens.cl = str2func(mfilename);
         end
-
-       % function blktens = set.siz(self, value)
-       %     blktens = self.cl(self.data, value, self.shape);
-       % end
 
         function tens = astensor(self)
             tens = reshape(self.data, self.totalsize);
@@ -86,7 +83,9 @@ classdef Coefficients
                 end
                 blktens = self.cl(self.data + other.data, self.siz, self.shape);
             elseif isa(self, mfilename)
-                other = repmat(other, [self.siz(1), prod(self.size(2:end))]);
+                if ~isscalar(other)
+                    other = repmat(other, [self.siz(1), prod(self.size(2:end))]);
+                end
                 blktens = self.cl(self.data + other, self.siz, self.shape);
             else
                 blktens = other + self;
@@ -187,11 +186,15 @@ classdef Coefficients
 
             % Numerical data
             if isnumeric(self.data)
-                blktens = tmprod(self.astensor, U, mode);
-                size_tens = size(blktens);
-                siz = [size_tens(1:2) ./ self.shape, size_tens(3:end)];
-                blktens = self.cl(blktens, siz, self.shape);
-                return
+                if exist('tmprod', 'file')
+                    blktens = tmprod(self.astensor, U, mode);
+                    size_tens = size(blktens);
+                    siz = [size_tens(1:2) ./ self.shape, size_tens(3:end)];
+                    blktens = self.cl(blktens, siz, self.shape);
+                    return
+                else
+                    warning('Splines.m:Coefficients:tmprod', 'For improved performance for large tensor coefficients, please install Tensorlab (www.esat.kuleuven.be/sista/tensorlab/)');
+                end
             end
 
             % Heuristically sort modes
@@ -263,7 +266,14 @@ classdef Coefficients
             j = repmat(1:pr*self.shape(2) , self.shape(1), 1);
             S = struct('type', {'()', '.'}, 'subs', {{1:pr}, 'data'});
             data = self.subsref(S);
-            blktens = sparse(i, j, data(:));
+            if strfind(class(data), 'casadi')
+                idx = sub2ind([i(end), j(end)], i, j);
+                cl = str2func(class(data));
+                blktens = cl(i(end), j(end));
+                blktens(idx) = data(:);
+            else
+                blktens = sparse(i, j, data(:));
+            end
         end
 
         function blktens = vertcat(varargin)
@@ -423,7 +433,18 @@ classdef Coefficients
         end
 
         function c = value(self)
-            c = self.cl(value(self.data), self.size, self.shape);
+            if isa(self.data, 'sdpvar')
+                c = self.cl(value(self.data), self.size, self.shape);
+            else % Not yet entirely correct!
+                caller_vars = struct;
+                caller_vars = evalin('base', 'whos;');
+                solver = caller_vars(strcmp({caller_vars.class}, 'casadi.NlpSolver')).name;
+                solver = evalin('base', solver);
+                temp = 2 * self.data;
+                temp.getDep(0)
+                data = casadi.MX.substitute(self.data, temp.getDep(), full(solver.getOutput('x')));
+                c = self.cl(full(data.getMatrixValue()), self.size, self.shape);
+            end
         end
     end
 

@@ -1,4 +1,4 @@
-classdef BSpline < Function
+classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) BSpline < Function
     methods
         function p = BSpline(basis, coeffs)
             p@Function(basis, coeffs);
