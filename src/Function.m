@@ -330,7 +330,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                     %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
                     % end
                 else
-                    b = [c(:).data >= repmat(other, c.siz)];
+                    b = [c(:).data >= repmat(other, c.totalsize)];
                     % for i=1:prod(c.siz)
                     %     b = [b, c(i).data >= other];
                     % end
@@ -364,7 +364,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                     %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
                     % end
                 else
-                    b = [c(:).data <= repmat(other, c.siz)];
+                    b = [c(:).data <= repmat(other, c.totalsize)];
                     % for i=1:prod(c.siz)
                     %     b = [b, c(i).data <= other];
                     % end
