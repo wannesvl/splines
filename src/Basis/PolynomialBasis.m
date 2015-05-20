@@ -41,10 +41,10 @@ classdef PolynomialBasis < UnivariateBasis
         end
 
         function b = f(self, x)
-            if isa(x,'BSpline')
-                b = [];
+            if isa(x, 'BSpline')
+                b = cell(length(self), 1);
                 for i=1:length(self)
-                    b{1,i} =  x ^ (i - 1);
+                    b{i} =  x ^ (i - 1);
                 end
             else
                 x = x(:);

@@ -141,7 +141,10 @@ classdef PieceWiseBasis < UnivariateBasis
                 uniq = true;
             end
             if uniq
-                knots = sort([self.knots; setdiff(knots(:), self.knots)]);
+                knots = knots(:)';
+                knotsdiff = abs(bsxfun(@minus, knots, self.knots));
+                knots = intersect(knots, unique(knots(~any(knotsdiff <= eps, 1))));
+                knots = sort([self.knots; knots(:)]);
             else
                 knots = sort([self.knots; knots(:)]);
             end
@@ -200,9 +203,13 @@ classdef PieceWiseBasis < UnivariateBasis
             %
             % Returns:
             %    array: the transformation matrix
-            x = self.x_;
+            if length(self) >= length(other)
+                x = self.x_;
+            else
+                x = other.x_;
+            end
             if any(diff(x) == 0)  % Fix bad x
-                x = linspace(x(1), x(end), 1001);
+                x = linspace(x(1), x(end), 10 * length(self));
             end
             T = self.f(x) \ other.f(x);
             if any(isnan(T))

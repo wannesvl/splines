@@ -32,7 +32,8 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function tens = astensor(self)
-            tens = reshape(self.data, self.totalsize);
+            siz = num2cell(self.totalsize);
+            tens = reshape(self.data, siz{:});
         end
 
         function blktens = ascell(self)
@@ -48,7 +49,6 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
                 siz = self.siz(i);
             end
         end
-
 
         function siz = totalsize(self)
             siz = [self.siz(1) * self.shape(1), ...
@@ -351,7 +351,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
             error('not implemented')
         end
 
-        function n = end(self)
+        function n = end(self, k, n)
             n = prod(self.siz)
         end
 

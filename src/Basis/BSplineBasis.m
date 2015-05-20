@@ -35,7 +35,7 @@ classdef BSplineBasis < PieceWiseBasis
             %        function at the evaluation sites
             x = x(:);
             k = self.knots;
-            basis = cell(self.degree + 1, 1);
+            % basis = cell(self.degree + 1, 1);
             % basis{1} = cell2mat(arrayfun(@(i) self.ind(i, x), ...
             %                     (1:length(k) - 1), ...
             %                     'UniformOutput', false));
@@ -43,12 +43,12 @@ classdef BSplineBasis < PieceWiseBasis
             for i=1:length(k) - 1
                 B(:, i) = self.ind(i, x);
             end
-            basis{1} = B;
+            basisd = B;
+            sx = size(x);
             for d=1:self.degree
                 B = zeros(length(x), length(k) - d - 1);
                 for i=1:length(k) - d - 1
-                    basisd = basis{d};
-                    b = 0 * x;
+                    b = zeros(sx);
                     denom = k(i + d) - k(i);
                     if denom ~= 0
                         b = (x - k(i)) .* basisd(:, i) / denom;
@@ -57,12 +57,11 @@ classdef BSplineBasis < PieceWiseBasis
                     if denom ~= 0
                         b = b + (k(i + d + 1) - x) .* basisd(:, i + 1) / denom;
                     end
-                    b(isnan(b)) = 0;
                     B(:, i) = b;
                 end
-                basis{d + 1} = B;
+                basisd = B;
             end
-            b = sparse(basis{self.degree + 1});
+            b = sparse(B);
         end
 
         function [B, P] = derivative(self, o)

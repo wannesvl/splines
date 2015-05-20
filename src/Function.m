@@ -57,12 +57,20 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             warning('OFF', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved')
             if self.dims == 1 && ~isa(x, 'cell') && ~isa(x, 'Function')
                 s = self.basis{1}.f(x) * self.coeffs;
-            elseif isa(self, 'Polynomial') && isa(x, 'Function')
+            elseif isa(self, 'Polynomial') && (isa(x, 'Function') || isa(x{1}, 'Function'))
                 % evaluate scalar-valued polynomial at a function
                 s = 0;
-                basiseval = self.basis{1}.f(x);
-                for i=1:length(self.basis{1})
-                    s = s + basiseval{i} * self.coeffs.coeffs{i};
+                basiseval = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
+                sbs = cell(length(self.coeffs.siz), 1);
+                for i=1:prod(self.coeffs.siz)
+                    if self.coeffs(i).data ~= 0
+                        [sbs{:}] = ind2sub(self.coeffs.siz, i);
+                        p = basiseval{1}{sbs{1}};
+                        for j=2:length(sbs)
+                            p = p * basiseval{j}{sbs{j}};
+                        end
+                        s = s + p * self.coeffs(i).data;
+                    end
                 end
                 return
             else
@@ -330,7 +338,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                     %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
                     % end
                 else
-                    b = [c(:).data >= repmat(other, c.totalsize)];
+                    b = [c(:).data >= repmat(other, prod(c.totalsize) / numel(other), 1)];
                     % for i=1:prod(c.siz)
                     %     b = [b, c(i).data >= other];
                     % end
@@ -364,7 +372,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                     %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
                     % end
                 else
-                    b = [c(:).data <= repmat(other, c.totalsize)];
+                    b = [c(:).data <= repmat(other, prod(c.totalsize) / numel(other), 1)];
                     % for i=1:prod(c.siz)
                     %     b = [b, c(i).data <= other];
                     % end
