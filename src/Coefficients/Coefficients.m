@@ -18,6 +18,27 @@
 % along with splines.  If not, see <http://www.gnu.org/licenses/>.
 
 classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
+
+% An instance of Coefficients represents the B-spline coefficients of a
+% (tensor product) spline.
+% The coefficients are stored in a 2D block matrix as
+%
+% [A B C;
+%  D E F;
+%  G H I]
+%
+% where each of the submatrices has size 'siz' (for matrix valued splines).
+% The shape attribute stores the dimension of the coefficients. This is
+% determined by the size of the (tensor product) bases.
+
+% For use with YALMIP and CasADi it is essential that the coefficients remain
+% a matrix. A simple trick used in many of the methods is to do permutations
+% on an index tensor (consistently named I) and subsequently calling the
+% subsref method, which returns the permuted copy of the Coefficients.
+
+% For non-tensor-product splines the class could be subclassed and overload
+% some of the methods, especially subsref.
+
     properties
         data
         siz
@@ -56,7 +77,6 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function blktens = ascell(self)
-            % Return cell representation of self
             blktens = mat2cell(self.data, self.shape(1) * ones(1, self.siz(1)), self.shape(2) * ones(1, prod(self.siz(2:end))));
             blktens = reshape(blktens, self.siz);
         end
@@ -102,7 +122,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
                 end
                 blktens = self.cl(self.data + other.data, self.siz, self.shape);
             elseif isa(self, mfilename)
-                if ~isscalar(other)
+                if ~isscalar(other)  % Repeat other such that sizes are compatible
                     other = repmat(other, [self.siz(1), prod(self.size(2:end))]);
                 end
                 blktens = self.cl(self.data + other, self.siz, self.shape);
@@ -128,10 +148,12 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
                     blktens = self.cl(self.data * other, self.siz, self.shape);
                     return
                 end
-                if isscalar(self)  % Correct size
+                if isscalar(self)
+                    % repeat self, using kron with eye such that sizes are compatible
                     data = kron(self.spblkdiag(), speye(size(other, 1))) * repmat(other, prod(self.siz), 1);
                     blktens = self.cl(data, [prod(self.siz), 1], size(other));
                 else
+                    % [A B; C D] * M -> [A 0 0 0; 0 B 0 0; 0 0 C 0; 0 0 0 D] * [M;M;M;M] = [A*M; B*M; C*M; D*M]
                     data = self.spblkdiag() * repmat(other, prod(self.siz), 1);
                     blktens = self.cl(data, [prod(self.siz), 1], [self.shape(1), size(other, 2)]);
                 end
@@ -162,23 +184,12 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
             if isa(T, mfilename)
                 % [A B; C D] .* [E F; G H] = [AE BF; CG DH]
                 self = T;
-                % This is not correct!
-                % blktens = self.cl(zeros(size(self.data)), self.siz, self.shape);
-                % [m, n] = size(self.data);
-                % blktens = self.cl(sdpvar(m,n), self.siz, self.shape);
-                % blktens = other;
-                % for i = 1:prod(self.siz)
-                %     S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
-                %     blktens = blktens.subsasgn(S(1), self.subsref(S) * other.subsref(S));
-                % end
-                % return
-                S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});
-                % other = other';  % Is this necessary?
+                S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});  % [A B; C D] -> [A;C;B;D]
                 if isnumeric(self.data)
                     data = self.spblkdiag() * other.subsref(S);
                     blktens = self.cl(data, [prod(self.siz), 1], [self.shape(1), other.shape(2)]);
                 else
-                    S = struct('type', {'()', '.'}, 'subs', {{1:prod(self.siz)}, 'data'});
+                    S = struct('type', {'()', '.'}, 'subs', {{1:prod(self.siz)}, 'data'});  % [A B; C D] -> [A C B D]
                     data = self.subsref(S) * other.spblkdiag();
                     blktens = self.cl(data, [1, prod(self.siz)], [self.shape(1), other.shape(2)]);
                 end
@@ -194,9 +205,11 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function blktens = tmprod(self, U, mode)
-            % Inspired by tmprod in Tensorlab.other.subsref(S)
+            % Inspired by tmprod in Tensorlab. For documentation refer to Tensorlab
             %
             % This code still suffers from some issues!
+
+            % Note the trick that is used here to permute the matrix by using an index tensor I
 
             % kron matrices with I to account for block shape
             for i=1:min(length(U), 2)
