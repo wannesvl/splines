@@ -37,7 +37,9 @@ classdef PieceWiseBasis < UnivariateBasis
             basis@UnivariateBasis(degree);
             validateattributes(knots, {'numeric'}, {'nondecreasing'})
             basis.knots = knots(:);
-            basis.x_ = linspace(basis.knots(1), basis.knots(end), 10 * length(basis));
+            basis.x_ = linspace(basis.knots(1), basis.knots(end), 1000);
+            basis.fx_ = basis.f(basis.x_);
+            % basis.x_ = linspace(basis.knots(1), basis.knots(end), 10 * length(basis));
         end
 
         function l = length(self)
@@ -222,15 +224,29 @@ classdef PieceWiseBasis < UnivariateBasis
             %
             % Returns:
             %    array: the transformation matrix
-            if length(self) >= length(other)
-                x = self.x_;
+            % if length(self) >= length(other)
+            %     x = self.x_;
+            % else
+            %     x = other.x_;
+            % end
+            % if any(diff(x) == 0)  % Fix bad x
+            %     x = linspace(x(1), x(end), 10 * length(self));
+            % end
+
+            if all(self.x_ == other.x_)
+                T = self.fx_ \ other.fx_;
             else
-                x = other.x_;
+                if length(self) >= length(other)
+                    x = self.x_;
+                else
+                    x = other.x_;
+                end
+                if any(diff(x) == 0)  % Fix bad x
+                    x = linspace(x(1), x(end), 10 * length(self));
+                end
+                T = self.f(x) \ other.f(x);
             end
-            if any(diff(x) == 0)  % Fix bad x
-                x = linspace(x(1), x(end), 10 * length(self));
-            end
-            T = self.f(x) \ other.f(x);
+
             if any(isnan(T))
                 error('Transformation matrix cannot be determined')
             end

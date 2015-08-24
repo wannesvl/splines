@@ -75,7 +75,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             % Evaluate a Function at x
             warning('OFF', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved')
             if self.dims == 1 && ~isa(x, 'cell') && ~isa(x, 'Function')
-                s = self.basis{1}.f(x) * self.coeffs;
+                s = self.basis{1}.f(x) * self.coeffs(:);
             elseif isa(self, 'Polynomial') && (isa(x, 'Function') || isa(x{1}, 'Function'))
                 % evaluate scalar-valued polynomial at a function
                 s = 0;

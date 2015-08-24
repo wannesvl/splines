@@ -24,7 +24,8 @@ classdef PolynomialBasis < UnivariateBasis
     methods
         function p = PolynomialBasis(degree)
             p@UnivariateBasis(degree);
-            p.x_ = linspace(0, 1, degree + 1);
+            p.fx_ = p.f(linspace(0, 1, 1000));
+            % p.x_ = linspace(0, 1, degree + 1);
         end
 
         function l = length(self)

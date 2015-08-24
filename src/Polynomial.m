@@ -95,11 +95,15 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Polynomial < Function
             % rectangular domain
             %
             % TODO: Add polygonal domains
+            function T = transform(A, B)
+                T = A \ B;
+                T(abs(T) < 1e-10) = 0;
+            end
             convert = @(b, d) BSplineBasis([d(1) * ones(1, b.degree + 1), ...
                                             d(end) * ones(1, b.degree + 1)], ...
                                             b.degree);
             basis = cellfun(convert, self.basis, domain, 'UniformOutput', false);
-            T = cellfun(@(b1, b2) b1.transform(b2), basis, self.basis, 'UniformOutput', false);
+            T = cellfun(@(b1, b2) transform(b1.fx_, b2.f(b1.x_)), basis, self.basis, 'UniformOutput', false);
             s = BSpline(basis, T * self.coeffs);
         end
     end

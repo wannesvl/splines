@@ -53,7 +53,8 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) BSpline < Function
                 b_self = cellfun(@(b, x) b.f(x), self.basis, x, 'UniformOutput', false);
                 b_other = cellfun(@(b, x) b.f(x), other.basis, x, 'UniformOutput', false);
                 basis_product = cellfun(@(b1, b2, is, io) b1(:, is) .* b2(:, io), b_self, b_other, i_self, i_other, 'UniformOutput', false);
-                T = cellfun(@(b, bi) transform(b, bi), b, basis_product, 'UniformOutput', false);
+                % basis_product = cellfun(@(b1, b2, is, io) b1.fx_(:, is) .* b2.fx_(:, io), self.basis, other.basis, i_self, i_other, 'UniformOutput', false);
+                T = cellfun(@(b, bi) transform(b.fx_, bi), basis, basis_product, 'UniformOutput', false);
                 s = self.cl(basis, T * coeffs_product);
             else
                 s = mtimes@Function(self, other);
@@ -89,7 +90,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) BSpline < Function
 
         function i = integral(self)
             T = cellfun(@(b) [b.integral; zeros(1, length(b))], self.basis, 'UniformOutput', false);
-            i = T * self.coeffs;
+            i = T * self.coeffs(:);
             i = i(1).data;
         end
 
