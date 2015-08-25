@@ -7,7 +7,7 @@ Simply place the `src` folder in your MATLAB path
 ### Dependencies
 For optimizing splines [YALMIP](http://users.isy.liu.se/johanl/yalmip/) is
 required. For the more adventurous, there is basic support for
-[CasADi](www.casadi.org), which is much more suited for nonconvex optimization
+[CasADi](http://www.casadi.org), which is much more suited for nonconvex optimization
 problems.
 
 ## Basic usage
@@ -65,7 +65,7 @@ A (tensor product) spline is defined by a basis for each dimension and a
 coefficient tensor. Furthermore a B-spline can be scalar valued or matrix
 valued. A spline is created using
 
-   >> S = BSpline(bases, coeffs);
+    >> S = BSpline(bases, coeffs);
 
 where bases is a 1 x n cell-array of `BSplineBasis` instances and coeffs is
 either an instance of `Coefficients` or a cell array of coefficients of m_1 x
