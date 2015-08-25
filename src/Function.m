@@ -50,7 +50,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             if isa(coeffs, 'Coefficients')
                 s.coeffs = coeffs;
             else
-                if (lengths == numel(coeffs) || all(size(coeffs) == lengths)) && ~isa(coeffs, 'cell') % Scalar coefficients
+                if (all(lengths == numel(coeffs)) || all(size(coeffs) == lengths)) && ~isa(coeffs, 'cell') % Scalar coefficients
                     if isvector(coeffs)
                         coeffs = coeffs(:);
                     end

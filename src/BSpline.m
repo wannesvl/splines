@@ -90,7 +90,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) BSpline < Function
 
         function i = integral(self)
             T = cellfun(@(b) [b.integral; zeros(1, length(b))], self.basis, 'UniformOutput', false);
-            i = T * self.coeffs(:);
+            i = T * self.coeffs;
             i = i(1).data;
         end
 
