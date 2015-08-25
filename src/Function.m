@@ -289,6 +289,13 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                 if any(strcmp(s(1).subs, properties(self))) || ...
                    any(strcmp(s(1).subs, methods(self)))
                     [varargout{1:nargout}] = builtin('subsref', self, s);
+                elseif any(strcmp(s(1).subs, properties(self.basis{1})))
+                    if self.dims > 1
+                        [varargout{1:nargout}] = cellfun(@(b) builtin('subsref', b, s), self.basis, ...
+                                                     'UniformOutput', false);
+                    else
+                        [varargout{1:nargout}] = builtin('subsref', self.basis{1}, s);
+                    end
                 else
                     error(['''%s'' is not a public property or method ' ...
                         'of the Coefficients class.'], s(1).subs);
