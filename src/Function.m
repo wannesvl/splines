@@ -357,7 +357,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                     %     b = [b, 0.5 * (c(i).data + c(i).data') >= other];
                     % end
                 else
-                    b = [c(:).data >= repmat(other, prod(c.totalsize) / numel(other), 1)];
+                    b = [c(:).data(:) >= repmat(other, prod(c.totalsize) / numel(other), 1)];
                     % for i=1:prod(c.siz)
                     %     b = [b, c(i).data >= other];
                     % end
@@ -371,34 +371,36 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             % Overload comparisons to allow more intuitive constraints
             %
             % Only works for YALMIP at the moment
-            b = [];
-            if isa(self, 'double')
-                b = ge(other, self);
-                return
-            end
-            c = self.coeffs;
-            if isa(c.data, 'sdpvar') || isa(c.data, 'numeric')
-                if ~isvector(c(1))
-                    nel = prod(c.siz);
-                    b = [];
-                    for i = 1:self.BLKDIV:nel
-                        m = min(i+self.BLKDIV, nel);
-                        d = c(i:m).spblkdiag();
-                        b = [b, 0.5 * (d + d') <= other];
-                    end
-                    b = unblkdiag(b);
-                    % for i=1:prod(c.siz)
-                    %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
-                    % end
-                else
-                    b = [c(:).data <= repmat(other, prod(c.totalsize) / numel(other), 1)];
-                    % for i=1:prod(c.siz)
-                    %     b = [b, c(i).data <= other];
-                    % end
-                end
-            else
-                b = Constraint(c.data(:), -inf, other);
-            end
+            b = ge(-self, -other);
+
+            % b = [];
+            % if isa(self, 'double')
+            %     b = ge(other, self);
+            %     return
+            % end
+            % c = self.coeffs;
+            % if isa(c.data, 'sdpvar') || isa(c.data, 'numeric')
+            %     if ~isvector(c(1))
+            %         nel = prod(c.siz);
+            %         b = [];
+            %         for i = 1:self.BLKDIV:nel
+            %             m = min(i+self.BLKDIV, nel);
+            %             d = c(i:m).spblkdiag();
+            %             b = [b, 0.5 * (d + d') <= other];
+            %         end
+            %         b = unblkdiag(b);
+            %         % for i=1:prod(c.siz)
+            %         %     b = [b, 0.5 * (c(i).data + c(i).data') <= other];
+            %         % end
+            %     else
+            %         b = [c(:).data(:) <= repmat(other, prod(c.totalsize) / numel(other), 1)];
+            %         % for i=1:prod(c.siz)
+            %         %     b = [b, c(i).data <= other];
+            %         % end
+            %     end
+            % else
+            %     b = Constraint(c.data(:), -inf, other);
+            % end
         end
 
         function b = eq(self, other)
