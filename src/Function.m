@@ -98,7 +98,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             if self.coeffs.isscalar %&& ~isa(s,'BSpline') % If scalar coefficients, convert to regular matrix
                 s = s.astensor;
             else  % Return cell array
-                s = s.coeffs;
+                s = s.ascell;
             end
         end
 
