@@ -50,10 +50,10 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             if isa(coeffs, 'Coefficients')
                 s.coeffs = coeffs;
             else
-                if all(size(coeffs) == lengths) && ~isa(coeffs, 'cell') % Scalar coefficients
-                    % sp = arrayfun(@(i) ones(size(coeffs, i), 1), 1:length(basis), 'UniformOutput', false);
-                    % coeffs = mat2cell(coeffs, sp{:});
-                    % coeffs = num2cell(coeffs);
+                if (lengths == numel(coeffs) || all(size(coeffs) == lengths)) && ~isa(coeffs, 'cell') % Scalar coefficients
+                    if isvector(coeffs)
+                        coeffs = coeffs(:);
+                    end
                     siz = size(coeffs);
                     shape = [1,1];
                     data = coeffs;
