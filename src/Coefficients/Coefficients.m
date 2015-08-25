@@ -399,40 +399,39 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
             n = prod(self.siz)
         end
 
+        function blktens = reshape(self, dims)
+
+        end
+
         function varargout = subsref(self, S)
-            % Overloaded subsref: This code requires thorough testing!!!
+            % Overloaded subsref
             switch S(1).type
                 case '()'
                     if length(S(1).subs) == 1  % Linear indexing
+                        % Think this case is ok
                         if strcmp(S(1).subs{1}, ':')
                             S(1).subs{1} = (1:prod(self.siz))';
                         end
-                        ssubs = size(S(1).subs{1})
+                        ssubs = size(S(1).subs{1});
                         S(1).subs{1} = reshape(S(1).subs{1}, ssubs(1), prod(ssubs(2:end)));
                         [i, j] = ind2sub([self.siz(1), prod(self.siz(2:end))], S(1).subs{1});  % Get matrix subs
                         si = size(i); sj = size(j);
                         I = repmat((1:self.shape(1))', [si(1), si(2) * self.shape(2)]);
                         J = repmat(1:self.shape(2), [sj(1) * self.shape(1), sj(2)]);
-                        i = kron(i, ones(self.shape)); % Correct subs to account for the shape of the coefficients
+                        i = kron(i, ones(self.shape)); % Repeat subs according to shape
                         j = kron(j, ones(self.shape));
                         idx = sub2ind(size(self.data), (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
                         % siz = size(S(1).subs{1});
                         y = self.cl(self.data(idx), ssubs, self.shape);
-                    else % Convert indices to linear indices?
+                    else % Convert indices to linear indices
+                        % Is this correct?
                         if length(S(1).subs) == length(self.size)
                             size_tens = self.totalsize;
                             I = reshape(1:prod(self.size), self.size);
                             I = I(S(1).subs{:});
-                            I = reshape(I, size(S(1).subs{1}, 1), []);  % Conversion to linear indices
 
-                            siz = cellfun(@length, S(1).subs);  % Store size for correction
                             S(1).subs = {I};
-                            [varargout{1:nargout}] = subsref(self, S);
-
-                            % Correct size of output
-                            out = varargout{1};
-                            varargout{1} = self.cl(out.data, siz, out.shape);
-                            % varargout{1}.siz = siz;
+                            [varargout{1:nargout}] = subsref(self, S);  % Call linear indexing
                         end
                         return
                     end
