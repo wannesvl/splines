@@ -14,8 +14,7 @@ problems.
 The code below shows a basic example how a parametric optimization problem can
 be solved approximately with Splines.
 
-```
-#!matlab
+```#!matlab
 d = 3;   % degree
 L = 4;   % Range [0, L]
 n = 21;  % Number of knots
