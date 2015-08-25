@@ -37,12 +37,14 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
 % subsref method, which returns the permuted copy of the Coefficients.
 
 % For non-tensor-product splines the class could be subclassed and overload
-% some of the methods, especially subsref.
+% some of the methods, especially subsref. Idea: Perhaps it is better to store
+% all coefficients in a vector. This way non-tensor-product spline
+% coefficients are easily implemented.
 
     properties
-        data
-        siz
-        shape
+        data  % The values of the coefficients stored in a matrix
+        siz   % The dimensions of the coefficient tensor, corresponding to the length of the bases
+        shape % The shape of each of the coefficients ([1 1] for scalar valued coefficients)
     end
 
     properties (Access=protected)
@@ -53,12 +55,18 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         function blktens = Coefficients(varargin)
             % Constructor for Coefficients object
             %
-            % Args
+            % Args:
+            %   * data: The values of the coefficients
+            %   * siz: The dimensions of the coefficients tensor
+            %   * shape: The shape of each of the coefficients
+            %
+            % Returns:
+            %   An instance of the Coefficient class
             if nargin == 3
                 data = varargin{1};
                 blktens.siz = varargin{2};
                 blktens.shape = varargin{3};
-                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), blktens.siz(2) * blktens.shape(2));
+                blktens.data = reshape(data, blktens.siz(1) * blktens.shape(1), prod(blktens.siz(2:end)) * blktens.shape(2));
             elseif nargin == 2
                 % infer size from shape
                 data = varargin{1};
@@ -72,11 +80,13 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function tens = astensor(self)
+            % Returns a tensor representation of the data corresponding to siz
             siz = num2cell(self.totalsize);
             tens = reshape(self.data, siz{:});
         end
 
         function blktens = ascell(self)
+            % Returns a tensor representation of the data in a cell array
             blktens = mat2cell(self.data, self.shape(1) * ones(1, self.siz(1)), self.shape(2) * ones(1, prod(self.siz(2:end))));
             blktens = reshape(blktens, self.siz);
         end
@@ -102,12 +112,6 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         function bool = isvector(self)
             bool = self.shape(2) == 1 || self.shape(1) == 1;
         end
-
-        % function blktens = reshape(self, siz)
-        %     % Reshape the tensor according to size parameter
-        %     I = reshape(1:prod(self.siz), siz)
-        %     blktens = blktens.subsref(struct('type', {'()'}, 'subs', {{I}}));
-        % end
 
         function blktens = plus(self, other)
             if isa(self, class(other))
@@ -180,12 +184,23 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
 
         function blktens = mtimes(T, other)
             % Full mode tensor matrix product
-            % Code requires thorough checks!!!!
+            %
+            % Args:
+            %   * T: T is either a cell array of transformation matrices or an
+            %     instance of Coefficients
+            %
+            % Returns:
+            %   An instance of Coefficients:
+            %     * If T is of type Coefficients [A B; C D] .* [E F; G H] =
+            %       [AE BF; CG DH]
+            %     * When T is a cell array of transformation matrices the
+            %       n-mode tensor matrix product is performed, yielding the
+            %       transformed coefficients
             if isa(T, mfilename)
                 % [A B; C D] .* [E F; G H] = [AE BF; CG DH]
                 self = T;
                 S = struct('type', {'()', '.'}, 'subs', {{':'}, 'data'});  % [A B; C D] -> [A;C;B;D]
-                if isnumeric(self.data)
+                if isnumeric(self.data)  % Speedup if data is numeric
                     data = self.spblkdiag() * other.subsref(S);
                     blktens = self.cl(data, [prod(self.siz), 1], [self.shape(1), other.shape(2)]);
                 else
@@ -198,6 +213,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
                 blktens.siz = self.siz;
                 return
             end
+            % If T is a cell array
             if ~iscell(T)
                 T = {T};
             end
@@ -205,11 +221,11 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function blktens = tmprod(self, U, mode)
+            % The tensor matrix product of self with U along the modes in mode.
+            %
             % Inspired by tmprod in Tensorlab. For documentation refer to Tensorlab
             %
-            % This code still suffers from some issues!
-
-            % Note the trick that is used here to permute the matrix by using an index tensor I
+            % This code still requires proper testing!
 
             % kron matrices with I to account for block shape
             for i=1:min(length(U), 2)
@@ -236,6 +252,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
             U = U(idx);
 
             % Prepermute tensor
+            % Note the trick that is used here to permute the matrix by using an index tensor I
             n = length(mode);
             N = length(self.siz);
             modec = setxor(mode, 1:N);
@@ -293,12 +310,14 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
 
         function blktens = spblkdiag(self)
             % Return the entries of self on a sparse block diagonal matrix
+            %
+            % [A B; C D] -> [A 0 0 0; 0 C 0 0; 0 0 B 0; 0 0 0 D]
             pr = prod(self.siz);
             i = kron(reshape(1:pr*self.shape(1), self.shape(1), []), ones(1, self.shape(2)));
             j = repmat(1:pr*self.shape(2) , self.shape(1), 1);
             S = struct('type', {'()', '.'}, 'subs', {{1:pr}, 'data'});
             data = self.subsref(S);
-            if strfind(class(data), 'casadi')
+            if strfind(class(data), 'casadi') % CasADi specific code. Should be avoided!
                 idx = sub2ind([i(end), j(end)], i, j);
                 cl = str2func(class(data));
                 blktens = cl(i(end), j(end));
@@ -369,13 +388,6 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
             blktens = self.cl(data', [1, prod(self.siz)], fliplr(self.shape));
             I = reshape(1:prod(self.siz), self.siz);
             blktens = blktens.subsref(struct('type', {'()'}, 'subs', {{I}}));
-            % Needs vectorization!
-            % blktens = self;
-            % blktens.shape = [self.shape(2), self.shape(1)];
-            % for i = 1:prod(self.siz)
-            %     S = struct('type', {'()', '.'}, 'subs', {{i}, 'data'});
-            %     blktens = blktens.subsasgn(S(1), self.subsref(S)');
-            % end
         end
 
         function blktens = transpose(self)
@@ -388,20 +400,20 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         end
 
         function varargout = subsref(self, S)
-            % There are some serious issues here!!!!!
+            % Overloaded subsref: This code requires thorough testing!!!
             switch S(1).type
                 case '()'
                     if length(S(1).subs) == 1  % Linear indexing
                         if strcmp(S(1).subs{1}, ':')
                             S(1).subs{1} = (1:prod(self.siz))';
                         end
-                        ssubs = size(S(1).subs{1});
+                        ssubs = size(S(1).subs{1})
                         S(1).subs{1} = reshape(S(1).subs{1}, ssubs(1), prod(ssubs(2:end)));
-                        [i, j] = ind2sub([self.siz(1), prod(self.siz(2:end))], S(1).subs{1});
+                        [i, j] = ind2sub([self.siz(1), prod(self.siz(2:end))], S(1).subs{1});  % Get matrix subs
                         si = size(i); sj = size(j);
                         I = repmat((1:self.shape(1))', [si(1), si(2) * self.shape(2)]);
                         J = repmat(1:self.shape(2), [sj(1) * self.shape(1), sj(2)]);
-                        i = kron(i, ones(self.shape));
+                        i = kron(i, ones(self.shape)); % Correct subs to account for the shape of the coefficients
                         j = kron(j, ones(self.shape));
                         idx = sub2ind(size(self.data), (i - 1) * self.shape(1) + I, (j - 1) * self.shape(2) + J);
                         % siz = size(S(1).subs{1});
@@ -411,10 +423,9 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
                             size_tens = self.totalsize;
                             I = reshape(1:prod(self.size), self.size);
                             I = I(S(1).subs{:});
-                            I = reshape(I, size(S(1).subs{1}, 1), []);
+                            I = reshape(I, size(S(1).subs{1}, 1), []);  % Conversion to linear indices
 
-                            %idx = sub2ind(self.siz, S(1).subs{:})
-                            siz = cellfun(@length, S(1).subs);
+                            siz = cellfun(@length, S(1).subs);  % Store size for correction
                             S(1).subs = {I};
                             [varargout{1:nargout}] = subsref(self, S);
 
@@ -467,7 +478,8 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Coefficients
         function c = value(self)
             if isa(self.data, 'sdpvar')
                 c = self.cl(value(self.data), self.size, self.shape);
-            else % Not yet entirely correct!
+            else % CasADi specific code: Not yet operational
+                error('Not implemented for CasADi variables')
                 caller_vars = struct;
                 caller_vars = evalin('base', 'whos;');
                 solver = caller_vars(strcmp({caller_vars.class}, 'casadi.NlpSolver')).name;
