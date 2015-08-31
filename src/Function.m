@@ -102,6 +102,15 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
             end
         end
 
+        % function plot(self)
+        %     % Show a plot of the spline and its control net
+        %     if self.dims == 1
+        %         figure
+        %         for i=1:prod(self.coeffs.shape)
+        %             subplot([self.coeffs.shape, i])
+        %         plot()
+        % end
+
         function s = f_partial(self, x, idx)
             % Partial evaluation of coordinate idx of f
             %
@@ -306,7 +315,15 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
                 prodshape = prod(self.coeffs.shape);
                 c = self.coeffs(1:prodsiz).data;
                 if length(s(1).subs) == 2
-                    idx = sub2ind(self.coeffs.shape, s(1).subs{:});
+                    subs = s(1).subs;
+                    for i=1:2
+                        if strcmp(s(1).subs{i}, ':')
+                            j = setdiff([1, 2], i);
+                            subs{i} = 1:self.coeffs.shape(i);
+                            subs{j} = repmat(subs{j}, 1, self.coeffs.shape(i));
+                        end
+                    end
+                    idx = sub2ind(self.coeffs.shape, subs{:});
                 else
                     idx = s(1).subs{1};
                 end
@@ -337,7 +354,7 @@ classdef (InferiorClasses = {?casadi.MX,?casadi.SX}) Function
 
         function last = end(self, idx, n)
             % Overload end
-            last = length(self.coeffs.shape(idx));
+            last = self.coeffs.shape(idx);
         end
 
         function b = ge(self, other)
